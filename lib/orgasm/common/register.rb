@@ -25,6 +25,8 @@ class Register
   def initialize (name, size)
     @name = name.to_sym
     @size = size.to_i
+
+    yield self if block_given?
   end
 end
 

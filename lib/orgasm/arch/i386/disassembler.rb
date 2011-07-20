@@ -37,8 +37,10 @@ Disassembler.for('i386') {
     end
 
     on ?\x01 do
-      Instruction.new(:add).tap {
-        seek +2
+      Instruction.new(:add) {
+        seek +1
+
+        seek +1
       }
     end
   end

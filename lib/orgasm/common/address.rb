@@ -22,6 +22,8 @@ module Orgasm
 class Address
   def initialize (value)
     @value = value.to_i
+
+    yield self if block_given?
   end
 
   def to_i

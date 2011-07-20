@@ -26,9 +26,11 @@ class Offset
     @start = start
     @value = value.to_i
 
-    unless @start.is_a?(Address) || @start.is_a?(Register)
-      raise ArgumentError, 'The starting point has to be an Address or Register object'
+    unless @start.is_a?(Address) || @start.is_a?(Register) || @start.is_a?(Constant)
+      raise ArgumentError, 'The starting point has to be an Address, Register or Constant object'
     end
+
+    yield self if block_given?
   end
 
   def to_i

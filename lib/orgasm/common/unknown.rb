@@ -22,6 +22,8 @@ module Orgasm
 class Unknown
   def initialize (size)
     @size = size.to_i
+
+    yield self if block_given?
   end
 
   def to_i

@@ -25,6 +25,8 @@ class Constant
   def initialize (value, size)
     @value = value.to_i
     @size  = size
+
+    yield self if block_given?
   end
 
   def to_i
