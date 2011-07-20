@@ -17,10 +17,12 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'orgasm/arch/i386/instructions'
+
 module Orgasm
 
 Disassembler.for('i386') {
-  reg = registers = Class.new(Hash) {
+  reg = Class.new(Hash) {
     def initialize
       merge!(
         32 => Hash[%w(EAX ECX EDX EBX ESP EBP ESI EDI).to_syms.each_with_index.to_a],
@@ -38,6 +40,14 @@ Disassembler.for('i386') {
     end; alias dest destination
   }.new
 
+  on ?\x37 do
+    seek +1
+
+    Instruction.new(:aaa)
+  end
+}
+
+=begin
   on ?\x01, ?\x09, ?\x11, ?\x19, ?\x21, ?\x25, ?\x29, ?\x31, ?\x39, ?\x85, ?\x87, ?\x86, ?\x89, ?\xA1, ?\xA3 do |whole, which|
     increment = 1
 
@@ -69,13 +79,8 @@ Disassembler.for('i386') {
           seek +1
 
           read 1 do |data|
-            i.parameters << Register.new(reg.source(data.to_byte), 8)
-
-            if lookahead(1) && (0 .. 1) == (lookahead(1).to_byte & 0x07)
-              i.parameters << Register.new(reg.destination(data.to_byte), 32)
-            else
-              i.parameters << Register.new(reg.destination(data.to_byte, 8), 8)
-            end
+            i.parameters << Register.new(reg.source(data.to_byte, 8), 8)
+            i.parameters << Register.new(reg.destination(data.to_byte, 8), 8)
           end
 
           seek increment
@@ -104,3 +109,4 @@ Disassembler.for('i386') {
 }
 
 end
+=end

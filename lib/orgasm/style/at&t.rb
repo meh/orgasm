@@ -33,9 +33,9 @@ Style.define 'AT&T' do |style|
   end
 
   style.for Instruction do
-    sizes = { b: 8, w: 16, l: 32 }
-
-    "#{name.to_s.downcase}#{sizes.key parameters.first.size} #{parameters.join(', ')}"
+    "#{name.to_s.downcase}#{
+      { b: 8, w: 16, l: 32 }.key(parameters.first.size rescue parameters.last.size rescue nil)
+    } #{parameters.join(', ')}"
   end
 
   style.for Unknown do

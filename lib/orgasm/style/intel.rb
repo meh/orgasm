@@ -33,11 +33,12 @@ Style.define 'Intel' do |style|
   end
 
   style.for Instruction do
-    if parameters.length == 1
-      "#{name.to_s.downcase} #{parameters.first}"
-    else
-      "#{name.to_s.downcase} #{parameters.last}, #{parameters.first}"
-    end
+    "#{name.to_s.downcase}#{
+      case parameters.length
+        when 1 then " #{parameters.first}"
+        when 2 then " #{parameters.last}, #{parameters.first}"
+      end
+    }"
   end
 
   style.for Unknown do

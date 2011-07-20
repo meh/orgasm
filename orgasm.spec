@@ -10,5 +10,5 @@ Gem::Specification.new {|s|
   s.summary      = 'A Ruby (dis)?assembler library.'
   s.files        = Dir.glob('lib/**/*.rb')
   s.require_path = 'lib'
-  s.executables  = ['disorgasm']
+  s.executables  = ['swallow', 'ejaculate']
 }
