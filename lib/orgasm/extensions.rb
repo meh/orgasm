@@ -17,6 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'forwardable'
+
 class String
   alias to_byte ord
 end

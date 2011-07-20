@@ -22,6 +22,37 @@ require 'orgasm/arch/instructions'
 module Orgasm
 
 Instructions.for('i386') { Class.new {
+  class Special
+    class Or
+      attr_reader :first, :second
+
+      def initialize (first, second)
+        @first  = first
+        @second = second
+      end
+
+      def to_s
+        "#{first}|#{second}"
+      end
+    end
+
+    def initialize (value)
+      @value = value
+    end
+
+    def | (value)
+      Or.new(self, value)
+    end
+
+    def to_sym
+      @value
+    end
+
+    def to_s
+      @value.to_s
+    end
+  end
+
   def initialize (&block)
     @instructions = Hash.new {|hash, key| hash[key] = []}
 
@@ -111,12 +142,32 @@ Instructions.for('i386') { Class.new {
           # EBP ESI and EDI. The contents of memory are found at the address provided by the effective
           # address computation
 
+   :mm,  # an MMX™ technology register
+   :mm0,
+   :mm1,
+   :mm2,
+   :mm3,
+   :mm4,
+   :mm5,
+   :mm7,
+
+   :xmm,  # a SIMD floating-point register.
+   :xmm0,
+   :xmm1,
+   :xmm2,
+   :xmm3,
+   :xmm4,
+   :xmm5,
+   :xmm7,
+
    :al,  :cl,  :dl,  :bl,  :ah,  :ch,  :dh,  :bh,
    :ax,  :cx,  :dx,  :bx,  :sp,  :bp,  :si,  :di,
    :eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi
   ].each {|name|
+    value = Special.new(name)
+
     define_method name do
-      name
+      value
     end
   }
 
@@ -129,49 +180,73 @@ Instructions.for('i386') { Class.new {
   end
 }.new {
   # ASCII Adjust After Addition
-  aaa [0x37]
+  AAA [0x37]
 
   # ASCII Adjust AX Before Division
-  aad [0xD5, 0x0A],
+  AAD [0xD5, 0x0A],
       [imm8] => [0xD5, ib]
 
   # ASCII Adjust AX After Multiply
-  aam [0xD4, 0x0A],
+  AAM [0xD4, 0x0A],
       [imm8] => [0xD4, ib]
 
   # ASCII Adjust AL After Substraction
-  aas [0x3F]
+  AAS [0x3F]
 
   # Add with Carry
-  adc [al, imm8]    => [0x14, ib],
-      [ax, imm16]   => [0x15, iw],
-      [eax, imm32]  => [0x15, id],
-      [rm8, imm8]   => [0x80, 2.freeze, ib],
-      [rm16, imm16] => [0x81, 2.freeze, iw],
-      [rm32, imm32] => [0x81, 2.freeze, id],
-      [rm16, imm8]  => [0x83, 2.freeze, ib],
-      [rm32, imm8]  => [0x83, 2.freeze, ib],
-      [rm8, r8]     => [0x10, r],
-      [rm16, r16]   => [0x11, r],
-      [rm32, r32]   => [0x11, r],
-      [r8, rm8]     => [0x12, r],
-      [r16, rm16]   => [0x13, r],
-      [r32, rm32]   => [0x13, r]
+  ADC [al,      imm8]    => [0x14, ib],
+      [ax,      imm16]   => [0x15, iw],
+      [eax,     imm32]   => [0x15, id],
+      [r8|m8,   imm8]    => [0x80, 2.freeze, ib],
+      [r16|m16, imm16]   => [0x81, 2.freeze, iw],
+      [r32|m32, imm32]   => [0x81, 2.freeze, id],
+      [r16|m16, imm8]    => [0x83, 2.freeze, ib],
+      [r32|m32, imm8]    => [0x83, 2.freeze, ib],
+      [r8|m8,   r8]      => [0x10, r],
+      [r16|m16, r16]     => [0x11, r],
+      [r32|m32, r32]     => [0x11, r],
+      [r8,      r8|m8]   => [0x12, r],
+      [r16,     r16|m16] => [0x13, r],
+      [r32,     r32|m32] => [0x13, r]
 
-  add [al, imm8]    => [0x04, ib],
-      [ax, imm16]   => [0x05, iw],
-      [eax, imm32]  => [0x05, id],
-      [rm8, imm8]   => [0x80, 0.freeze, ib],
-      [rm16, imm16] => [0x81, 0.freeze, iw],
-      [rm32, imm32] => [0x81, 0.freeze, id],
-      [rm16, imm8]  => [0x83, 0.freeze, ib],
-      [rm32, imm8]  => [0x83, 0.freeze, ib],
-      [rm8, r8]     => [0x00, r],
-      [rm16, r16]   => [0x01, r],
-      [rm32, r32]   => [0x01, r],
-      [r8, rm8]     => [0x02, r],
-      [r16, rm16]   => [0x03, r],
-      [r32, rm32]   => [0x03, r],
+  # Add
+  ADD [al,      imm8]    => [0x04, ib],
+      [ax,      imm16]   => [0x05, iw],
+      [eax,     imm32]   => [0x05, id],
+      [r8|m8,   imm8]    => [0x80, 0.freeze, ib],
+      [r16|m16, imm16]   => [0x81, 0.freeze, iw],
+      [r32|m32, imm32]   => [0x81, 0.freeze, id],
+      [r16|m16, imm8]    => [0x83, 0.freeze, ib],
+      [r32|m32, imm8]    => [0x83, 0.freeze, ib],
+      [r8|m8,   r8]      => [0x00, r],
+      [r16|m16, r16]     => [0x01, r],
+      [r32|m32, r32]     => [0x01, r],
+      [r8,      r8|m8]   => [0x02, r],
+      [r16,     r16|m16] => [0x03, r],
+      [r32,     r32|m32] => [0x03, r]
+
+  AND [al,      imm8]    => [0x24, ib],
+      [ax,      imm16]   => [0x25, iw],
+      [eax,     imm32]   => [0x25, id],
+      [r8|m8,   imm8]    => [0x80, 4.freeze, ib],
+      [r16|m16, imm16]   => [0x81, 4.freeze, iw],
+      [r32|m32, imm32]   => [0x81, 4.freeze, id],
+      [r16|m16, imm8]    => [0x83, 4.freeze, ib],
+      [r32|m32, imm8]    => [0x83, 4.freeze, ib],
+      [r8|m8,   r8]      => [0x20, r],
+      [r16|m16, r16]     => [0x21, r],
+      [r32|m32, r32]     => [0x21, r],
+      [r8,      r8|m8]   => [0x22, r],
+      [r16,     r16|m16] => [0x23, r],
+      [r32,     r32|m32] => [0x23, r]
+
+  # -- x87 FPU --
+
+  # Packed Single-FP Add
+  ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
+
+  # Scalar Single-FP Add
+  ADDSS [xmm, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
 
 } }
 
