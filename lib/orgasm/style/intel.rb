@@ -36,7 +36,7 @@ Style.define 'Intel' do |style|
     "#{name.to_s.downcase}#{
       case parameters.length
         when 1 then " #{parameters.first}"
-        when 2 then " #{parameters.last}, #{parameters.first}"
+        when 2 then " #{parameters.first}, #{parameters.last}"
       end
     }"
   end

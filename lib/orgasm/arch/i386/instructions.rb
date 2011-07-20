@@ -17,23 +17,23 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'orgasm/arch/instructions'
+
 module Orgasm
 
-module I386
-
-Instructions = Class.new {
+Instructions.for('i386') { Class.new {
   def initialize (&block)
     @instructions = Hash.new {|hash, key| hash[key] = []}
 
     instance_eval &block
   end
 
-  [:digit, # a digit between 0 ad 7 indicate that the ModR/M byte of he instruction
+  [:digit, # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
            # uses only the r/m (register or memory) operand.
            # The reg field contains the digit that provides an extension to the instruction's
            # opcode.
 
-   :r, # indicates that the ModR/M byte o the instruction contains both  register operand
+   :r, # indicates that the ModR/M byte of the instruction contains both a register operand
        # and an r/m operand.
 
    :cb, # 1 byte
@@ -106,10 +106,14 @@ Instructions = Class.new {
           # is 16 bits. The word gneral-purpose regsters are: AX, bx, CX, DX, SP, BP, SI and DI.
           # The contents of memory are found at the address provided by the effective address computation.
    
-   :rm32 # a doubleword general-purpose register or memory operand used for instructions whose operand-size
-         # attribute is 32 bits. The doubleword general-purpose registers are: EAX, EBX, ECX, EDX, ESP,
-         # EBP ESI and EDI. The contents of memory are found at the address provided by the effective
-  #      # address computation
+   :rm32, # a doubleword general-purpose register or memory operand used for instructions whose operand-size
+          # attribute is 32 bits. The doubleword general-purpose registers are: EAX, EBX, ECX, EDX, ESP,
+          # EBP ESI and EDI. The contents of memory are found at the address provided by the effective
+          # address computation
+
+   :al,  :cl,  :dl,  :bl,  :ah,  :ch,  :dh,  :bh,
+   :ax,  :cx,  :dx,  :bx,  :sp,  :bp,  :si,  :di,
+   :eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi
   ].each {|name|
     define_method name do
       name
@@ -127,10 +131,48 @@ Instructions = Class.new {
   # ASCII Adjust After Addition
   aaa [0x37]
 
-  # ASCII Adjust AX before Division
-  aad [0xD5, 0x0A], [0xD5, ib]
-}.to_hash
+  # ASCII Adjust AX Before Division
+  aad [0xD5, 0x0A],
+      [imm8] => [0xD5, ib]
 
-end
+  # ASCII Adjust AX After Multiply
+  aam [0xD4, 0x0A],
+      [imm8] => [0xD4, ib]
+
+  # ASCII Adjust AL After Substraction
+  aas [0x3F]
+
+  # Add with Carry
+  adc [al, imm8]    => [0x14, ib],
+      [ax, imm16]   => [0x15, iw],
+      [eax, imm32]  => [0x15, id],
+      [rm8, imm8]   => [0x80, 2.freeze, ib],
+      [rm16, imm16] => [0x81, 2.freeze, iw],
+      [rm32, imm32] => [0x81, 2.freeze, id],
+      [rm16, imm8]  => [0x83, 2.freeze, ib],
+      [rm32, imm8]  => [0x83, 2.freeze, ib],
+      [rm8, r8]     => [0x10, r],
+      [rm16, r16]   => [0x11, r],
+      [rm32, r32]   => [0x11, r],
+      [r8, rm8]     => [0x12, r],
+      [r16, rm16]   => [0x13, r],
+      [r32, rm32]   => [0x13, r]
+
+  add [al, imm8]    => [0x04, ib],
+      [ax, imm16]   => [0x05, iw],
+      [eax, imm32]  => [0x05, id],
+      [rm8, imm8]   => [0x80, 0.freeze, ib],
+      [rm16, imm16] => [0x81, 0.freeze, iw],
+      [rm32, imm32] => [0x81, 0.freeze, id],
+      [rm16, imm8]  => [0x83, 0.freeze, ib],
+      [rm32, imm8]  => [0x83, 0.freeze, ib],
+      [rm8, r8]     => [0x00, r],
+      [rm16, r16]   => [0x01, r],
+      [rm32, r32]   => [0x01, r],
+      [r8, rm8]     => [0x02, r],
+      [r16, rm16]   => [0x03, r],
+      [r32, rm32]   => [0x03, r],
+
+} }
 
 end

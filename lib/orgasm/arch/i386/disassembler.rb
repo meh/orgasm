@@ -39,13 +39,9 @@ Disassembler.for('i386') {
       self[bits].key(byte & 0x07)
     end; alias dest destination
   }.new
-
-  on ?\x37 do
-    seek +1
-
-    Instruction.new(:aaa)
-  end
 }
+
+end
 
 =begin
   on ?\x01, ?\x09, ?\x11, ?\x19, ?\x21, ?\x25, ?\x29, ?\x31, ?\x39, ?\x85, ?\x87, ?\x86, ?\x89, ?\xA1, ?\xA3 do |whole, which|
@@ -107,6 +103,4 @@ Disassembler.for('i386') {
     end
   end
 }
-
-end
 =end

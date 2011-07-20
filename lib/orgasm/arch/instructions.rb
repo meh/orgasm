@@ -17,6 +17,18 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/disassembler'
-require 'orgasm/arch/i386/generator'
-require 'orgasm/arch/i386/instructions'
+module Orgasm
+
+class Instructions
+  @@archs = {}
+
+  def self.for (arch, &block)
+    if block
+      @@archs[arch] = block.call
+    else
+      @@archs[arch]
+    end
+  end
+end
+
+end
