@@ -23,38 +23,9 @@ Disassembler.for('i386') {
   reg = registers = Class.new(Hash) {
     def initialize
       merge!(
-        32 => {
-          EAX: 0x0,
-          ECX: 0x1,
-          EDX: 0x2,
-          EBX: 0x3,
-          ESP: 0x4,
-          EBP: 0x5,
-          ESI: 0x6,
-          EDI: 0x7
-        },
-
-        16 => {
-          AX: 0x0,
-          CX: 0x1,
-          DX: 0x2,
-          BX: 0x3,
-          SP: 0x4,
-          BP: 0x5,
-          SI: 0x6,
-          DI: 0x7
-        },
-
-        8 => {
-          AL: 0x0,
-          CL: 0x1,
-          DL: 0x2,
-          BL: 0x3,
-          AH: 0x4,
-          CH: 0x5,
-          DH: 0x6,
-          BH: 0x7
-        }
+        32 => Hash[%w(EAX ECX EDX EBX ESP EBP ESI EDI).to_syms.each_with_index.to_a],
+        16 => Hash[%w(AX CX DX BX SP BP SI DI).to_syms.each_with_index.to_a],
+        8  => Hash[%w(AL CL DL BL AH CH DH BH).to_syms.each_with_index.to_a]
       )
     end
 
@@ -67,7 +38,7 @@ Disassembler.for('i386') {
     end; alias dest destination
   }.new
 
-  on ?\x01, ?\x09, ?\x11, ?\x19, ?\x21, ?\x25, ?\x29, ?\x31, ?\x39, ?\x85, ?\x86, ?\x87, ?\x89, ?\xA1, ?\xA3 do
+  on ?\x01, ?\x09, ?\x11, ?\x19, ?\x21, ?\x25, ?\x29, ?\x31, ?\x39, ?\x85, ?\x87, ?\x86, ?\x89, ?\xA1, ?\xA3 do |whole, which|
     increment = 1
 
     seek 1 do
@@ -81,96 +52,53 @@ Disassembler.for('i386') {
       end
     end
 
-    on ?\x01 do
-      Instruction.new(:add) {|i|
+    if instruction = %w(add or adc sbb and and sub xor cmp test xchg)[whole.index(which)]
+      Instruction.new(instruction) {|i|
         seek +1
 
         read 1 do |data|
           i.parameters << Register.new(reg.source(data.to_byte), 32)
           i.parameters << Register.new(reg.destination(data.to_byte), 32)
         end
-
+        
         seek increment
       }
-    end
+    else
+      on ?\x86 do
+        Instruction.new(:xchg) {|i|
+          seek +1
 
-    on ?\x09 do
-      Instruction.new(:or) {
-        seek +1
-      }
-    end
+          read 1 do |data|
+            i.parameters << Register.new(reg.source(data.to_byte), 8)
 
-    on ?\x11 do
-      Instruction.new(:adc) {
-        seek +1
-      }
-    end
+            if lookahead(1) && (0 .. 1) == (lookahead(1).to_byte & 0x07)
+              i.parameters << Register.new(reg.destination(data.to_byte), 32)
+            else
+              i.parameters << Register.new(reg.destination(data.to_byte, 8), 8)
+            end
+          end
 
-    on ?\x19 do
-      Instruction.new(:sbb) {
-        seek +1
-      }
-    end
+          seek increment
+        }
+      end
 
-    on ?\x21, ?\x25 do
-      Instruction.new(:ad) {
-        seek +1
-      }
-    end
+      on ?\x89 do
+        Instruction.new(:mov) {
+          seek +1
 
-    on ?\x29 do
-      Instruction.new(:sub) {
-        seek +1
-      }
-    end
+          read 1 do |data|
+            increment = 5 if data.to_byte & 0x07 == 0x05 && data.to_byte < 0x40
+          end
+        }
+      end
 
-    on ?\x31 do
-      Instruction.new(:xor) {
-        seek +1
-      }
-    end
+      on ?\xA1, ?\xA3 do
+        increment = 4
 
-    on ?\x19 do
-      Instruction.new(:cmp) {
-        seek +1
-      }
-    end
-
-    on ?\x85 do
-      Instruction.new(:test) {
-        seek +1
-      }
-    end
-
-    on ?\x86 do
-      Instruction.new(:xchg) {
-        seek +1
-
-        # 8bit
-      }
-    end
-
-    on ?\x87 do
-      Instruction.new(:xchg) {
-        seek +1
-      }
-    end
-
-    on ?\x89 do
-      Instruction.new(:mov) {
-        seek +1
-
-        read 1 do |data|
-          increment = 5 if data.to_byte & 0x07 == 0x05 && data.to_byte < 0x40
-        end
-      }
-    end
-
-    on ?\xA1, ?\xA3 do
-      # increment = 4
-      Instruction.new(:mov) {
-        seek +1
-      }
+        Instruction.new(:mov) {
+          seek +1
+        }
+      end
     end
   end
 }

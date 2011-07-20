@@ -33,12 +33,12 @@ class Decoder
   def decode
     return unless @io
 
-    return unless @args.any? {|arg|
+    return unless match = @args.find {|arg|
       matches(arg)
     }
 
     catch(:result) {
-      instance_eval &@block
+      instance_exec @args, match, &@block
     }
   end
 
@@ -60,11 +60,11 @@ class Decoder
   def on (*args, &block)
     return unless @io
 
-    return unless args.any? {|arg|
+    return unless match = args.find {|arg|
       matches(arg)
     }
 
-    result = instance_eval &block
+    result = instance_exec args, match, &block
 
     if Orgasm.object?(result)
       throw :result, result
@@ -120,7 +120,7 @@ class Decoder
   def lookahead (amount)
     read(amount) do |data|
       data
-    end
+    end rescue nil
   end
 end
 

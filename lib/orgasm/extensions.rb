@@ -20,3 +20,11 @@
 class String
   alias to_byte ord
 end
+
+class Array
+  def to_syms
+    map {|x|
+      x.to_sym
+    }
+  end
+end
