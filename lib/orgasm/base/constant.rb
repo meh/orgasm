@@ -22,9 +22,9 @@ module Orgasm
 class Constant < Base
   attr_reader :size
 
-  def initialize (value, size)
-    @value = value.to_i
-    @size  = size
+  def initialize (value=nil, size=nil)
+    @value = value.to_i if value
+    @size  = size       if size
 
     super()
   end

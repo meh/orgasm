@@ -22,8 +22,8 @@ module Orgasm
 class Instruction < Base
   attr_reader :name, :parameters
 
-  def initialize (name, *parameters)
-    @name       = name.to_sym
+  def initialize (name=nil, *parameters)
+    @name       = name.to_sym if name
     @parameters = parameters.to_a
 
     super()

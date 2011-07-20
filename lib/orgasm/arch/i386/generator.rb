@@ -43,14 +43,14 @@ Generator.for 'i386' do |generator|
 
   generator.for Address do |data|
     if data.is_a?(Array)
-      nil
+      Address.new(*data)
     else
       Address.new(data)
     end
   end
 
   generator.for Constant do |data|
-    Constant.new(data)
+    Constant.new(data, 32)
   end
 end
 

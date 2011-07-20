@@ -20,7 +20,7 @@
 module Orgasm
 
 class Unknown < Base
-  def initialize (size)
+  def initialize (size=nil)
     @size = size.to_i
 
     super()

@@ -25,7 +25,7 @@ Style.define 'Intel' do |style|
   end
 
   style.for Address do
-    offset? ? "[#{start}+#{to_i}]" : "0x#{to_i.to_s(16)}"
+    offset? ? "[#{start}#{'%+d' % to_i}]" : "0x#{to_i.to_s(16)}"
   end
 
   style.for Constant do

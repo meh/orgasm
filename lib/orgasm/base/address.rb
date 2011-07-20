@@ -22,12 +22,14 @@ module Orgasm
 class Address < Base
   attr_reader :start
 
-  def initialize (value, offset=nil)
-    if offset
-      @start = value
-      @value = offset.to_i
-    else
-      @value = value.to_i
+  def initialize (value=nil, offset=nil)
+    if value
+      if offset
+        @start = value
+        @value = offset.to_i
+      else
+        @value = value.to_i
+      end
     end
 
     super()
