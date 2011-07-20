@@ -5,7 +5,7 @@ Gem::Specification.new {|s|
   s.version      = Orgasm.version
   s.author       = 'meh.'
   s.email        = 'meh@paranoici.org'
-  s.homepage     = 'http://github.com/meh/refr'
+  s.homepage     = 'http://github.com/meh/orgasm'
   s.platform     = Gem::Platform::RUBY
   s.summary      = 'A Ruby (dis)?assembler library.'
   s.files        = Dir.glob('lib/**/*.rb')
