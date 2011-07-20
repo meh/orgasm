@@ -19,14 +19,14 @@
 
 module Orgasm
 
-class Constant
+class Constant < Base
   attr_reader :size
 
   def initialize (value, size)
     @value = value.to_i
     @size  = size
 
-    yield self if block_given?
+    super()
   end
 
   def to_i

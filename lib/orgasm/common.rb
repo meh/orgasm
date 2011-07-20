@@ -19,6 +19,7 @@
 
 require 'orgasm/common/extensions'
 
+require 'orgasm/common/base'
 require 'orgasm/common/unknown'
 require 'orgasm/common/instruction'
 require 'orgasm/common/address'
@@ -28,9 +29,7 @@ require 'orgasm/common/constant'
 module Orgasm
 
 def self.object? (value)
-  [Unknown, Instruction, Address, Register, Constant].any? {|klass|
-    value.is_a?(klass)
-  } && value
+  value.is_a?(Base) ? value : false
 end
 
 end

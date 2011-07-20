@@ -19,53 +19,18 @@
 
 module Orgasm
 
-class Style
-  @@styles  = {}
-  @@current = nil
-
-  def self.define (name, &block)
-    @@styles[name.downcase.to_sym] = Style.new(name, &block)
-  end
-
-  def self.get (name)
-    @@styles[name.downcase.to_sym]
-  end
-
-  def self.current (name=nil)
-    (name ? @@current = get(name) : @@current) || @@styles.first.last
-  end
-
-  def self.apply (thing, name = current.name)
-    if !get(name)
-      raise LoadError, 'No loaded styles'
-    else
-      get(name).apply(thing)
-    end
-  end
-
-  attr_reader :name
-
-  def initialize (name)
-    @name = name
-    @for  = {}
-
-    yield self
-  end
-
-  def for (klass, &block)
-    @for[klass] = block
-  end
-
-  def apply (thing)
-    thing.instance_eval &@for[thing.class]
+class Base
+  def initialize
+    yield self if block_given?
   end
 
   def to_s
-    name
+    begin
+      Style.apply(self)
+    rescue LoadError
+      super
+    end
   end
 end
 
 end
-
-require 'orgasm/style/intel'
-require 'orgasm/style/at&t'

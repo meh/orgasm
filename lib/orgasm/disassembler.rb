@@ -18,6 +18,8 @@
 #++
 
 require 'orgasm/common'
+require 'orgasm/style'
+
 require 'orgasm/disassembler/decoder'
 
 module Orgasm

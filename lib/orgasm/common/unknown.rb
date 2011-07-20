@@ -19,11 +19,11 @@
 
 module Orgasm
 
-class Unknown
+class Unknown < Base
   def initialize (size)
     @size = size.to_i
 
-    yield self if block_given?
+    super()
   end
 
   def to_i

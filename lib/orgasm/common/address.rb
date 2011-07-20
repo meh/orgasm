@@ -19,7 +19,7 @@
 
 module Orgasm
 
-class Address
+class Address < Base
   attr_reader :start
 
   def initialize (value, offset=nil)
@@ -30,7 +30,7 @@ class Address
       @value = value.to_i
     end
 
-    yield self if block_given?
+    super()
   end
 
   def offset?
@@ -39,10 +39,6 @@ class Address
 
   def to_i
     @value
-  end
-
-  def to_s
-    offset? ? "[#{start}+#{to_i}]" : "0x%x" % to_i
   end
 end
 

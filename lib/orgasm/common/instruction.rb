@@ -19,18 +19,14 @@
 
 module Orgasm
 
-class Instruction
+class Instruction < Base
   attr_reader :name, :parameters
 
   def initialize (name, *parameters)
     @name       = name.to_sym
     @parameters = parameters.to_a
 
-    yield self if block_given?
-  end
-
-  def to_s
-    "#{name.to_s.upcase} #{parameters.join(', ')}"
+    super()
   end
 end
 

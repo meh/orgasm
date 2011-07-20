@@ -19,18 +19,14 @@
 
 module Orgasm
 
-class Register
+class Register < Base
   attr_reader :name, :size
 
   def initialize (name, size)
     @name = name.to_sym
     @size = size.to_i
 
-    yield self if block_given?
-  end
-
-  def to_s
-    name.to_s.upcase
+    super()
   end
 end
 
