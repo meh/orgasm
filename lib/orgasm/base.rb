@@ -17,6 +17,34 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
+require 'orgasm/extensions'
+
+module Orgasm
+
+def self.object? (value)
+  value.is_a?(Base) ? value : false
+end
+
+class Base
+  def initialize
+    yield self if block_given?
+  end
+
+  def to_s
+    begin
+      Style.apply(self)
+    rescue LoadError
+      super
+    end
+  end
+end
+
+end
+
+require 'orgasm/base/unknown'
+require 'orgasm/base/instruction'
+require 'orgasm/base/address'
+require 'orgasm/base/register'
+require 'orgasm/base/constant'
+
+require 'orgasm/style'

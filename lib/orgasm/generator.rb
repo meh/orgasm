@@ -19,11 +19,11 @@
 
 require 'orgasm/base'
 
-require 'orgasm/disassembler/decoder'
+require 'orgasm/generator/dsl'
 
 module Orgasm
 
-class Disassembler
+class Generator
   @@archs = {}
 
   def self.for (arch, &block)
@@ -38,42 +38,39 @@ class Disassembler
 
   alias arch architecture
 
-  def initialize (architecture, &block)
-    @architecture = architecture
-    @decoders     = []
+  def initialize (architecture)
+    @for = {}
 
-    instance_eval(&block)
+    yield self
   end
 
-  def disassemble (io)
-    if io.is_a?(String)
-      require 'stringio'
-
-      io = StringIO.new(io)
+  def style (name=nil)
+    if name.nil?
+      (@style || Style.current.name).downcase
+    else
+      @style = name
+      self
     end
-
-    result = []
-
-    until io.eof?
-      where = io.tell
-
-      @decoders.each {|decoder|
-        if tmp = Orgasm.object?(decoder.with(io).decode)
-          result << tmp
-          break
-        end
-      }
-
-      if where == io.tell
-        raise RuntimeError, 'No input was read, something is wrong with the decoders'
-      end
-    end
-
-    result.flatten.compact
   end
 
-  def on (*args, &block)
-    @decoders << Decoder.new(*args, &block)
+  def generate (&block)
+    DSL.new(&block).execute(self)
+  end
+
+  def for (klass, &block)
+    if block
+      @for[klass] = block
+    else
+      @for[klass]
+    end
+  end
+
+  def symbol! (&block)
+    @symbol = block
+  end
+
+  def symbol? (value)
+    @symbol ? @symbol.call(value) : false
   end
 end
 

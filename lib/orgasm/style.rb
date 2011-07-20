@@ -32,7 +32,11 @@ class Style
   end
 
   def self.current (name=nil)
-    (name ? @@current = get(name) : @@current) || @@styles.first.last
+    if name
+      @@current = get(name)
+    else
+      @@current
+    end || @@styles.first.last
   end
 
   def self.apply (thing, name = current.name)

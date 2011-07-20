@@ -17,19 +17,41 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/common/extensions'
-
-require 'orgasm/common/base'
-require 'orgasm/common/unknown'
-require 'orgasm/common/instruction'
-require 'orgasm/common/address'
-require 'orgasm/common/register'
-require 'orgasm/common/constant'
-
 module Orgasm
 
-def self.object? (value)
-  value.is_a?(Base) ? value : false
+Generator.for 'i386' do |generator|
+  generator.symbol! do |value|
+    case value.to_s.downcase
+      when /e[abcd]x/, /e[bs]p/, /e[sd]i/, /[abcd]x/, /[sb]p/, /[sd]i/, /[abcd][lh]/ then true
+      else false
+    end
+  end
+
+  generator.for Instruction do |name, &block|
+    Instruction.new(name, &block)
+  end
+
+  generator.for Register do |name|
+    Register.new(name) {|r|
+      r.size = case name.to_s.downcase
+        when /^e/i     then 32
+        when /[xpi]$/i then 16
+        when /[lh]$/i  then 8
+      end
+    }
+  end
+
+  generator.for Address do |data|
+    if data.is_a?(Array)
+      nil
+    else
+      Address.new(data)
+    end
+  end
+
+  generator.for Constant do |data|
+    Constant.new(data)
+  end
 end
 
 end

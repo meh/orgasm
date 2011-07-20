@@ -17,17 +17,5 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm
-
-class Register < Base
-  attr_reader :name, :size
-
-  def initialize (name, size)
-    @name = name.to_sym
-    @size = size.to_i
-
-    super()
-  end
-end
-
-end
+require 'orgasm/arch/i386/disassembler'
+require 'orgasm/arch/i386/generator'

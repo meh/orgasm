@@ -19,17 +19,14 @@
 
 module Orgasm
 
-class Base
-  def initialize
-    yield self if block_given?
-  end
+class Register < Base
+  attr_accessor :name, :size
 
-  def to_s
-    begin
-      Style.apply(self)
-    rescue LoadError
-      super
-    end
+  def initialize (name=nil, size=nil)
+    @name = name.to_sym if name
+    @size = size.to_i   if size
+
+    super()
   end
 end
 
