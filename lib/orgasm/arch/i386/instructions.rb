@@ -18,167 +18,12 @@
 #++
 
 require 'orgasm/arch/instructions'
+require 'orgasm/arch/i386/instructions/dsl'
+require 'orgasm/arch/i386/instructions/instructions'
 
 module Orgasm
 
-Instructions.for('i386') { Class.new {
-  class Special
-    class Or
-      attr_reader :first, :second
-
-      def initialize (first, second)
-        @first  = first
-        @second = second
-      end
-
-      def to_s
-        "#{first}|#{second}"
-      end
-    end
-
-    def initialize (value)
-      @value = value
-    end
-
-    def | (value)
-      Or.new(self, value)
-    end
-
-    def to_sym
-      @value
-    end
-
-    def to_s
-      @value.to_s
-    end
-  end
-
-  def initialize (&block)
-    @instructions = Hash.new {|hash, key| hash[key] = []}
-
-    instance_eval &block
-  end
-
-  [:digit, # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
-           # uses only the r/m (register or memory) operand.
-           # The reg field contains the digit that provides an extension to the instruction's
-           # opcode.
-
-   :r, # indicates that the ModR/M byte of the instruction contains both a register operand
-       # and an r/m operand.
-
-   :cb, # 1 byte
-   :cw, # 2 bytes
-   :cd, # 4 bytes
-   :cp, # 6 bytes
-        # value following the opcode that is used to spcifya code ofset ad possibly a new
-        # value for the code segment register
-
-   :ib, # 1 byte
-   :iw, # 2 bytes
-   :id, # 4 bytes
-        # immediate operand to the instruction that follows the opcode, ModR/M bytes or
-        # scale-indexing bytes. The opcode determines if the operand is a signed value.
-
-   :rb, # a registercode, from 0 through 7, added to the hexadecimal byte gien at the left
-   :rw, # of the plus sign to form a single opcode byte.
-   :rd,
-
-   :i, # a number used in floating-point instructions when one of te operands is ST(i) from
-       # the FPU register stack. The number i (which can range from 0 to 7) is added to the
-       # hexadecial byte given at the left of the plus sign to form a singl opcode byte.
-
-   :rel8, # a relative address in the range from 128 byes before the end of the instruction to
-          # 127 bytes after the end of the instruction
-
-   :rel16, # a relative address withn the same code segment as the instruction assembled. Applies to
-           # instructions with an operand-size attribute of 16 bits
-
-   :rel32, # a relative address withn the same code segment as the instruction assembled. Applies to
-           # instructions with an operand-size attribute of 32 bits
-
-   :r8,  # one of the byte gneral-purpose registers:         AL,  CL,  DL,  BL,  AH,  CH,  DH,  BH
-   :r16, # one of the word general-purpose registers:        AX,  CX,  DX,  BX,  SP,  BP,  SI,  DI
-   :r32, # one of the double-word general purpose registers: EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
-   
-   :imm8, # an immediate byte value. The imm8 symbol is a signed number between -128 and +127 inclusive.
-          # For instructins in which imm8 is combind with a word or doublewod operand, the immediate
-          # value is sign-extended to for a word or doubleword. The upper byte of the word is filled
-          # with the topmost bit of the immediate value
-   
-   :imm16, # an immediate word value used forinstructions hose operand-size attribute is 16 bits.
-           # This is a number between -32768 and +32767 inclusive.
-
-   :imm32, # an immediate doubleword value used for instructions whose operand-size attribute is 32 bits.
-           # It allows the use of a number between +2147483647 and -2147483648 inclusive.   
-      
-   :m, # a 16 or 32 bit operand in memory.
-
-   :m8, # a byte operand in memory, usually expressed as a variable or array name, but pointed to by
-        # the S:(E)SI or ES:(E)DI registers. This nomeclature is used only with the string instructions
-        # and the XLAT instruction.
-   
-   :m16, # a word operand in memory, usually exressed as a variable or array name, but pointed to by
-         # the DS()SI or ES(E)DI registers. This nomenclature is used only with te string instructions.
-   
-   :m32, # a doubleword operand in memory, usually expressed as a variable or array name, but pointed
-         # to by the DS:(E)SI or ES:(E)DI registers. This nomenclature is ued only with the string
-         # instructions
-   
-   :m64, # a memory quadword operand in memory. This nomenclaure is used only with the CMPXCHG8B instruction.
-   
-   :m128, # a mmory double quadword operand in memory. This nomenclature is used only wh the Streaming
-          # SIMD Extensions.
-
-   :rm8, # a byte operand thtis either the contents of a byte general-purpose register (AL, BL, CL, DL,
-         # AH, BH, CH and DH), or a byte from memory
-   
-   :rm16, # a word general-purpose register or memoy operand used for instructions whose operan-size attribute
-          # is 16 bits. The word gneral-purpose regsters are: AX, bx, CX, DX, SP, BP, SI and DI.
-          # The contents of memory are found at the address provided by the effective address computation.
-   
-   :rm32, # a doubleword general-purpose register or memory operand used for instructions whose operand-size
-          # attribute is 32 bits. The doubleword general-purpose registers are: EAX, EBX, ECX, EDX, ESP,
-          # EBP ESI and EDI. The contents of memory are found at the address provided by the effective
-          # address computation
-
-   :mm,  # an MMX™ technology register
-   :mm0,
-   :mm1,
-   :mm2,
-   :mm3,
-   :mm4,
-   :mm5,
-   :mm7,
-
-   :xmm,  # a SIMD floating-point register.
-   :xmm0,
-   :xmm1,
-   :xmm2,
-   :xmm3,
-   :xmm4,
-   :xmm5,
-   :xmm7,
-
-   :al,  :cl,  :dl,  :bl,  :ah,  :ch,  :dh,  :bh,
-   :ax,  :cx,  :dx,  :bx,  :sp,  :bp,  :si,  :di,
-   :eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi
-  ].each {|name|
-    value = Special.new(name)
-
-    define_method name do
-      value
-    end
-  }
-
-  def method_missing (id, *args)
-    @instructions[id.upcase].insert(-1, *args)
-  end
-
-  def to_hash
-    @instructions
-  end
-}.new {
+Instructions.for('i386') { I386::Instructions[I386::DSL.new {
   # ASCII Adjust After Addition
   AAA [0x37]
 
@@ -225,6 +70,7 @@ Instructions.for('i386') { Class.new {
       [r16,     r16|m16] => [0x03, r],
       [r32,     r32|m32] => [0x03, r]
 
+  # Logical AND
   AND [al,      imm8]    => [0x24, ib],
       [ax,      imm16]   => [0x25, iw],
       [eax,     imm32]   => [0x25, id],
@@ -240,14 +86,70 @@ Instructions.for('i386') { Class.new {
       [r16,     r16|m16] => [0x23, r],
       [r32,     r32|m32] => [0x23, r]
 
+  # Adjust RPL Field of Segment Selector
+  ARPL [r16|m16, r16] => [0x63, r]
+
+  # Check Array Index Against Bounds
+  BOUND [r16, m16&16] => [0x62, r],
+        [r32, m32&32] => [0x62, r]
+
+  # Bit Scan Forward
+  # BFS [r16, r16|m16] => [0x0F, 0xBC],
+  #     [r32, r32|m32] => [0x0F, 0xBC]
+  # TODO: find out what the fuck is this
+  
+  # Bit Scan Reverse
+  # BSR [r16, r16|m16] => [0x0F, 0xBD],
+  #     [r32, r32|m32] => [0x0F, 0xBD]
+  # TODO: find out what the fuck is this
+
+  # Byte Swap
+  BSWAP [r32] => [0x0F, 0xC8, rd]
+  # FIXME: not available on i386, only i486+
+
+  # Bit Test
+  BT [r16|m16, r16]  => [0x0F, 0xA3],
+     [r32|m32, r32]  => [0x0F, 0xA3],
+     [r16|m16, imm8] => [0x0F, 0xBA, 4.freeze, ib],
+     [r32|m32, imm8] => [0x0F, 0xBA, 4.freeze, ib]
+
+  # Bit Test and Complement
+  BTC [r16|m16, r16]  => [0x0F, 0xBB],
+      [r32|m32, r32]  => [0x0F, 0xBB],
+      [r16|m16, imm8] => [0x0F, 0xBA, 7.freeze, ib],
+      [r32|m32, imm8] => [0x0F, 0xBA, 7.freeze, ib]
+
+  # Bit Test and Reset
+  BTR [r16|m16, r16]  => [0x0F, 0xB3],
+      [r32|m32, r32]  => [0x0F, 0xB3],
+      [r16|m16, imm8] => [0x0F, 0xBA, 6.freeze, ib],
+      [r32|m32, imm8] => [0x0F, 0xBA, 6.freeze, ib]
+
+  # Call Procedure
+  CALL [rel16]    => [0xE8, cw],
+       [rel32]    => [0xE8, cd],
+       [r16|m16]  => [0xFF, 2.freeze],
+       [r32|m32]  => [0xFF, 2.freeze],
+       [ptr16^16] => [0x9A, cd],
+       [ptr16^32] => [0x9A, cp],
+       [m16^16]   => [0xFF, 3.freeze],
+       [m16^32]   => [0xFF, 3.freeze]
+        
+
   # -- x87 FPU --
 
   # Packed Single-FP Add
   ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
 
   # Scalar Single-FP Add
-  ADDSS [xmm, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
+  ADDSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
 
-} }
+  # Bit-wise Logical And ot For Single-FP
+  ANDNPS [xmm1, xmm2|m128] => [0x0F, 0x55, r]
+
+  # Bit-wise Logical And For Single FP
+  ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
+
+}.to_hash] }
 
 end

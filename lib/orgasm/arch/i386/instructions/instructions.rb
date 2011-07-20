@@ -17,26 +17,22 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/instructions'
+module Orgasm; module I386
 
-module Orgasm
+class Instructions < Hash
+  def register? (value)
+    case value.to_s.downcase
+      when /^e[abcd]x$/,
+           /^e[bs]p$/,
+           /^e[sd]i$/,
+           /^[abcd]x$/,
+           /^[sb]p$/,
+           /^[sd]i$/,
+           /^[abcd][lh]$/ then true
 
-Disassembler.for('i386') {
-  Instructions.for('i386').to_hash.each {|name, description|
-    description.each {|description|
-      if description.is_a?(Hash)
-        description.each {|params, opcodes|
-
-        }
-      else
-        on description.map {|b| b.chr}.join do |whole, which|
-          seek which.length
-
-          Instruction.new(name)
-        end
-      end
-    }
-  }
-}
-
+      else false
+    end
+  end
 end
+
+end; end

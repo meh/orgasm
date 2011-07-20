@@ -17,26 +17,59 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/instructions'
+module Orgasm; module I386
 
-module Orgasm
+class Special
+  class Operator
+    attr_reader :first, :second
 
-Disassembler.for('i386') {
-  Instructions.for('i386').to_hash.each {|name, description|
-    description.each {|description|
-      if description.is_a?(Hash)
-        description.each {|params, opcodes|
+    def initialize (first, second)
+      @first  = first
+      @second = second
+    end
+  end
 
-        }
-      else
-        on description.map {|b| b.chr}.join do |whole, which|
-          seek which.length
+  class Or < Operator
+    def to_s
+      "#{first}|#{second}"
+    end
+  end
 
-          Instruction.new(name)
-        end
-      end
-    }
-  }
-}
+  class And < Operator
+    def to_s
+      "#{first}&#{second}"
+    end
+  end
 
+  class Offset < Operator
+    def to_s
+      "#{first}:#{second}"
+    end
+  end
+
+  def initialize (value)
+    @value = value
+  end
+
+  def | (value)
+    Or.new(self, value)
+  end
+
+  def & (value)
+    And.new(self, value)
+  end
+
+  def ^ (value)
+    Offset.new(self, value)
+  end
+
+  def to_sym
+    @value
+  end
+
+  def to_s
+    @value.to_s
+  end
 end
+
+end; end

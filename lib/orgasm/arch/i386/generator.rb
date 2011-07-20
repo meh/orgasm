@@ -21,10 +21,7 @@ module Orgasm
 
 Generator.for 'i386' do |generator|
   generator.symbol! do |value|
-    case value.to_s.downcase
-      when /e[abcd]x/, /e[bs]p/, /e[sd]i/, /[abcd]x/, /[sb]p/, /[sd]i/, /[abcd][lh]/ then true
-      else false
-    end
+    Instructions.for('i386').register?(value)
   end
 
   generator.for Instruction do |name, &block|
@@ -34,9 +31,9 @@ Generator.for 'i386' do |generator|
   generator.for Register do |name|
     Register.new(name) {|r|
       r.size = case name.to_s.downcase
-        when /^e/i     then 32
-        when /[xpi]$/i then 16
-        when /[lh]$/i  then 8
+        when /^e/     then 32
+        when /[xpi]$/ then 16
+        when /[lh]$/  then 8
       end
     }
   end
