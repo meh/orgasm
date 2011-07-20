@@ -20,14 +20,6 @@
 module Orgasm; class Disassembler
 
 class Decoder
-  class Result
-    attr_reader :value
-
-    def initialize (value)
-      @value
-    end
-  end
-
   def initialize (*args, &block)
     @args  = args
     @block = block
@@ -45,11 +37,9 @@ class Decoder
       matches(arg)
     }
 
-    begin
+    catch(:result) {
       instance_eval &@block
-    rescue Decoder::Result => result
-      result
-    end
+    }
   end
 
   def matches (what)
@@ -74,7 +64,13 @@ class Decoder
       matches(arg)
     }
 
-    instance_eval &block
+    result = instance_eval &block
+
+    if Orgasm.object?(result)
+      throw :result, result
+    end
+
+    result
   end
 
   def seek (amount, whence=IO::SEEK_CUR, &block)
@@ -86,10 +82,12 @@ class Decoder
       result = instance_eval &block
 
       if Orgasm.object?(result)
-        raise Decoder::Result.new(result)
+        throw :result, result
       end
 
       @io.seek(where)
+
+      result
     else
       @io.seek(amount, whence)
     end
@@ -108,10 +106,12 @@ class Decoder
       result = instance_exec data, &block
 
       if Orgasm.object?(result)
-        raise Decoder::Result.new(result)
+        throw :result, result
       end
 
       seek -amount
+
+      result
     else
       @io.read(amount)
     end

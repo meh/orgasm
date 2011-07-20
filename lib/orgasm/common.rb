@@ -22,14 +22,13 @@ require 'orgasm/common/extensions'
 require 'orgasm/common/unknown'
 require 'orgasm/common/instruction'
 require 'orgasm/common/address'
-require 'orgasm/common/offset'
 require 'orgasm/common/register'
 require 'orgasm/common/constant'
 
 module Orgasm
 
 def self.object? (value)
-  [Unknown, Instruction, Address, Offset, Register, Constant].any? {|klass|
+  [Unknown, Instruction, Address, Register, Constant].any? {|klass|
     value.is_a?(klass)
   } && value
 end

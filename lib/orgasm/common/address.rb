@@ -20,14 +20,29 @@
 module Orgasm
 
 class Address
-  def initialize (value)
-    @value = value.to_i
+  attr_reader :start
+
+  def initialize (value, offset=nil)
+    if offset
+      @start = value
+      @value = offset.to_i
+    else
+      @value = value.to_i
+    end
 
     yield self if block_given?
   end
 
+  def offset?
+    !!start
+  end
+
   def to_i
     @value
+  end
+
+  def to_s
+    offset? ? "[#{start}+#{to_i}]" : "0x%x" % to_i
   end
 end
 
