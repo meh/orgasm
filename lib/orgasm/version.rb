@@ -19,6 +19,6 @@
 
 module Orgasm
   def self.version
-    '0.0.1a2'
+    '0.0.1a3'
   end
 end
