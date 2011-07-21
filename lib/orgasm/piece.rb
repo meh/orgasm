@@ -19,14 +19,29 @@
 
 module Orgasm
 
-class Instructions
-  @@archs = {}
+class Piece
+  attr_reader :arch
 
-  def self.for (arch, &block)
-    if block
-      @@archs[arch] = block.call
+  def initialize (arch, io=nil, &block)
+    @arch = arch
+
+    instance_eval io.read if io
+    instance_eval &block  if block
+  end
+
+  def self.inherited (subclass)
+    subclass.class_eval {
+      define_method subclass.name[/([^:]+)$/].downcase do
+        self
+      end
+    }
+  end
+
+  def method_missing (id, *args, &block)
+    if @arch.respond_to? id
+      @arch.__send__ id, *args, &block
     else
-      @@archs[arch]
+      super
     end
   end
 end

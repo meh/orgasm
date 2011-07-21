@@ -17,32 +17,15 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
-
 require 'orgasm/disassembler/decoder'
 
 module Orgasm
 
-class Disassembler
-  @@archs = {}
+class Disassembler < Piece
+  def initialize (*)
+    @decoders = []
 
-  def self.for (arch, &block)
-    if block
-      @@archs[arch] = self.new(arch, &block)
-    else
-      @@archs[arch]
-    end
-  end
-
-  attr_reader :architecture
-
-  alias arch architecture
-
-  def initialize (architecture, &block)
-    @architecture = architecture
-    @decoders     = []
-
-    instance_eval(&block)
+    super
   end
 
   def disassemble (io)

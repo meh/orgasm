@@ -17,29 +17,32 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm
+module Orgasm; class Styles < Piece
 
-Style.define 'AT&T' do |style|
-  style.for Register do
-    "%#{name.to_s.downcase}"
+class Style
+  attr_reader :names
+
+  def initialize (*names)
+    @names = names
+    @for   = {}
+
+    yield self
   end
 
-  style.for Address do
-    offset? ? "#{to_i}(#{start})" : "0x#{to_i.to_s(16)}"
+  def for (klass, &block)
+    @for[klass] = block
   end
 
-  style.for Constant do
-    "$#{to_i.to_s}"
+  def apply (thing)
+    thing.instance_eval &@for[thing.class]
   end
 
-  style.for Instruction do
-    "#{name.to_s.downcase}#{
-      { b: 8, w: 16, l: 32 }.key((parameters.last.size rescue parameters.first.size rescue nil))
-    } #{parameters.reverse.join(', ')}"
+  def name
+    names.first
   end
 
-  style.for Unknown do
-    "???(#{to_i})"
+  def to_s
+    name
   end
 end
 

@@ -17,59 +17,28 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module I386
+module Orgasm
 
-class Special
-  class Operator
-    attr_reader :first, :second
+class Styles < Piece
+  def initialize (*)
+    @styles = []
 
-    def initialize (first, second)
-      @first  = first
-      @second = second
-    end
+    super
   end
 
-  class Or < Operator
-    def to_s
-      "#{first}|#{second}"
-    end
+  def style (*args, &block)
+    @styles << Style.new(*args, &block)
   end
 
-  class And < Operator
-    def to_s
-      "#{first}&#{second}"
-    end
+  def use (name)
+    @current = @styles.find {|style|
+      style.names.member?(name)
+    }
   end
 
-  class Offset < Operator
-    def to_s
-      "#{first}:#{second}"
-    end
-  end
-
-  def initialize (value)
-    @value = value
-  end
-
-  def | (value)
-    Or.new(self, value)
-  end
-
-  def & (value)
-    And.new(self, value)
-  end
-
-  def ^ (value)
-    Offset.new(self, value)
-  end
-
-  def to_sym
-    @value
-  end
-
-  def to_s
-    @value.to_s
+  def current
+    @current or use(@styles.first.name)
   end
 end
 
-end; end
+end

@@ -19,24 +19,9 @@
 
 module Orgasm
 
-class Assembler
-  @@archs = {}
-
-  def self.for (arch, &block)
-    if block
-      @@archs[arch] = self.new(arch, &block)
-    else
-      @@archs[arch]
-    end
-  end
-
-  attr_reader :architecture, :features
-
-  alias arch architecture
-
-  def initialize (architecture, features=[])
-    @architecture = architecture
-    @features     = features
+class Assembler < Piece
+  def initialize (*)
+    super
   end
 end
 

@@ -32,7 +32,9 @@ class Base
 
   def to_s
     begin
-      Style.apply(self)
+      raise LoadError unless respond_to? :arch
+
+      Architecture[arch].style.apply(self)
     rescue LoadError
       super
     end
@@ -46,5 +48,3 @@ require 'orgasm/base/instruction'
 require 'orgasm/base/address'
 require 'orgasm/base/register'
 require 'orgasm/base/constant'
-
-require 'orgasm/style'
