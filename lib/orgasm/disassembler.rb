@@ -67,8 +67,14 @@ class Disassembler < Piece
   def unknown (data=nil, &block)
     if block
       @unknown = block
-    elsif data && @unknown
-      instance_exec data, &@unknown
+    elsif data
+      if @unknown
+        instance_exec data, &@unknown
+      else
+        instance_exec data do |data|
+          Unknown.new(data)
+        end
+      end
     end
   end
 end

@@ -20,18 +20,16 @@
 module Orgasm
 
 class Unknown < Base
-  def initialize (size=nil)
-    @size = size.to_i
+  attr_accessor :data
+
+  def initialize (data=nil)
+    @data = data
 
     super()
   end
 
-  def to_i
-    @size
-  end
-
   def inspect
-    "#<Unknown>"
+    "#<Unknown(#{data.length}): #{data.to_s.bytes.map {|x| '%02X' % x}.join(' ')}>"
   end
 end
 

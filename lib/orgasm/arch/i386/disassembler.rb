@@ -20,7 +20,6 @@
 instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
-      next
       description.each {|params, opcodes|
         opcodes = opcodes.clone
         known   = opcodes.reverse.drop_while {|x| !x.is_a?(Integer)}.reverse.map {|x| x.chr}.join
@@ -37,7 +36,6 @@ instructions.to_hash.each {|name, description|
 
               opcodes.shift
             end
-              
           end
         end
       }
@@ -49,8 +47,4 @@ instructions.to_hash.each {|name, description|
       end
     end
   }
-
-#  unknown do |data|
-#    Unknown.new(data)
-#  end
 }
