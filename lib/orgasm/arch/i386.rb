@@ -17,9 +17,11 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-Architecture.for 'i386' do
+require 'orgasm/arch/i386/base'
+
+Orgasm::Architecture.for 'i386' do
   instructions 'orgasm/arch/i386/instructions'
   disassembler 'orgasm/arch/i386/disassembler'
   generator    'orgasm/arch/i386/generator'
-  style        'orgasm/arch/i386/style'
+#  style        'orgasm/arch/i386/style'
 end

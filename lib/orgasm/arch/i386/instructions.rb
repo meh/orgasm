@@ -17,11 +17,10 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/instructions'
 require 'orgasm/arch/i386/instructions/dsl'
 require 'orgasm/arch/i386/instructions/instructions'
 
-Architecture.in 'i386' do Instructions[DSL.new {
+I386::Instructions[I386::DSL.new {
   # ASCII Adjust After Addition
   AAA [0x37]
 
@@ -148,4 +147,4 @@ Architecture.in 'i386' do Instructions[DSL.new {
   # Bit-wise Logical And For Single FP
   ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
 
-}.to_hash] end
+}.to_hash]

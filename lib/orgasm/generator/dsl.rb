@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; class Generator
+module Orgasm; class Generator < Piece
 
 class DSL < BasicObject
   def initialize (&block)

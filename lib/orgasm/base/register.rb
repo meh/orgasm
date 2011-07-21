@@ -23,10 +23,14 @@ class Register < Base
   attr_accessor :name, :size
 
   def initialize (name=nil, size=nil)
-    @name = name.to_sym if name
-    @size = size.to_i   if size
+    @name = name.to_s.downcase.to_sym if name
+    @size = size.to_i                 if size
 
     super()
+  end
+
+  def inspect
+    "#<Register: #{@name}, #{@size} bits>"
   end
 end
 

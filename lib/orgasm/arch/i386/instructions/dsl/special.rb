@@ -17,12 +17,59 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Special
+  class Operator
+    attr_reader :first, :second
 
-require 'orgasm/architecture'
+    def initialize (first, second)
+      @first  = first
+      @second = second
+    end
+  end
+
+  class Or < Operator
+    def to_s
+      "#{first}|#{second}"
+    end
+  end
+
+  class And < Operator
+    def to_s
+      "#{first}&#{second}"
+    end
+  end
+
+  class Offset < Operator
+    def to_s
+      "#{first}:#{second}"
+    end
+  end
+
+  def initialize (value)
+    @value = value
+  end
+
+  def | (value)
+    Or.new(self, value)
+  end
+
+  def & (value)
+    And.new(self, value)
+  end
+
+  def ^ (value)
+    Offset.new(self, value)
+  end
+
+  def to_sym
+    @value
+  end
+
+  def to_s
+    @value.to_s
+  end
+end
+
+end; end

@@ -23,10 +23,18 @@ class Instruction < Base
   attr_reader :name, :parameters
 
   def initialize (name=nil, *parameters)
-    @name       = name.to_sym if name
+    self.name   = name if name
     @parameters = parameters.to_a
 
     super()
+  end
+
+  def name= (value)
+    @name = value.downcase.to_sym
+  end
+
+  def inspect
+    "#<Instruction(#{name})#{": #{parameters.join(', ')}" unless parameters.empty?}>"
   end
 end
 

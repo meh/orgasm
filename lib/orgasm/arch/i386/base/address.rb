@@ -17,12 +17,26 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Address < Orgasm::Address
+  def initialize (value=nil, options={})
+    if value.respond_to? :to_i
+      super(value)
+    else
+      super()
+    end
 
-require 'orgasm/architecture'
+    @options = options
+  end
+
+  def relative?
+    !!@options[:relative]
+  end
+
+  def offset?
+    !!@options[:offset]
+  end
+end
+
+end; end

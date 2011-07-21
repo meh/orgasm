@@ -20,23 +20,10 @@
 module Orgasm
 
 class Address < Base
-  attr_reader :start
-
-  def initialize (value=nil, offset=nil)
-    if value
-      if offset
-        @start = value
-        @value = offset.to_i
-      else
-        @value = value.to_i
-      end
-    end
+  def initialize (value=nil)
+    @value = value.to_i
 
     super()
-  end
-
-  def offset?
-    !!start
   end
 
   def to_i

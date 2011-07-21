@@ -17,12 +17,25 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Instruction < Orgasm::Instruction
+  extend Forwardable
 
-require 'orgasm/architecture'
+  def_delegator :@parameters, :first, :destination
+  def_delegator :@parameters, :last,  :source
+
+  def initialize (name=nil, destination=nil, source=nil)
+    super(name, destination, source)
+  end
+
+  def destination= (value)
+    parameters[0] = value
+  end
+
+  def source= (value)
+    parameters[1] = value
+  end
+end
+
+end; end

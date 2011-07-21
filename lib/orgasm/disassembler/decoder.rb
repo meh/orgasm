@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; class Disassembler
+module Orgasm; class Disassembler < Piece
 
 class Decoder
   def initialize (*args, &block)

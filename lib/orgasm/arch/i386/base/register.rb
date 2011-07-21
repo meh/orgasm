@@ -17,12 +17,24 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Register < Orgasm::Register
+  attr_accessor :size
 
-require 'orgasm/architecture'
+  def initialize (name=nil)
+    super(name, Architecture.i386.instructions.register?(name))
+  end
+
+  def name= (value)
+    value = value.to_s.downcase.to_sym
+
+    unless Architecture.i386.instructions.register?(value)
+      raise ArgumentError, "#{value} isn't a valid i386 register"
+    end
+
+    @name = value
+  end
+end
+
+end; end

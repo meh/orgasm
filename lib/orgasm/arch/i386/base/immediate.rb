@@ -17,12 +17,14 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Immediate < Orgasm::Constant
+  attr_accessor :size
 
-require 'orgasm/architecture'
+  def initialize (value=nil, size=nil)
+    super(value)
+  end
+end
+
+end; end

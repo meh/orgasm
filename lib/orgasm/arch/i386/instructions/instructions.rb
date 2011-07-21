@@ -17,12 +17,34 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module I386
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+class Instructions < Hash
+  def registers
+    [:al,  :cl,  :dl,  :bl,  :ah,  :ch,  :dh,  :bh,
+     :ax,  :cx,  :dx,  :bx,  :sp,  :bp,  :si,  :di,
+     :eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi]
+  end
 
-require 'orgasm/architecture'
+  def register? (value)
+    return unless case value.to_s.downcase
+      when /^e[abcd]x$/,
+           /^e[bs]p$/,
+           /^e[sd]i$/,
+           /^[abcd]x$/,
+           /^[sb]p$/,
+           /^[sd]i$/,
+           /^[abcd][lh]$/ then true
+
+      else false
+    end
+
+    case value.to_s.downcase
+      when /^e/     then 32
+      when /[xpi]$/ then 16
+      when /[lh]$/  then 8
+    end
+  end
+end
+
+end; end

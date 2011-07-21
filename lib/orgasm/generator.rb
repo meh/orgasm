@@ -36,7 +36,9 @@ class Generator < Piece
     if block
       @for[klass] = block
     else
-      @for[klass]
+      @for[klass] or @for.find {|(what, block)|
+        what.ancestors.member?(klass)
+      }.last
     end
   end
 end

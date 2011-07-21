@@ -17,12 +17,18 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+instructions.to_hash.each {|name, description|
+  description.each {|description|
+    if description.is_a?(Hash)
+      description.each {|params, opcodes|
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+      }
+    else
+      on description.map {|b| b.chr}.join do |whole, which|
+        seek which.length
 
-require 'orgasm/architecture'
+        Instruction.new(name)
+      end
+    end
+  }
+}

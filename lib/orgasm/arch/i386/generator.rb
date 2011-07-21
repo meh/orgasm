@@ -17,12 +17,28 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+instructions.registers.each {|register|
+  define_singleton_method register do
+    register
+  end
+}
 
-require 'orgasm/piece'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-require 'orgasm/styles'
+generator.for I386::Instruction do |name, &block|
+  I386::Instruction.new(name, &block)
+end
 
-require 'orgasm/architecture'
+generator.for I386::Register do |name|
+  I386::Register.new(name)
+end
+
+generator.for I386::Address do |data|
+  if data.is_a?(Array)
+    Address.new(*data)
+  else
+    Address.new(data)
+  end
+end
+
+generator.for I386::Immediate do |data|
+  I386::Immediate.new(data, 32)
+end

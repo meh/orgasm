@@ -29,27 +29,56 @@ class Architecture
 
     alias is for
     alias in for
+
+    def [] (name)
+      @@archs[name.downcase.to_sym]
+    end
+
+    def method_missing (id, *)
+      return self[id] if self[id]
+
+      super
+    end
   end
 
-  attr_reader :name, :classes
+  attr_reader :name
 
   def initialize (name, &block)
     @name    = name
-    @classes = {}
 
     self.do(&block)
   end
 
-  [:instructions, :disassembler, :assembler, :generator, :style].each {|name|
+  def instructions (path=nil, &block)
+    return @instructions unless path or block
+
+    @instructions = if path
+      path = $:.each {|dir|
+        dir = File.join(dir, "#{path}.rb")
+
+        break dir if File.readable?(dir)
+      }.tap {|o|
+        raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+      }
+
+      instance_eval File.read(path), path, 1
+    else
+      instance_eval &block
+    end
+  end
+
+  [:disassembler, :assembler, :generator, :style].each {|name|
     define_method name do |path=nil, &block|
       return instance_variable_get("@#{name}") unless path or block
 
       instance_variable_set("@#{name}", if path
-        io = File.open('r', $:.each {|dir|
-          dir = File.join(dir, path)
+        io = File.open($:.each {|dir|
+          dir = File.join(dir, "#{path}.rb")
 
           break dir if File.readable?(dir)
-        })
+        }.tap {|o|
+          raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+        }, 'r')
 
         Orgasm.const_get(name.capitalize).new(self, io)
       else      
@@ -59,14 +88,11 @@ class Architecture
   }
 
   def do (string=nil, &block)
-    instance_eval string if string
-    instance_eval &block if block
-  end
-
-  def method_missing (id, *args, &block)
-    return super unless id == id.capitalize
-
-    @classes[id] ||= Class.new(*args, &block)
+    if block
+      instance_eval &block
+    elsif string
+      instance_eval string
+    end
   end
 
   def to_s
