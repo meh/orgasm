@@ -38,7 +38,12 @@ class Decoder
     }
 
     catch(:result) {
-      instance_exec @args, match, &@block
+      start = @io.tell
+
+      @io.seek start if catch(:skip) {
+        _result(instance_exec @args, match, &@block)
+        false
+      }
     }
   end
 
@@ -64,11 +69,7 @@ class Decoder
       matches(arg)
     }
 
-    result = instance_exec args, match, &block
-
-    if Orgasm.object?(result)
-      throw :result, result
-    end
+    result = _result(instance_exec args, match, &block)
 
     result
   end
@@ -79,11 +80,7 @@ class Decoder
     if block
       where, = @io.tell, @io.seek(amount, whence)
 
-      result = instance_eval &block
-
-      if Orgasm.object?(result)
-        throw :result, result
-      end
+      result = _result(instance_eval &block)
 
       @io.seek(where)
 
@@ -103,11 +100,7 @@ class Decoder
         raise RuntimeError, 'The stream has not enough data :('
       end
 
-      result = instance_exec data, &block
-
-      if Orgasm.object?(result)
-        throw :result, result
-      end
+      result = _result(instance_exec data, &block)
 
       seek -amount
 
@@ -122,6 +115,19 @@ class Decoder
       data
     end rescue nil
   end
+
+  def skip
+    throw :skip, true
+  end
+
+  private
+    def _result (value)
+      if Orgasm.object?(value)
+        throw :result, value
+      end
+
+      value
+    end
 end
 
 end; end

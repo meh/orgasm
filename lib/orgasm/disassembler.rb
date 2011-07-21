@@ -36,27 +36,40 @@ class Disassembler < Piece
     end
 
     result = []
+    junk   = nil
 
     until io.eof?
       where = io.tell
 
       @decoders.each {|decoder|
         if tmp = Orgasm.object?(decoder.with(io).decode)
+          result << unknown(junk) and junk = nil if junk
           result << tmp
+
           break
         end
       }
 
       if where == io.tell
-        raise RuntimeError, 'No input was read, something is wrong with the decoders'
+        (junk ||= '') << io.read(1)
       end
     end
+
+    result << unknown(junk) if junk
 
     result.flatten.compact
   end; alias do disassemble
 
   def on (*args, &block)
     @decoders << Decoder.new(*args, &block)
+  end
+
+  def unknown (data=nil, &block)
+    if block
+      @unknown = block
+    elsif data && @unknown
+      instance_exec data, &@unknown
+    end
   end
 end
 

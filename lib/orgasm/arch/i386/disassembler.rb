@@ -20,8 +20,26 @@
 instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
+      next
       description.each {|params, opcodes|
+        opcodes = opcodes.clone
+        known   = opcodes.reverse.drop_while {|x| !x.is_a?(Integer)}.reverse.map {|x| x.chr}.join
+        opcodes.slice! known.length
 
+        on known do |whole, which|
+          seek which.length do
+            if opcodes.first.is_a?(String)
+              check = opcodes.shift.to_i
+
+              read 1 do |data|
+                skip unless ((data.to_byte & '00111000'.to_i(2)) >> 3) == check
+              end
+
+              opcodes.shift
+            end
+              
+          end
+        end
       }
     else
       on description.map {|b| b.chr}.join do |whole, which|
@@ -31,4 +49,8 @@ instructions.to_hash.each {|name, description|
       end
     end
   }
+
+#  unknown do |data|
+#    Unknown.new(data)
+#  end
 }

@@ -33,7 +33,7 @@ end
 
 generator.for I386::Address do |data|
   if data.is_a?(Array)
-    Address.new(*data)
+    Address.new(data)
   else
     Address.new(data)
   end

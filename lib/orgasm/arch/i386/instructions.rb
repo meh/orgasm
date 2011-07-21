@@ -39,11 +39,11 @@ I386::Instructions[I386::DSL.new {
   ADC [al,      imm8]    => [0x14, ib],
       [ax,      imm16]   => [0x15, iw],
       [eax,     imm32]   => [0x15, id],
-      [r8|m8,   imm8]    => [0x80, 2.freeze, ib],
-      [r16|m16, imm16]   => [0x81, 2.freeze, iw],
-      [r32|m32, imm32]   => [0x81, 2.freeze, id],
-      [r16|m16, imm8]    => [0x83, 2.freeze, ib],
-      [r32|m32, imm8]    => [0x83, 2.freeze, ib],
+      [r8|m8,   imm8]    => [0x80, ?2, ib],
+      [r16|m16, imm16]   => [0x81, ?2, iw],
+      [r32|m32, imm32]   => [0x81, ?2, id],
+      [r16|m16, imm8]    => [0x83, ?2, ib],
+      [r32|m32, imm8]    => [0x83, ?2, ib],
       [r8|m8,   r8]      => [0x10, r],
       [r16|m16, r16]     => [0x11, r],
       [r32|m32, r32]     => [0x11, r],
@@ -55,11 +55,11 @@ I386::Instructions[I386::DSL.new {
   ADD [al,      imm8]    => [0x04, ib],
       [ax,      imm16]   => [0x05, iw],
       [eax,     imm32]   => [0x05, id],
-      [r8|m8,   imm8]    => [0x80, 0.freeze, ib],
-      [r16|m16, imm16]   => [0x81, 0.freeze, iw],
-      [r32|m32, imm32]   => [0x81, 0.freeze, id],
-      [r16|m16, imm8]    => [0x83, 0.freeze, ib],
-      [r32|m32, imm8]    => [0x83, 0.freeze, ib],
+      [r8|m8,   imm8]    => [0x80, ?0, ib],
+      [r16|m16, imm16]   => [0x81, ?0, iw],
+      [r32|m32, imm32]   => [0x81, ?0, id],
+      [r16|m16, imm8]    => [0x83, ?0, ib],
+      [r32|m32, imm8]    => [0x83, ?0, ib],
       [r8|m8,   r8]      => [0x00, r],
       [r16|m16, r16]     => [0x01, r],
       [r32|m32, r32]     => [0x01, r],
@@ -71,11 +71,11 @@ I386::Instructions[I386::DSL.new {
   AND [al,      imm8]    => [0x24, ib],
       [ax,      imm16]   => [0x25, iw],
       [eax,     imm32]   => [0x25, id],
-      [r8|m8,   imm8]    => [0x80, 4.freeze, ib],
-      [r16|m16, imm16]   => [0x81, 4.freeze, iw],
-      [r32|m32, imm32]   => [0x81, 4.freeze, id],
-      [r16|m16, imm8]    => [0x83, 4.freeze, ib],
-      [r32|m32, imm8]    => [0x83, 4.freeze, ib],
+      [r8|m8,   imm8]    => [0x80, ?4, ib],
+      [r16|m16, imm16]   => [0x81, ?4, iw],
+      [r32|m32, imm32]   => [0x81, ?4, id],
+      [r16|m16, imm8]    => [0x83, ?4, ib],
+      [r32|m32, imm8]    => [0x83, ?4, ib],
       [r8|m8,   r8]      => [0x20, r],
       [r16|m16, r16]     => [0x21, r],
       [r32|m32, r32]     => [0x21, r],
@@ -107,30 +107,30 @@ I386::Instructions[I386::DSL.new {
   # Bit Test
   BT [r16|m16, r16]  => [0x0F, 0xA3],
      [r32|m32, r32]  => [0x0F, 0xA3],
-     [r16|m16, imm8] => [0x0F, 0xBA, 4.freeze, ib],
-     [r32|m32, imm8] => [0x0F, 0xBA, 4.freeze, ib]
+     [r16|m16, imm8] => [0x0F, 0xBA, ?4, ib],
+     [r32|m32, imm8] => [0x0F, 0xBA, ?4, ib]
 
   # Bit Test and Complement
   BTC [r16|m16, r16]  => [0x0F, 0xBB],
       [r32|m32, r32]  => [0x0F, 0xBB],
-      [r16|m16, imm8] => [0x0F, 0xBA, 7.freeze, ib],
-      [r32|m32, imm8] => [0x0F, 0xBA, 7.freeze, ib]
+      [r16|m16, imm8] => [0x0F, 0xBA, ?7, ib],
+      [r32|m32, imm8] => [0x0F, 0xBA, ?7, ib]
 
   # Bit Test and Reset
   BTR [r16|m16, r16]  => [0x0F, 0xB3],
       [r32|m32, r32]  => [0x0F, 0xB3],
-      [r16|m16, imm8] => [0x0F, 0xBA, 6.freeze, ib],
-      [r32|m32, imm8] => [0x0F, 0xBA, 6.freeze, ib]
+      [r16|m16, imm8] => [0x0F, 0xBA, ?6, ib],
+      [r32|m32, imm8] => [0x0F, 0xBA, ?6, ib]
 
   # Call Procedure
   CALL [rel16]    => [0xE8, cw],
        [rel32]    => [0xE8, cd],
-       [r16|m16]  => [0xFF, 2.freeze],
-       [r32|m32]  => [0xFF, 2.freeze],
+       [r16|m16]  => [0xFF, ?2],
+       [r32|m32]  => [0xFF, ?2],
        [ptr16^16] => [0x9A, cd],
        [ptr16^32] => [0x9A, cp],
-       [m16^16]   => [0xFF, 3.freeze],
-       [m16^32]   => [0xFF, 3.freeze]
+       [m16^16]   => [0xFF, ?3],
+       [m16^32]   => [0xFF, ?3]
         
 
   # -- x87 FPU --

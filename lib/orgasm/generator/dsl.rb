@@ -42,7 +42,7 @@ class DSL < BasicObject
       @generator.callback id, *args, &block
     else
       @generator.for(::Orgasm::Instruction).call(id) {|i|
-        args.reverse.each {|arg|
+        args.each {|arg|
           i.parameters << case arg
             when ::Symbol  then @generator.for(::Orgasm::Register).call(arg)
             when ::Array   then @generator.for(::Orgasm::Address).call(arg)
