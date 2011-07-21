@@ -24,7 +24,7 @@ class Instruction < Base
 
   def initialize (name=nil, *parameters)
     self.name   = name if name
-    @parameters = parameters.to_a
+    @parameters = parameters.to_a.flatten.compact
 
     super()
   end

@@ -29,6 +29,10 @@ class Unknown < Base
   def to_i
     @size
   end
+
+  def inspect
+    "#<Unknown>"
+  end
 end
 
 end

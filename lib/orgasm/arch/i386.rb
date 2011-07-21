@@ -23,5 +23,5 @@ Orgasm::Architecture.for 'i386' do
   instructions 'orgasm/arch/i386/instructions'
   disassembler 'orgasm/arch/i386/disassembler'
   generator    'orgasm/arch/i386/generator'
-#  style        'orgasm/arch/i386/style'
+  styles       'orgasm/arch/i386/styles'
 end

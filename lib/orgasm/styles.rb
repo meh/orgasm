@@ -17,6 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'orgasm/styles/style'
+
 module Orgasm
 
 class Styles < Piece
@@ -38,6 +40,24 @@ class Styles < Piece
 
   def current
     @current or use(@styles.first.name)
+  end
+
+  def extend (*things)
+    styles = self
+
+    things.flatten.compact.each {|thing|
+      thing.refine_method :to_s do |old, *|
+        begin
+          styles.apply(self) or old.call or inspect
+        rescue
+          old.call or inspect
+        end
+      end
+    }
+  end
+
+  def apply (thing)
+    current.apply(thing)
   end
 end
 

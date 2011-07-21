@@ -30,7 +30,7 @@ class Generator < Piece
 
   def generate (&block)
     DSL.new(&block).execute(self)
-  end
+  end; alias do generate
 
   def for (klass, &block)
     if block

@@ -31,6 +31,10 @@ class Constant < Base
   def to_i
     @value
   end
+
+  def inspect
+    "#<Constant: #{to_i}>"
+  end
 end
 
 end

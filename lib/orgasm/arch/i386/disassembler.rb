@@ -27,7 +27,7 @@ instructions.to_hash.each {|name, description|
       on description.map {|b| b.chr}.join do |whole, which|
         seek which.length
 
-        Instruction.new(name)
+        I386::Instruction.new(name)
       end
     end
   }

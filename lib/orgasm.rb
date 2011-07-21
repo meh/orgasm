@@ -20,9 +20,9 @@
 require 'orgasm/base'
 
 require 'orgasm/piece'
+require 'orgasm/styles'
 require 'orgasm/disassembler'
 require 'orgasm/generator'
 require 'orgasm/assembler'
-require 'orgasm/styles'
 
 require 'orgasm/architecture'

@@ -53,7 +53,7 @@ class Disassembler < Piece
     end
 
     result.flatten.compact
-  end
+  end; alias do disassemble
 
   def on (*args, &block)
     @decoders << Decoder.new(*args, &block)

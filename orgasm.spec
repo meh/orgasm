@@ -11,4 +11,7 @@ Gem::Specification.new {|s|
   s.files        = Dir.glob('lib/**/*.rb')
   s.require_path = 'lib'
   s.executables  = ['swallow', 'ejaculate']
+
+  s.add_dependency('memoized')
+  s.add_dependency('refining')
 }

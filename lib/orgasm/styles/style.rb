@@ -34,7 +34,13 @@ class Style
   end
 
   def apply (thing)
-    thing.instance_eval &@for[thing.class]
+    callback = @for[thing.class] or @for.find {|(what, block)|
+      what.ancestors.member?(thing.class)
+    }.last
+
+    if callback
+      thing.instance_eval &callback
+    end
   end
 
   def name
@@ -46,4 +52,4 @@ class Style
   end
 end
 
-end
+end; end

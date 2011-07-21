@@ -18,6 +18,8 @@
 #++
 
 require 'forwardable'
+require 'refining'
+require 'memoized'
 
 class String
   alias to_byte ord

@@ -29,6 +29,10 @@ class Address < Base
   def to_i
     @value
   end
+
+  def inspect
+    "#<Address: #{to_i}>"
+  end
 end
 
 end

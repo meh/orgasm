@@ -67,7 +67,7 @@ class Architecture
     end
   end
 
-  [:disassembler, :assembler, :generator, :style].each {|name|
+  [:disassembler, :assembler, :generator, :styles].each {|name|
     define_method name do |path=nil, &block|
       return instance_variable_get("@#{name}") unless path or block
 

@@ -23,6 +23,10 @@ class Assembler < Piece
   def initialize (*)
     super
   end
+
+  def assemble (instructions)
+
+  end; alias do assemble
 end
 
 end
