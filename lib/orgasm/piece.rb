@@ -25,8 +25,8 @@ class Piece
   def initialize (arch, io=nil, &block)
     @arch = arch
 
-    instance_eval io.read if io
-    instance_eval &block  if block
+    instance_eval io.read, io.path, 1 if io
+    instance_eval &block              if block
   end
 
   def self.inherited (subclass)

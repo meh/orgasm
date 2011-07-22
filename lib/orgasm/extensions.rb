@@ -20,9 +20,12 @@
 require 'forwardable'
 require 'refining'
 require 'memoized'
+require 'packable'
 
 class String
-  alias to_byte ord
+  def to_bytes (options={})
+    self.unpack(Integer, { endian: :little, signed: false, bytes: length }.merge(options))
+  end; alias to_byte to_bytes
 end
 
 class Array
@@ -33,6 +36,16 @@ class Array
   end
 end
 
+class Integer
+  def bits
+    self / 8
+  end; alias bit bits
+
+  def bytes
+    self * 8
+  end; alias byte bytes
+end
+
 module Kernel
   def suppress_warnings
     exception = nil
@@ -40,16 +53,14 @@ module Kernel
 
     begin
       result = yield
+
+      $VERBOSE = tmp
     rescue Exception => e
-      exception = e
+      $VERBOSE = tmp
+
+      raise
     end
 
-    $VERBOSE = tmp
-
-    if exception
-      raise exception
-    else
-      result
-    end
+    result
   end
 end

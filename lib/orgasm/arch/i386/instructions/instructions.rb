@@ -27,23 +27,21 @@ class Instructions < Hash
   end
 
   def register? (value)
-    return unless case value.to_s.downcase
-      when /^e[abcd]x$/,
-           /^e[bs]p$/,
-           /^e[sd]i$/,
-           /^[abcd]x$/,
-           /^[sb]p$/,
-           /^[sd]i$/,
-           /^[abcd][lh]$/ then true
-
-      else false
-    end
+    return unless registers.member?((value.to_sym.downcase rescue nil))
 
     case value.to_s.downcase
       when /^e/     then 32
       when /[xpi]$/ then 16
       when /[lh]$/  then 8
     end
+  end
+
+  def register (value, type=32)
+    Hash[
+      8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
+      16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
+      32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
+    ][type][value]
   end
 end
 

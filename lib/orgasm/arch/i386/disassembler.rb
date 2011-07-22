@@ -20,7 +20,7 @@
 prefixes = []
 
 skip do
-  prefixes = []
+  prefixes.clear
 end
 
 instructions.to_hash.each {|name, description|
@@ -39,6 +39,8 @@ instructions.to_hash.each {|name, description|
             seek +1
           end
 
+          small = prefixes.member?(:operand) || prefixes.member?(:address)
+
           on known do |whole, which|
             seek which.length do
               modr = if opcodes.first.is_a?(String) || opcodes.first == :r
@@ -47,28 +49,50 @@ instructions.to_hash.each {|name, description|
 
               skip if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-              data = if I386::Data.is?(opcodes.first)
+              sib = if modr && modr.mod != '11'.to_i(2) && modr.rm == '100'.to_i(2) && !small
+                I386::SIB.new(read(1).to_byte)
+              end
+
+              displacement = modr && read(
+                if small
+                  if    modr.mod == '00'.to_i(2) && modr.rm == '110'.to_i(2) then 16.bit
+                  elsif modr.mod == '01'.to_i(2)                             then 8.bit
+                  elsif modr.mod == '10'.to_i(2)                             then 16.bit
+                  end
+                else
+                  if    modr.mod == '00'.to_i(2) && modr.rm == '101'.to_i(2) then 32.bit
+                  elsif modr.mod == '01'.to_i(2)                             then 8.bit
+                  elsif modr.mod == '10'.to_i(2)                             then 32.bit
+                  end
+                end
+              ).to_bytes rescue nil
+
+              immediate = if I386::Data.valid?(opcodes.first)
                 I386::Data.new(self, opcodes.first).tap {|o|
-                  skip if o.size == 2 && !prefixes.member?(:operand)
+                  skip if o.size == 2 && !small
                 }
               end
 
+              skip if !small && (destination.to_s[/\d+$/].to_i == 16 || source.to_s[/\d+$/].to_i == 16)
+
               I386::Instruction.new(name) {|i|
-                i.destination = if instructions.register?(destination)
-                  I386::Register.new(destination)
-                elsif destination.to_s.match(/^imm/)
-                  I386::Immediate.new(data.to_i, data.size)
-                else
-                  raise ArgumentError, "dont know what to do with #{destination} as destination"
-                end
-
-                next unless source
-
-                i.source = if source.to_s.match(/^imm/)
-                  I386::Immediate.new(data.to_i, data.size)
-                else
-                  raise ArgumentError, "dont know what to do with #{source} as source"
-                end
+                { destination: destination, source: source }.each {|type, obj|
+                  i.send "#{type}=", if instructions.register?(obj)
+                    I386::Register.new(obj)
+                  elsif obj.is?(:imm)
+                    I386::Immediate.new(immediate.to_i, immediate.size)
+                  elsif obj.is?(:m) && displacement
+                    I386::Address.new(displacement)
+                  elsif obj.is?(:r)
+                    if opcodes.first == :r
+                      I386::Register.new(instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.to_s[/\d+$/].to_i))
+                    else
+                      I386::Register.new(instructions.register(modr.rm, obj.to_s[/\d+$/].to_i))
+                    end
+                  else
+                    raise ArgumentError, "dont know what to do with #{obj} as #{type}"
+                  end
+                }
 
                 prefixes.clear
               }

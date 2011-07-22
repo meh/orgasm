@@ -36,12 +36,20 @@ class ModR
     (to_i & '00000111'.to_i(2))
   end
 
+  def register?
+    mod == '11'.to_i(2)
+  end
+
+  def memory?
+    !register?
+  end
+
   def to_i
     @value
   end
 
   def inspect
-    "#<ModR: #{'%02b' % mod} #{'%03b' % reg} #{'%03b' % rm}>"
+    "#<ModR/M: Mod=#{'%02b' % mod} Reg/Opcode=#{'%03b' % reg} R/M=#{'%03b' % rm}>"
   end
 end
 
@@ -67,29 +75,23 @@ class SIB
   end
 
   def inspect
-    "#<SIB: #{'%02b' % scale} #{'%03b' % index} #{'%03b' % base}>"
+    "#<SIB: Scale=#{'%02b' % scale} Index=#{'%03b' % index} Base=#{'%03b' % base}>"
   end
 end
 
 class Data
-  def self.is? (value)
-    %w(ib iw id cb cw cd cp).to_syms.member?(value.to_sym)
-  end
+  Sizes = { ib: 1, iw: 2, id: 4, cb: 1, cw: 2, cd: 4, cp: 6 }
 
-  Sizes = { ib: 1, iw: 2, id: 4,
-            cb: 1, cw: 2, cd: 4, cp: 6 }
+  def self.valid? (value)
+    Sizes.key?(value.to_sym)
+  end
 
   attr_reader :type, :size
 
   def initialize (io, type)
-    @type = type.to_s.downcase.to_sym
-    @size = Sizes[@type]
-
-    if size == 6
-      @value = ("\x00\x00" + io.read(6)).unpack(?Q).first
-    else
-      @value = io.read(size).unpack({ 1 => ?C, 2 => ?S, 4 => ?L }[size]).first
-    end
+    @type  = type.to_s.downcase.to_sym
+    @size  = Sizes[@type]
+    @value = io.read(size).to_bytes
   end
 
   def to_i

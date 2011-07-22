@@ -37,7 +37,7 @@ class Constant < Base
     if @value.nil?
       '#<Constant: NULL>'
     else
-      "#<Constant: #{"0x%0#{size * 2}X" % to_i}#{", #{size * 8} bits" if size}>"
+      "#<Constant: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
     end
   end
 end

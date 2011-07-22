@@ -100,7 +100,7 @@ class Decoder
   end
 
   def read (amount, &block)
-    return unless @io
+    return unless @io and amount > 0
 
     data = @io.read(amount)
 

@@ -27,6 +27,10 @@ class Special
       @first  = first
       @second = second
     end
+
+    def is? (value)
+      first.is?(value) || (second.is_a?(Special) && second.is?(value))
+    end
   end
 
   class Or < Operator
@@ -68,6 +72,10 @@ class Special
       undef_method name rescue nil
     }
   }
+
+  def is? (value)
+    to_s.start_with?(value.to_s)
+  end
 
   def method_missing (*args, &block)
     @value.__send__ *args, &block
