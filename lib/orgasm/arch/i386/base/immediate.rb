@@ -21,7 +21,11 @@ module Orgasm; module I386
 
 class Immediate < Orgasm::Constant
   def inspect
-    "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size * 8} bits" if size}>"
+    if @value.nil?
+      '#<Immediate: NULL>'
+    else
+      "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size * 8} bits" if size}>"
+    end
   end
 end
 

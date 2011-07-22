@@ -17,45 +17,62 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+prefixes = []
+
+skip do
+  prefixes = []
+end
+
 instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
       description.each {|params, opcodes|
-        destination, source = params
-
-        opcodes = opcodes.clone
-        known   = opcodes.reverse.drop_while {|x| !x.is_a?(Integer)}.reverse.map {|x| x.chr}.join
+        destination = params.first
+        source      = params.last
+        opcodes     = opcodes.clone
+        known       = opcodes.reverse.drop_while {|x| !x.is_a?(Integer)}.reverse.map {|x| x.chr}.join
         opcodes.slice! 0 ... known.length
 
-        on known do |whole, which|
-          seek which.length do
-            modr = if opcodes.first.is_a?(String) || opcodes.first == :r
-              I386::ModR.new(read(1).to_byte)
-            end
+        always do
+          while prefix = I386::Instruction.prefix?(lookahead(1).to_byte)
+            prefixes << prefix unless prefixes.member?(prefix)
+            seek +1
+          end
 
-            skip if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
-
-            data = if I386::Data.is?(opcodes.first)
-              I386::Data.new(self, opcodes.first)
-            end
-
-            I386::Instruction.new(name) {|i|
-              i.destination = if instructions.register?(destination)
-                I386::Register.new(destination)
-              elsif destination.to_s.match(/^imm/)
-                I386::Immediate.new(data.to_i, data.size)
-              else
-                raise ArgumentError, "dont know what to do with #{destination} as destination"
+          on known do |whole, which|
+            seek which.length do
+              modr = if opcodes.first.is_a?(String) || opcodes.first == :r
+                I386::ModR.new(read(1).to_byte)
               end
 
-              next unless source
+              skip if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-              i.source = if source.to_s.match(/^imm/)
-                I386::Immediate.new(data.to_i, data.size)
-              else
-                raise ArgumentError, "dont know what to do with #{source} as source"
+              data = if I386::Data.is?(opcodes.first)
+                I386::Data.new(self, opcodes.first).tap {|o|
+                  skip if o.size == 2 && !prefixes.member?(:operand)
+                }
               end
-            }
+
+              I386::Instruction.new(name) {|i|
+                i.destination = if instructions.register?(destination)
+                  I386::Register.new(destination)
+                elsif destination.to_s.match(/^imm/)
+                  I386::Immediate.new(data.to_i, data.size)
+                else
+                  raise ArgumentError, "dont know what to do with #{destination} as destination"
+                end
+
+                next unless source
+
+                i.source = if source.to_s.match(/^imm/)
+                  I386::Immediate.new(data.to_i, data.size)
+                else
+                  raise ArgumentError, "dont know what to do with #{source} as source"
+                end
+
+                prefixes.clear
+              }
+            end
           end
         end
       }

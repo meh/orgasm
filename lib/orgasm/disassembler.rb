@@ -64,6 +64,10 @@ class Disassembler < Piece
     @decoders << Decoder.new(self, *args, &block)
   end
 
+  def always (&block)
+    @decoders << Decoder.new(self, true, &block)
+  end
+
   def unknown (data=nil, &block)
     if block
       @unknown = block
@@ -76,6 +80,10 @@ class Disassembler < Piece
         end
       end
     end
+  end
+
+  def skip (&block)
+    @skip ||= block
   end
 end
 

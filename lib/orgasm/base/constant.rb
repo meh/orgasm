@@ -34,7 +34,11 @@ class Constant < Base
   end
 
   def inspect
-    "#<Constant: #{to_i}#{", #{size * 8} bits" if size}>"
+    if @value.nil?
+      '#<Constant: NULL>'
+    else
+      "#<Constant: #{"0x%0#{size * 2}X" % to_i}#{", #{size * 8} bits" if size}>"
+    end
   end
 end
 

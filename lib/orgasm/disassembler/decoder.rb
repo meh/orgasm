@@ -24,7 +24,7 @@ class Decoder
 
   def initialize (disassembler, *args, &block)
     @disassembler = disassembler
-    @args         = args
+    @args         = args.flatten.compact
     @block        = block
   end
 
@@ -47,8 +47,8 @@ class Decoder
     catch(:result) {
       start = @io.tell
 
-      @io.seek start if catch(:skip) {
-        _result(instance_exec @args, match, &@block)
+      skip(start) if catch(:skip) {
+        result(instance_exec @args, match, &@block)
         false
       }
     }
@@ -56,6 +56,8 @@ class Decoder
 
   def matches (what)
     return false unless @io
+
+    return true if what === true
 
     where, result = @io.tell, if what.is_a?(Regexp)
       !!@io.read.match(what)
@@ -72,13 +74,15 @@ class Decoder
   def on (*args, &block)
     return unless @io
 
-    return unless match = args.find {|arg|
+    return unless match = args.flatten.compact.find {|arg|
       matches(arg)
     }
 
-    result = _result(instance_exec args, match, &block)
+    result(instance_exec args, match, &block)
+  end
 
-    result
+  def always (&block)
+    result(instance_eval &block)  
   end
 
   def seek (amount, whence=IO::SEEK_CUR, &block)
@@ -87,11 +91,9 @@ class Decoder
     if block
       where, = @io.tell, @io.seek(amount, whence)
 
-      result = _result(instance_eval &block)
-
-      @io.seek(where)
-
-      result
+      result(instance_eval &block).tap {
+        @io.seek(where)
+      }
     else
       @io.seek(amount, whence)
     end
@@ -100,20 +102,18 @@ class Decoder
   def read (amount, &block)
     return unless @io
 
+    data = @io.read(amount)
+
+    if data.nil? or data.length != amount
+      raise RuntimeError, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
+    end
+
     if block
-      data = @io.read(amount)
-
-      if data.nil? or data.length != amount
-        raise RuntimeError, 'The stream has not enough data :('
-      end
-
-      result = _result(instance_exec data, &block)
-
-      seek -amount
-
-      result
+      result(instance_exec data, &block).tap {
+        seek -amount
+      }
     else
-      @io.read(amount)
+      data
     end
   end
 
@@ -123,12 +123,18 @@ class Decoder
     end rescue nil
   end
 
-  def skip
-    throw :skip, true
+  def skip (start=nil)
+    if start.nil?
+      throw :skip, true
+    else
+      instance_eval &disassembler.skip if disassembler.skip
+
+      @io.seek(start)
+    end
   end
 
   private
-    def _result (value)
+    def result (value)
       if Orgasm.object?(value)
         throw :result, value
       end
