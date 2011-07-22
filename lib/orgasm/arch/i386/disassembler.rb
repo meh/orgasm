@@ -82,7 +82,7 @@ instructions.to_hash.each {|name, description|
                   elsif obj.is?(:imm)
                     I386::Immediate.new(immediate.to_i, immediate.size)
                   elsif obj.is?(:m) && displacement
-                    I386::Address.new(displacement)
+                    I386::Address.new(displacement, (obj.second rescue obj).to_s[/\d+$/].to_i)
                   elsif obj.is?(:r)
                     if opcodes.first == :r
                       I386::Register.new(instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.to_s[/\d+$/].to_i))

@@ -20,13 +20,16 @@
 module Orgasm; module I386
 
 class Address < Orgasm::Address
-  def initialize (value=nil, options={})
+  attr_accessor :size
+
+  def initialize (value=nil, size=32, options={})
     if value.respond_to? :to_i
       super(value)
     else
       super()
     end
 
+    @size    = size
     @options = options
   end
 
@@ -36,6 +39,10 @@ class Address < Orgasm::Address
 
   def offset?
     !!@options[:offset]
+  end
+
+  def inspect
+    "#<Address: #{'0x%X' % to_i}, #{size} bits>"
   end
 end
 

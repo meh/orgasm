@@ -31,7 +31,7 @@ class Address < Base
   end
 
   def inspect
-    "#<Address: #{to_i}>"
+    "#<Address: #{'0x%X' % to_i}>"
   end
 end
 

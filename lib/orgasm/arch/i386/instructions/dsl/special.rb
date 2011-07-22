@@ -29,7 +29,7 @@ class Special
     end
 
     def is? (value)
-      first.is?(value) || (second.is_a?(Special) && second.is?(value))
+      first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
     end
   end
 
@@ -67,15 +67,15 @@ class Special
     Offset.new(self, value)
   end
 
+  def is? (value)
+    to_s.start_with?(value.to_s)
+  end
+
   suppress_warnings {
     Symbol.instance_methods.each {|name|
       undef_method name rescue nil
     }
   }
-
-  def is? (value)
-    to_s.start_with?(value.to_s)
-  end
 
   def method_missing (*args, &block)
     @value.__send__ *args, &block
