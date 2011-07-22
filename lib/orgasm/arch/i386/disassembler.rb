@@ -21,21 +21,41 @@ instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
       description.each {|params, opcodes|
+        destination, source = params
+
         opcodes = opcodes.clone
         known   = opcodes.reverse.drop_while {|x| !x.is_a?(Integer)}.reverse.map {|x| x.chr}.join
-        opcodes.slice! known.length
+        opcodes.slice! 0 ... known.length
 
         on known do |whole, which|
           seek which.length do
-            if opcodes.first.is_a?(String)
-              check = opcodes.shift.to_i
+            modr = if opcodes.first.is_a?(String) || opcodes.first == :r
+              I386::ModR.new(read(1).to_byte)
+            end
 
-              read 1 do |data|
-                skip unless ((data.to_byte & '00111000'.to_i(2)) >> 3) == check
+            skip if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
+
+            data = if I386::Data.is?(opcodes.first)
+              I386::Data.new(self, opcodes.first)
+            end
+
+            I386::Instruction.new(name) {|i|
+              i.destination = if instructions.register?(destination)
+                I386::Register.new(destination)
+              elsif destination.to_s.match(/^imm/)
+                I386::Immediate.new(data.to_i, data.size)
+              else
+                raise ArgumentError, "dont know what to do with #{destination} as destination"
               end
 
-              opcodes.shift
-            end
+              next unless source
+
+              i.source = if source.to_s.match(/^imm/)
+                I386::Immediate.new(data.to_i, data.size)
+              else
+                raise ArgumentError, "dont know what to do with #{source} as source"
+              end
+            }
           end
         end
       }

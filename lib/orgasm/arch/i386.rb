@@ -17,6 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'orgasm/arch/i386/extensions'
 require 'orgasm/arch/i386/base'
 
 Orgasm::Architecture.for 'i386' do

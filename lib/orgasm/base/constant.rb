@@ -20,10 +20,11 @@
 module Orgasm
 
 class Constant < Base
-  attr_accessor :value
+  attr_accessor :value, :size
 
-  def initialize (value=nil)
+  def initialize (value=nil, size=nil)
     @value = value.to_i if value
+    @size  = size.to_i  if size
 
     super()
   end
@@ -33,7 +34,7 @@ class Constant < Base
   end
 
   def inspect
-    "#<Constant: #{to_i}>"
+    "#<Constant: #{to_i}#{", #{size * 8} bits" if size}>"
   end
 end
 

@@ -46,6 +46,10 @@ class Styles < Piece
     styles = self
 
     things.flatten.compact.each {|thing|
+      if thing.is_a?(Instruction)
+        extend(thing.parameters)
+      end
+
       thing.refine_method :to_s do |old, *|
         begin
           styles.apply(self) or old.call or inspect

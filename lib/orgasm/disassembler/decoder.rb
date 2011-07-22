@@ -20,9 +20,16 @@
 module Orgasm; class Disassembler < Piece
 
 class Decoder
-  def initialize (*args, &block)
-    @args  = args
-    @block = block
+  attr_reader :disassembler
+
+  def initialize (disassembler, *args, &block)
+    @disassembler = disassembler
+    @args         = args
+    @block        = block
+  end
+
+  def method_missing (*args, &block)
+    @disassembler.__send__ *args, &block
   end
 
   def with (io)

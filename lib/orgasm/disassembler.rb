@@ -61,7 +61,7 @@ class Disassembler < Piece
   end; alias do disassemble
 
   def on (*args, &block)
-    @decoders << Decoder.new(*args, &block)
+    @decoders << Decoder.new(self, *args, &block)
   end
 
   def unknown (data=nil, &block)

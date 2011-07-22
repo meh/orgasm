@@ -32,3 +32,24 @@ class Array
     }
   end
 end
+
+module Kernel
+  def suppress_warnings
+    exception = nil
+    tmp, $VERBOSE = $VERBOSE, nil
+
+    begin
+      result = yield
+    rescue Exception => e
+      exception = e
+    end
+
+    $VERBOSE = tmp
+
+    if exception
+      raise exception
+    else
+      result
+    end
+  end
+end

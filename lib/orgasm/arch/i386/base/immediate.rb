@@ -20,10 +20,8 @@
 module Orgasm; module I386
 
 class Immediate < Orgasm::Constant
-  attr_accessor :size
-
-  def initialize (value=nil, size=nil)
-    super(value)
+  def inspect
+    "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size * 8} bits" if size}>"
   end
 end
 

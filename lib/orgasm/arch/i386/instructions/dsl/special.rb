@@ -48,7 +48,7 @@ class Special
   end
 
   def initialize (value)
-    @value = value
+    @value = value.to_sym
   end
 
   def | (value)
@@ -63,12 +63,14 @@ class Special
     Offset.new(self, value)
   end
 
-  def to_sym
-    @value
-  end
+  suppress_warnings {
+    Symbol.instance_methods.each {|name|
+      undef_method name rescue nil
+    }
+  }
 
-  def to_s
-    @value.to_s
+  def method_missing (*args, &block)
+    @value.__send__ *args, &block
   end
 end
 
