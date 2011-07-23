@@ -106,14 +106,14 @@ class DSL
    :m128, # a mmory double quadword operand in memory. This nomenclature is used only wh the Streaming
           # SIMD Extensions.
 
-   :rm8, # a byte operand thtis either the contents of a byte general-purpose register (AL, BL, CL, DL,
+   # :rm8, # a byte operand thtis either the contents of a byte general-purpose register (AL, BL, CL, DL,
          # AH, BH, CH and DH), or a byte from memory
    
-   :rm16, # a word general-purpose register or memoy operand used for instructions whose operan-size attribute
+   # :rm16, # a word general-purpose register or memoy operand used for instructions whose operan-size attribute
           # is 16 bits. The word gneral-purpose regsters are: AX, bx, CX, DX, SP, BP, SI and DI.
           # The contents of memory are found at the address provided by the effective address computation.
    
-   :rm32, # a doubleword general-purpose register or memory operand used for instructions whose operand-size
+   # :rm32, # a doubleword general-purpose register or memory operand used for instructions whose operand-size
           # attribute is 32 bits. The doubleword general-purpose registers are: EAX, EBX, ECX, EDX, ESP,
           # EBP ESI and EDI. The contents of memory are found at the address provided by the effective
           # address computation

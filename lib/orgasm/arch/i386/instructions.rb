@@ -136,6 +136,139 @@ I386::Instructions[I386::DSL.new {
   # Convert Word to Doubleword
   CWDE [eax].ignore => [0x98]
         
+  # Clear Carry Flag
+  CLC [0xF8]
+
+  # Clear Direction Flag
+  CLD [0xFC]
+
+  # Clear Interrupt Flag
+  CLI [0xFA]
+
+  # Clear Task-Switched Flag in CR0
+  CLTS [0x0F, 0x06]
+
+  # Complement Carry Flag
+  CMC [0xF5]
+
+  # FIXME: i686 only
+  # Conditional Move
+  CMOVA [r16, r16|m16] => [0x0F, 0x47, r],
+        [r32, r32|m32] => [0x0F, 0x47, r]
+
+  CMOVAE [r16, r16|m16] => [0x0F, 0x43, r],
+         [r32, r32|m32] => [0x0F, 0x43, r]
+
+  CMOVB [r16, r16|m16] => [0x0F, 0x42, r],
+        [r32, r32|m32] => [0x0F, 0x42, r]
+
+  CMOVBE [r16, r16|m16] => [0x0F, 0x46, r],
+         [r32, r32|m32] => [0x0F, 0x46, r]
+
+  CMOVC [r16, r16|m16] => [0x0F, 0x42, r],
+        [r32, r32|m32] => [0x0F, 0x42, r]
+
+  CMOVE [r16, r16|m16] => [0x0F, 0x44, r],
+        [r32, r32|m32] => [0x0F, 0x44, r]
+
+  CMOVG [r16, r16|m16] => [0x0F, 0x4F, r],
+        [r32, r32|m32] => [0x0F, 0x4F, r]
+
+  CMOVGE [r16, r16|m16] => [0x0F, 0x4D, r],
+         [r32, r32|m32] => [0x0F, 0x4D, r]
+
+  CMOVL [r16, r16|m16] => [0x0F, 0x4C, r],
+        [r32, r32|m32] => [0x0F, 0x4C, r]
+
+  CMOVLE [r16, r16|m16] => [0x0F, 0x4E, r],
+         [r32, r32|m32] => [0x0F, 0x4E, r]
+
+  CMOVNA [r16, r16|m16] => [0x0F, 0x46, r],
+         [r32, r32|m32] => [0x0F, 0x46, r]
+
+  CMOVNAE [r16, r16|m16] => [0x0F, 0x42, r],
+          [r32, r32|m32] => [0x0F, 0x42, r]
+
+  CMOVNB [r16, r16|m16] => [0x0F, 0x43, r],
+         [r32, r32|m32] => [0x0F, 0x43, r]
+
+  CMOVNBE [r16, r16|m16] => [0x0F, 0x47, r],
+          [r32, r32|m32] => [0x0F, 0x47, r]
+
+  CMOVNC [r16, r16|m16] => [0x0F, 0x43, r],
+         [r32, r32|m32] => [0x0F, 0x43, r]
+
+  CMOVNE [r16, r16|m16] => [0x0F, 0x45, r],
+         [r32, r32|m32] => [0x0F, 0x45, r]
+
+  CMOVNG [r16, r16|m16] => [0x0F, 0x4E, r],
+         [r32, r32|m32] => [0x0F, 0x4E, r]
+
+  CMOVNGE [r16, r16|m16] => [0x0F, 0x4C, r],
+          [r32, r32|m32] => [0x0F, 0x4C, r]
+
+  CMOVNL [r16, r16|m16] => [0x0F, 0x4D, r],
+         [r32, r32|m32] => [0x0F, 0x4D, r]
+
+  CMOVNLE [r16, r16|m16] => [0x0F, 0x4F, r],
+          [r32, r32|m32] => [0x0F, 0x4F, r]
+
+  CMOVNO [r16, r16|m16] => [0x0F, 0x41, r],
+         [r32, r32|m32] => [0x0F, 0x41, r]
+
+  CMOVNP [r16, r16|m16] => [0x0F, 0x4B, r],
+         [r32, r32|m32] => [0x0F, 0x4B, r]
+
+  CMOVNS [r16, r16|m16] => [0x0F, 0x49, r],
+         [r32, r32|m32] => [0x0F, 0x49, r]
+
+  CMOVNZ [r16, r16|m16] => [0x0F, 0x45, r],
+         [r32, r32|m32] => [0x0F, 0x45, r]
+
+  CMOVO [r16, r16|m16] => [0x0F, 0x40, r],
+        [r32, r32|m32] => [0x0F, 0x40, r]
+
+  CMOVP [r16, r16|m16] => [0x0F, 0x4A, r],
+        [r32, r32|m32] => [0x0F, 0x4A, r]
+
+  CMOPE [r16, r16|m16] => [0x0F, 0x4A, r],
+        [r32, r32|m32] => [0x0F, 0x4A, r]
+
+  CMOVPO [r16, r16|m16] => [0x0F, 0x4B, r],
+         [r32, r32|m32] => [0x0F, 0x4B, r]
+
+  CMOVS [r16, r16|m16] => [0x0F, 0x48, r],
+        [r32, r32|m32] => [0x0F, 0x48, r]
+
+  CMOVZ [r16, r16|m16] => [0x0F, 0x44, r],
+        [r32, r32|m32] => [0x0F, 0x44, r]
+
+  # Compare Two Operands
+  CMP [al, imm8]       => [0x3C, ib],
+      [ax, imm16]      => [0x3D, iw],
+      [eax, imm32]     => [0x3D, id],
+      [r8|m8, imm8]    => [0x80, ?7, ib],
+      [r16|m16, imm16] => [0x81, ?7, iw],
+      [r32|m32, imm32] => [0x81, ?7, id],
+      [r16|m16, imm8]  => [0x83, ?7, ib],
+      [r32|m32, imm8]  => [0x83, ?7, ib],
+      [r8|m8, r8]      => [0x38, r],
+      [r16|m16, r16]   => [0x39, r],
+      [r32|m32, r32]   => [0x39, r],
+      [r8, r8|m8]      => [0x3A, r],
+      [r16, r16|m16]   => [0x3B, r],
+      [r32, r32|m32]   => [0x3B, r]
+
+  # Compare String Operands
+  CMPS [m8, m8]   => [0xA6],
+       [m16, m16] => [0xA7],
+       [m32, m32] => [0xA7]
+
+  CMPSB [0xA6]
+
+  CMPSW [ax].ignore => [0xA7]
+
+  CMPSD [eax].ignore => [0xA7]
 
   # -- x87 FPU --
 
@@ -150,5 +283,9 @@ I386::Instructions[I386::DSL.new {
 
   # Bit-wise Logical And For Single FP
   ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
+
+  CMPPS [xmm1, xmm2|m128, imm8] => [0x0F, 0xC2, r, ib]
+
+  CMPSS [xmm1, xmm2|m32, imm8] => [0xF3, 0x0F, 0xC2, r, ib]
 
 }.to_hash]
