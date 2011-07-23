@@ -34,6 +34,15 @@ class Array
       x.to_sym
     }
   end
+
+  def ignore
+    @ignore = true
+    self
+  end
+
+  def ignore?
+    !!@ignore
+  end
 end
 
 class Integer

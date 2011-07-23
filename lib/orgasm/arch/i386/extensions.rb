@@ -83,7 +83,7 @@ class Data
   Sizes = { ib: 1, iw: 2, id: 4, cb: 1, cw: 2, cd: 4, cp: 6 }
 
   def self.valid? (value)
-    Sizes.key?(value.to_sym)
+    Sizes.key?(value.to_sym) rescue false
   end
 
   attr_reader :type, :size

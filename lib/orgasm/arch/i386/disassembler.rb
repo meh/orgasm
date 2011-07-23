@@ -73,9 +73,14 @@ instructions.to_hash.each {|name, description|
                 }
               end
 
-              skip if !small && (destination.to_s[/\d+$/].to_i == 16 || source.to_s[/\d+$/].to_i == 16)
+              if !small
+                skip if (destination.to_s[/\d+$/].to_i == 16 || source.to_s[/\d+$/].to_i == 16)
+                skip if instructions.register?(destination) == 16 || instructions.register?(source) == 16
+              end
 
               I386::Instruction.new(name) {|i|
+                next if params.ignore?
+
                 { destination: destination, source: source }.each {|type, obj|
                   i.send "#{type}=", if instructions.register?(obj)
                     I386::Register.new(obj)

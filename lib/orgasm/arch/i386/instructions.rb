@@ -91,14 +91,12 @@ I386::Instructions[I386::DSL.new {
         [r32, m32&32] => [0x62, r]
 
   # Bit Scan Forward
-  # BFS [r16, r16|m16] => [0x0F, 0xBC],
-  #     [r32, r32|m32] => [0x0F, 0xBC]
-  # TODO: find out what the fuck is this
+  BFS [r16, r16|m16] => [0x0F, 0xBC],
+      [r32, r32|m32] => [0x0F, 0xBC]
   
   # Bit Scan Reverse
-  # BSR [r16, r16|m16] => [0x0F, 0xBD],
-  #     [r32, r32|m32] => [0x0F, 0xBD]
-  # TODO: find out what the fuck is this
+  BSR [r16, r16|m16] => [0x0F, 0xBD],
+      [r32, r32|m32] => [0x0F, 0xBD]
 
   # Byte Swap
   BSWAP [r32] => [0x0F, 0xC8, rd]
@@ -131,6 +129,12 @@ I386::Instructions[I386::DSL.new {
        [ptr16^32] => [0x9A, cp],
        [m16^16]   => [0xFF, ?3],
        [m16^32]   => [0xFF, ?3]
+
+  # Convert Byte to Word
+  CBW [ax].ignore => [0x98]
+
+  # Convert Word to Doubleword
+  CWDE [eax].ignore => [0x98]
         
 
   # -- x87 FPU --
