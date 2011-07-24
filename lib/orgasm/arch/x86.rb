@@ -32,28 +32,28 @@ Orgasm::Architecture.is 'x86' do
     instructions 'orgasm/arch/x86/instructions/i186'
 
     disassembler 'orgasm/arch/x86/disassembler/32'
-    disassembler.inherit(arch[8086].disassembler)
+    disassembler.inherit(arch[8086])
   end
 
   family 'i286' do
     instructions 'orgasm/arch/x86/instructions/i286'
 
     disassembler 'orgasm/arch/x86/disassembler/32'
-    disassembler.inherit(arch[:i186].disassembler)
+    disassembler.inherit(arch[:i186])
   end
 
   family 'i386' do
     instructions 'orgasm/arch/x86/instructions/i386'
 
     disassembler 'orgasm/arch/x86/disassembler/32'
-    disassembler.inherit(arch[:i286].disassembler)
+    disassembler.inherit(arch[:i286])
   end
 
   family 'i486' do
     instructions 'orgasm/arch/x86/instructions/i486'
 
     disassembler 'orgasm/arch/x86/disassembler/32'
-    disassembler.inherit(arch[:i386].disassembler)
+    disassembler.inherit(arch[:i386])
   end
 
   styles 'orgasm/arch/x86/styles'

@@ -37,8 +37,7 @@ always do
     description.each {|description|
       if description.is_a?(Hash)
         description.each {|params, definition|
-          destination = params.first
-          source      = params.last
+          destination, source = params
 
           next if prefixes.small? && destination.is?(32)
           

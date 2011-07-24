@@ -17,8 +17,6 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/disassembler/decoder'
-
 module Orgasm
 
 class Disassembler < Piece
@@ -51,9 +49,13 @@ class Disassembler < Piece
       io = StringIO.new(io)
     end
 
-    options[:extensions].each {|name|
-      unless arch.extensions.any? { |extension| extension.name == extension && extension.disassembler }
-        raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+    options[:extensions].clone.each {|name|
+      unless arch.extensions.all? { |extension| extension.name == extension && extension.disassembler }
+        if options[:exceptions] == false
+          options[:extensions].delete(name)
+        else
+          raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+        end
       end
     }
 
@@ -72,11 +74,15 @@ class Disassembler < Piece
         end
       }
 
-      if !added && !@inherits.empty?
-        @inherits.any? {|inherited|
+      if !added
+        (@inherits + options[:extensions].map {|name|
+          arch.extensions.select {|extension|
+            extension.name == name
+          }
+        }).flatten.compact.any? {|arch|
           io.seek where
 
-          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
+          if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
             result << tmp
           end
         }
@@ -126,6 +132,12 @@ class Disassembler < Piece
     @after ||= block
   end
 
+  def | (value)
+    Pipeline.new(self, value)
+  end
 end
 
 end
+
+require 'orgasm/disassembler/decoder'
+require 'orgasm/disassembler/pipeline'

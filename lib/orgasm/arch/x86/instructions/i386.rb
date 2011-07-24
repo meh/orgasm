@@ -101,24 +101,4 @@ X86::Instructions[X86::DSL.new(32) {
   CMPSW [ax].ignore => [0xA7]
 
   CMPSD [eax].ignore => [0xA7]
-
-  # -- x87 FPU --
-=begin
-
-  # Packed Single-FP Add
-  ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
-
-  # Scalar Single-FP Add
-  ADDSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
-
-  # Bit-wise Logical And ot For Single-FP
-  ANDNPS [xmm1, xmm2|m128] => [0x0F, 0x55, r]
-
-  # Bit-wise Logical And For Single FP
-  ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
-
-  CMPPS [xmm1, xmm2|m128, imm8] => [0x0F, 0xC2, r, ib]
-
-  CMPSS [xmm1, xmm2|m32, imm8] => [0xF3, 0x0F, 0xC2, r, ib]
-=end
 }.to_hash]

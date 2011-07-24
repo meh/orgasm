@@ -4,17 +4,33 @@ Orgasm - a Ruby (dis)?assembler library
 Well, tonight I worked a bit on this and it's coming out pretty cool, here's a partial usage
 
 ```ruby
->> require 'orgasm'; require 'orgasm/arch/i386'
+>> require 'orgasm'; require 'orgasm/arch/x87'
 true
->> Orgasm::Architecture.i386.disassembler.disassemble("\x37\xD5\x0A\x00")
+>> (Orgasm::Architecture.x86[8086].disassembler | Orgasm::Architecture.x87[8087].disassembler).do("\xc1\x83\x00\x36\xd9\xf0")
 [
-    [0] #<Instruction(aaa)>,
-    [1] #<Instruction(aad)>,
-    [2] #<Unknown(1): 00>
+    [0] #<Instruction(add): #<Register: ax, 16 bits>, #<Immediate: 0x36, 8 bits>>,
+    [1] #<Instruction(f2xm1)>
 ]
->> Orgasm::Architecture.i386.generator.do { xor eax, eax }
+>> (Orgasm::Architecture.x86[:i386].disassembler | Orgasm::Architecture.x87[8087].disassembler).do("\xc1\x83\x00\x36\xd9\xf0")
 [
-    [0] #<Instruction(xor): #<Register: eax, 32 bits>, #<Register: eax, 32 bits>>
+    [0] #<Instruction(add): #<Register: eax, 32 bits>, #<Immediate: 0x36, 8 bits>>,
+    [1] #<Instruction(f2xm1)>
+]
+>> (Orgasm::Architecture.x86[:i386].disassembler | Orgasm::Architecture.x87[8087].disassembler).do("\xc1\x66\x83\x00\x36\xd9\xf0")
+[
+    [0] #<Instruction(add): #<Register: ax, 16 bits>, #<Immediate: 0x36, 8 bits>>,
+    [1] #<Instruction(f2xm1)>
+]
+>> (Orgasm::Architecture.x86[:i386].disassembler).do("\xc1\x66\x83\x00\x36\xd9\xf0")
+[
+    [0] #<Instruction(add): #<Register: ax, 16 bits>, #<Immediate: 0x36, 8 bits>>,
+    [1] #<Unknown(2): D9 F0> 
+]
+]
+>> (Orgasm::Architecture.x87[8087].disassembler).do("\xc1\x66\x83\x00\x36\xd9\xf0")
+[
+    [0] #<Unknown(5): C1 66 83 00 36>,
+    [1] #<Instruction(f2xm1)>
 ]
 ```
 

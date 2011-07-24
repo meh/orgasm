@@ -28,6 +28,12 @@ class String
   end; alias to_byte to_bytes
 end
 
+class NilClass
+  def to_bytes
+    nil
+  end; alias to_byte to_bytes
+end
+
 class Array
   def to_syms
     map {|x|
