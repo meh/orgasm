@@ -46,6 +46,10 @@ always do
           }.join
 
           on known do |whole, which|
+            return if prefixes.small? && destination.is?(32)
+
+            return if !prefixes.small? && destination.is?(16)
+
             opcodes = definition.clone
             opcodes.slice! 0 ... known.length
 
@@ -55,10 +59,6 @@ always do
               end
 
               return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
-
-              return if prefixes.small? && destination.is?(32)
-
-              return if !prefixes.small? && destination.is?(16)
 
               sib = if modr && modr.mod != '11'.to_i(2) && modr.rm == '100'.to_i(2) && !prefixes.small?
                 X86::SIB.new(read(1).to_byte)
