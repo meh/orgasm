@@ -23,16 +23,37 @@ require 'orgasm/arch/x86/instructions'
 
 Orgasm::Architecture.is 'x86' do
   family '8086' do
-    instructions 'orgasm/arch/x86/8086/instructions'
+    instructions 'orgasm/arch/x86/instructions/8086'
 
     disassembler 'orgasm/arch/x86/disassembler/16'
   end
 
-  family 'i386' do
-    instructions 'orgasm/arch/x86/i386/instructions'
+  family 'i186' do
+    instructions 'orgasm/arch/x86/instructions/i186'
 
     disassembler 'orgasm/arch/x86/disassembler/32'
     disassembler.inherit(arch[8086].disassembler)
+  end
+
+  family 'i286' do
+    instructions 'orgasm/arch/x86/instructions/i286'
+
+    disassembler 'orgasm/arch/x86/disassembler/32'
+    disassembler.inherit(arch[:i186].disassembler)
+  end
+
+  family 'i386' do
+    instructions 'orgasm/arch/x86/instructions/i386'
+
+    disassembler 'orgasm/arch/x86/disassembler/32'
+    disassembler.inherit(arch[:i286].disassembler)
+  end
+
+  family 'i486' do
+    instructions 'orgasm/arch/x86/instructions/i486'
+
+    disassembler 'orgasm/arch/x86/disassembler/32'
+    disassembler.inherit(arch[:i386].disassembler)
   end
 
   styles 'orgasm/arch/x86/styles'

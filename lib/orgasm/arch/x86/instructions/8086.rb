@@ -32,6 +32,18 @@ X86::Instructions[X86::DSL.new(16) {
   # ASCII Adjust AL After Substraction
   AAS [0x3F]
 
+  # Add with Carry
+
+  ADC [al,      imm8]    => [0x14, ib],
+      [ax,      imm16]   => [0x15, iw],
+      [r8|m8,   imm8]    => [0x80, ?2, ib],
+      [r16|m16, imm16]   => [0x81, ?2, iw],
+      [r16|m16, imm8]    => [0x83, ?2, ib],
+      [r8|m8,   r8]      => [0x10, r],
+      [r16|m16, r16]     => [0x11, r],
+      [r8,      r8|m8]   => [0x12, r],
+      [r16,     r16|m16] => [0x13, r]
+
   # Add
   ADD [al,      imm8]    => [0x04, ib],
       [ax,      imm16]   => [0x05, iw],
@@ -42,5 +54,16 @@ X86::Instructions[X86::DSL.new(16) {
       [r16|m16, r16]     => [0x01, r],
       [r8,      r8|m8]   => [0x02, r],
       [r16,     r16|m16] => [0x03, r]
+
+  # Logical AND
+  AND [al,      imm8]    => [0x24, ib],
+      [ax,      imm16]   => [0x25, iw],
+      [r8|m8,   imm8]    => [0x80, ?4, ib],
+      [r16|m16, imm16]   => [0x81, ?4, iw],
+      [r16|m16, imm8]    => [0x83, ?4, ib],
+      [r8|m8,   r8]      => [0x20, r],
+      [r16|m16, r16]     => [0x21, r],
+      [r8,      r8|m8]   => [0x22, r],
+      [r16,     r16|m16] => [0x23, r]
 
 }]

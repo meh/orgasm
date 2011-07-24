@@ -42,7 +42,7 @@ instructions.to_hash.each {|name, description|
               X86::ModR.new(read(1).to_byte)
             end
 
-            skip if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
+            return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
             displacement = modr && read(
               if    modr.mod == '00'.to_i(2) && modr.rm == '110'.to_i(2) then 16.bit

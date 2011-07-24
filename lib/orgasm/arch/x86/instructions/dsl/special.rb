@@ -68,7 +68,11 @@ class Special
   end
 
   def is? (value)
-    to_s.start_with?(value.to_s)
+    if value.is_a?(Integer)
+      to_s[/\d+$/].to_i == value or Instructions.register?(to_s) == value
+    else
+      to_s.start_with?(value.to_s)
+    end
   end
 
   suppress_warnings {

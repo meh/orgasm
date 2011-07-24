@@ -39,13 +39,17 @@ class Decoder
     decoder
   end
 
+  def inherited?
+    @options[:inherited]
+  end
+
   def call (what)
     return unless @io
 
     case what
       when :inherit, :inherited
         @disassembler.inherits.any? {|inherited|
-          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false).first
+          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
             break tmp
           end
         }
@@ -72,7 +76,8 @@ class Decoder
       start = @io.tell
 
       skip(start) if catch(:skip) {
-        result(instance_exec @args, match, &@block)
+        result { instance_exec @args, match, &@block }
+
         false
       }
     }
@@ -107,11 +112,11 @@ class Decoder
       matches(arg)
     }
 
-    result(instance_exec args, match, &block)
+    result { instance_exec args, match, &block }
   end
 
   def always (&block)
-    result(instance_eval &block)  
+    result { instance_eval &block }
   end
 
   def seek (amount, whence=IO::SEEK_CUR, &block)
@@ -120,9 +125,7 @@ class Decoder
     if block
       where, = @io.tell, @io.seek(amount, whence)
 
-      result(instance_eval &block).tap {
-        @io.seek(where)
-      }
+      result { instance_eval &block }.tap { @io.seek(where) }
     else
       @io.seek(amount, whence)
     end
@@ -138,9 +141,7 @@ class Decoder
     end
 
     if block
-      result(instance_exec data, &block).tap {
-        seek -amount
-      }
+      result { instance_exec data, &block }.tap { seek -amount }
     else
       data
     end
@@ -164,8 +165,14 @@ class Decoder
     end
   end
 
+  def after (&block)
+    return disassembler.after &block
+  end
+
   private
-    def result (value)
+    def result
+      value = begin; yield; rescue LocalJumpError; end
+
       if Orgasm.object?(value)
         throw :result, value
       end

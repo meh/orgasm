@@ -65,6 +65,8 @@ class Disassembler < Piece
 
       added = @decoders.any? {|decoder|
         if tmp = Orgasm.object?(decoder.for(io, options).decode)
+          instance_eval &@after if @after
+          
           result << unknown(junk) and junk = nil if junk
           result << tmp
         end
@@ -74,7 +76,7 @@ class Disassembler < Piece
         @inherits.any? {|inherited|
           io.seek where
 
-          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false).first
+          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
             result << tmp
           end
         }
@@ -119,6 +121,11 @@ class Disassembler < Piece
   def skip (&block)
     @skip ||= block
   end
+
+  def after (&block)
+    @after ||= block
+  end
+
 end
 
 end

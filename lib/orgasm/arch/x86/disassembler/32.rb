@@ -22,18 +22,16 @@ on 0x0F, *((0x60 .. 0x6F).to_a - [0x66, 0x67]), 0xC0, 0xC1,0xC9, 0xD6, 0xF1 do
 end
 
 always do
-  prefixes ||= X86::Prefixes.new)
+  prefixes ||= X86::Prefixes.new
 
   while prefix = X86::Prefixes.valid?(lookahead(1).to_byte)
     prefixes << prefix
     seek +1
   end
 
-  skip do
+  after do
     prefixes.clear
   end
-
-  skip if prefixes.small?
 
   instructions.to_hash.each {|name, description|
     description.each {|description|
@@ -56,22 +54,33 @@ always do
                 X86::ModR.new(read(1).to_byte)
               end
 
-              next if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
+              return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-              sib = if modr && modr.mod != '11'.to_i(2) && modr.rm == '100'.to_i(2)
+              return if prefixes.small? && destination.is?(32)
+
+              return if !prefixes.small? && destination.is?(16)
+
+              sib = if modr && modr.mod != '11'.to_i(2) && modr.rm == '100'.to_i(2) && !prefixes.small?
                 X86::SIB.new(read(1).to_byte)
               end
 
               displacement = modr && read(
-                if    modr.mod == '00'.to_i(2) && modr.rm == '101'.to_i(2) then 32.bit
-                elsif modr.mod == '01'.to_i(2)                             then 8.bit
-                elsif modr.mod == '10'.to_i(2)                             then 32.bit
+                if prefixes.small?
+                  if    modr.mod == '00'.to_i(2) && modr.rm == '110'.to_i(2) then 16.bit
+                  elsif modr.mod == '01'.to_i(2)                             then 8.bit
+                  elsif modr.mod == '10'.to_i(2)                             then 16.bit
+                  end
+                else
+                  if    modr.mod == '00'.to_i(2) && modr.rm == '101'.to_i(2) then 32.bit
+                  elsif modr.mod == '01'.to_i(2)                             then 8.bit
+                  elsif modr.mod == '10'.to_i(2)                             then 32.bit
+                  end
                 end
               ).to_bytes rescue nil
 
               immediate = if X86::Data.valid?(opcodes.first)
                 X86::Data.new(self, opcodes.first).tap {|o|
-                  next if o.size == 2
+                  return if o.size == 2 && !prefixes.small?
                 }
               end
 
