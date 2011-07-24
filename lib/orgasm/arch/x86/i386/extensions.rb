@@ -17,33 +17,52 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module I386
+module Orgasm; module X86; module I386
 
-class Address < Orgasm::Address
-  attr_accessor :size
-
-  def initialize (value=nil, size=32, options={})
-    if value.respond_to? :to_i
-      super(value)
-    else
-      super()
-    end
-
-    @size    = size
-    @options = options
+class SIB
+  def initialize (value)
+    @value = value.to_i
   end
 
-  def relative?
-    !!@options[:relative]
+  def scale
+    (to_i & '11000000'.to_i(2)) >> 6
   end
 
-  def offset?
-    !!@options[:offset]
+  def index
+    (to_i & '00111000'.to_i(2)) >> 3
+  end
+
+  def base
+    (to_i & '00000111'.to_i(2))
+  end
+
+  def to_i
+    @value
   end
 
   def inspect
-    "#<Address: #{'0x%X' % to_i}, #{size} bits>"
+    "#<SIB: Scale=#{'%02b' % scale} Index=#{'%03b' % index} Base=#{'%03b' % base}>"
   end
 end
 
-end; end
+class Data
+  Sizes = { ib: 1, iw: 2, id: 4, cb: 1, cw: 2, cd: 4, cp: 6 }
+
+  def self.valid? (value)
+    Sizes.key?(value.to_sym) rescue false
+  end
+
+  attr_reader :type, :size
+
+  def initialize (io, type)
+    @type  = type.to_s.downcase.to_sym
+    @size  = Sizes[@type] or raise ArgumentError, "unknown type #{type}"
+    @value = io.read(size).to_bytes
+  end
+
+  def to_i
+    @value
+  end
+end
+
+end; end; end

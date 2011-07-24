@@ -22,18 +22,40 @@ require 'orgasm/disassembler/decoder'
 module Orgasm
 
 class Disassembler < Piece
+  attr_reader :inherits
+
   def initialize (*)
+    @inherits = []
     @decoders = []
 
     super
   end
 
-  def disassemble (io)
+  def inherit (*args)
+    @inherits << args
+
+    @inherits.flatten!
+    @inherits.compact!
+
+    self
+  end
+
+  def disassemble (io, options={})
+    options = {
+      extensions: []
+    }.merge(options)
+
     if io.is_a?(String)
       require 'stringio'
 
       io = StringIO.new(io)
     end
+
+    options[:extensions].each {|name|
+      unless arch.extensions.any? { |extension| extension.name == extension && extension.disassembler }
+        raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+      end
+    }
 
     result = []
     junk   = nil
@@ -41,16 +63,28 @@ class Disassembler < Piece
     until io.eof?
       where = io.tell
 
-      @decoders.each {|decoder|
-        if tmp = Orgasm.object?(decoder.with(io).decode)
+      added = @decoders.any? {|decoder|
+        if tmp = Orgasm.object?(decoder.for(io, options).decode)
           result << unknown(junk) and junk = nil if junk
           result << tmp
-
-          break
         end
       }
 
+      if !added && !@inherits.empty?
+        @inherits.any? {|inherited|
+          io.seek where
+
+          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false).first
+            result << tmp
+          end
+        }
+      end
+
+      break if options[:limit] && result.flatten.compact.length >= options[:limit]
+
       if where == io.tell
+        break if options[:unknown] == false
+          
         (junk ||= '') << io.read(1)
       end
     end

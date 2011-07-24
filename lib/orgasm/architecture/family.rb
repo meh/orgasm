@@ -17,12 +17,21 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; class Architecture
 
-require 'orgasm/architecture'
+class Family < Architecture
+  attr_reader  :arch
+  undef_method :family
 
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
+  def initialize (arch, name, &block)
+    @arch = arch
+
+    super(name, &block)
+  end
+
+  def extensions
+    @extensions + arch.extensions
+  end
+end
+
+end; end

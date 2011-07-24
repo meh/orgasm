@@ -17,24 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/instructions/dsl'
-require 'orgasm/arch/i386/instructions/instructions'
-
-I386::Instructions[I386::DSL.new {
-  # ASCII Adjust After Addition
-  AAA [0x37]
-
-  # ASCII Adjust AX Before Division
-  AAD [0xD5, 0x0A],
-      [imm8] => [0xD5, ib]
-
-  # ASCII Adjust AX After Multiply
-  AAM [0xD4, 0x0A],
-      [imm8] => [0xD4, ib]
-
-  # ASCII Adjust AL After Substraction
-  AAS [0x3F]
-
+X86::Instructions[X86::DSL.new(32) {
   # Add with Carry
   ADC [al,      imm8]    => [0x14, ib],
       [ax,      imm16]   => [0x15, iw],
@@ -52,19 +35,10 @@ I386::Instructions[I386::DSL.new {
       [r32,     r32|m32] => [0x13, r]
 
   # Add
-  ADD [al,      imm8]    => [0x04, ib],
-      [ax,      imm16]   => [0x05, iw],
-      [eax,     imm32]   => [0x05, id],
-      [r8|m8,   imm8]    => [0x80, ?0, ib],
-      [r16|m16, imm16]   => [0x81, ?0, iw],
+  ADD [eax,     imm32]   => [0x05, id],
       [r32|m32, imm32]   => [0x81, ?0, id],
-      [r16|m16, imm8]    => [0x83, ?0, ib],
       [r32|m32, imm8]    => [0x83, ?0, ib],
-      [r8|m8,   r8]      => [0x00, r],
-      [r16|m16, r16]     => [0x01, r],
       [r32|m32, r32]     => [0x01, r],
-      [r8,      r8|m8]   => [0x02, r],
-      [r16,     r16|m16] => [0x03, r],
       [r32,     r32|m32] => [0x03, r]
 
   # Logical AND
@@ -271,6 +245,7 @@ I386::Instructions[I386::DSL.new {
   CMPSD [eax].ignore => [0xA7]
 
   # -- x87 FPU --
+=begin
 
   # Packed Single-FP Add
   ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
@@ -287,5 +262,5 @@ I386::Instructions[I386::DSL.new {
   CMPPS [xmm1, xmm2|m128, imm8] => [0x0F, 0xC2, r, ib]
 
   CMPSS [xmm1, xmm2|m32, imm8] => [0xF3, 0x0F, 0xC2, r, ib]
-
+=end
 }.to_hash]

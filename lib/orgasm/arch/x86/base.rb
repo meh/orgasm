@@ -17,16 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module I386
-
-class Immediate < Orgasm::Constant
-  def inspect
-    if @value.nil?
-      '#<Immediate: NULL>'
-    else
-      "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
-    end
-  end
-end
-
-end; end
+require 'orgasm/arch/x86/base/instruction'
+require 'orgasm/arch/x86/base/address'
+require 'orgasm/arch/x86/base/register'
+require 'orgasm/arch/x86/base/immediate'

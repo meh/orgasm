@@ -17,12 +17,33 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module X86
 
-require 'orgasm/architecture'
+class Address < Orgasm::Address
+  attr_accessor :size
 
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
+  def initialize (value=nil, size=32, options={})
+    if value.respond_to? :to_i
+      super(value)
+    else
+      super()
+    end
+
+    @size    = size
+    @options = options
+  end
+
+  def relative?
+    !!@options[:relative]
+  end
+
+  def offset?
+    !!@options[:offset]
+  end
+
+  def inspect
+    "#<Address: #{'0x%X' % to_i}, #{size} bits>"
+  end
+end
+
+end; end

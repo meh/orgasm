@@ -17,24 +17,5 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module I386
-
-class Register < Orgasm::Register
-  attr_accessor :size
-
-  def initialize (name=nil)
-    super(name, Architecture.i386.instructions.register?(name))
-  end
-
-  def name= (value)
-    value = value.to_s.downcase.to_sym
-
-    unless Architecture.i386.instructions.register?(value)
-      raise ArgumentError, "#{value} isn't a valid i386 register"
-    end
-
-    @name = value
-  end
-end
-
-end; end
+require 'orgasm/arch/x86/instructions/instructions'
+require 'orgasm/arch/x86/instructions/dsl'

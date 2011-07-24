@@ -17,12 +17,24 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module X86
 
-require 'orgasm/architecture'
+class Register < Orgasm::Register
+  attr_accessor :size
 
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
+  def initialize (name=nil)
+    super(name, X86::Instructions.register?(name))
+  end
+
+  def name= (value)
+    value = value.to_s.downcase.to_sym
+
+    unless X86::Instructions.register?(value)
+      raise ArgumentError, "#{value} isn't a valid x86 register"
+    end
+
+    @name = value
+  end
+end
+
+end; end

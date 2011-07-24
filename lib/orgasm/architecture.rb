@@ -35,18 +35,29 @@ class Architecture
     end
 
     def method_missing (id, *)
-      return self[id] if self[id]
-
-      super
+      self[id] or super
     end
   end
 
-  attr_reader :name
+  attr_reader :name, :families, :extensions
 
   def initialize (name, &block)
-    @name    = name
+    @name = name
+
+    @families   = []
+    @extensions = []
 
     self.do(&block)
+  end
+
+  def do (&block)
+    instance_eval &block if block
+  end
+
+  def [] (name)
+    @families.find {|family|
+      name.to_s == family.name
+    }
   end
 
   def instructions (path=nil, &block)
@@ -78,21 +89,21 @@ class Architecture
           break dir if File.readable?(dir)
         }.tap {|o|
           raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-        }, 'r')
+        }, ?r)
 
-        Orgasm.const_get(name.capitalize).new(self, io)
+        Orgasm.const_get(name.capitalize).new(self, io) or super
       else      
-        Orgasm.const_get(name.capitalize).new(self, &block)
+        Orgasm.const_get(name.capitalize).new(self, &block) or super
       end)
     end
   }
 
-  def do (string=nil, &block)
-    if block
-      instance_eval &block
-    elsif string
-      instance_eval string
-    end
+  def family (name, &block)
+    @families << Family.new(self, name, &block)
+  end
+
+  def extension (name, &block)
+    @extensions << Extension.new(self, name, &block)
   end
 
   def to_s
@@ -101,3 +112,6 @@ class Architecture
 end
 
 end
+
+require 'orgasm/architecture/family'
+require 'orgasm/architecture/extension'

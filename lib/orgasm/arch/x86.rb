@@ -17,7 +17,23 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/base/instruction'
-require 'orgasm/arch/i386/base/address'
-require 'orgasm/arch/i386/base/register'
-require 'orgasm/arch/i386/base/immediate'
+require 'orgasm/arch/x86/extensions'
+require 'orgasm/arch/x86/base'
+require 'orgasm/arch/x86/instructions'
+
+Orgasm::Architecture.is 'x86' do
+  family '8086' do
+    instructions 'orgasm/arch/x86/8086/instructions'
+
+    disassembler 'orgasm/arch/x86/disassembler/16'
+  end
+
+  family 'i386' do
+    instructions 'orgasm/arch/x86/i386/instructions'
+
+    disassembler 'orgasm/arch/x86/disassembler/32'
+    disassembler.inherit(arch[8086].disassembler)
+  end
+
+  styles 'orgasm/arch/x86/styles'
+end

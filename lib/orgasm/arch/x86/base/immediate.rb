@@ -17,12 +17,16 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/base'
+module Orgasm; module X86
 
-require 'orgasm/architecture'
+class Immediate < Orgasm::Constant
+  def inspect
+    if @value.nil?
+      '#<Immediate: NULL>'
+    else
+      "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
+    end
+  end
+end
 
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
+end; end

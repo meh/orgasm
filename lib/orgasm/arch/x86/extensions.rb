@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module I386
+module Orgasm; module X86
 
 class ModR
   def initialize (value)
@@ -80,7 +80,7 @@ class SIB
 end
 
 class Data
-  Sizes = { ib: 1, iw: 2, id: 4, cb: 1, cw: 2, cd: 4, cp: 6 }
+  Sizes = { ib: 1, iw: 2, id: 4, io: 8, cb: 1, cw: 2, cd: 4, cp: 6, co: 8, ct: 10 }
 
   def self.valid? (value)
     Sizes.key?(value.to_sym) rescue false
@@ -96,6 +96,41 @@ class Data
 
   def to_i
     @value
+  end
+end
+
+class Prefixes < Array
+  Lock = [0xF0, 0xF2, 0xF3]
+
+  module Override
+    Segment = [0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65]
+    
+    module Size
+      Operand = [0x66]
+      Address = [0x67]
+    end
+  end
+
+  def self.valid? (value)
+    [Lock, Override::Segment, Override::Size::Operand, Override::Size::Address].any? {|check|
+      check.member?(value)
+    } && value
+  end
+
+  def operand?
+    any? {|value|
+      Override::Size::Operand.member?(value)
+    }
+  end
+
+  def address?
+    any? {|value|
+      Override::Size::Address.member?(value)
+    }
+  end
+
+  def small?
+    operand? or address?
   end
 end
 

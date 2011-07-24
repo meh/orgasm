@@ -22,15 +22,15 @@ style 'Intel' do |style|
     name.to_s.downcase
   end
 
-  style.for I386::Address do
+  style.for X86::Address do
     offset? ? "[#{start}#{'%+d' % to_i}]" : "0x#{to_i.to_s(16)}"
   end
 
-  style.for I386::Immediate do
+  style.for X86::Immediate do
     to_i.to_s
   end
 
-  style.for I386::Instruction do
+  style.for X86::Instruction do
     "#{name.to_s.downcase}#{
       case parameters.length
         when 1 then " #{destination}"
@@ -53,11 +53,11 @@ style 'AT&T' do |style|
     offset? ? "#{to_i}(#{start})" : "0x#{to_i.to_s(16)}"
   end
 
-  style.for I386::Immediate do
+  style.for X86::Immediate do
     "$#{to_i.to_s}"
   end
 
-  style.for I386::Instruction do
+  style.for X86::Instruction do
     "#{name.to_s.downcase}#{
       { b: 8, w: 16, l: 32 }.key((parameters.last.size rescue parameters.first.size rescue nil))
     } #{parameters.reverse.join(', ')}"

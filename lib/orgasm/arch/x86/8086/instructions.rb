@@ -17,12 +17,30 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/i386/extensions'
-require 'orgasm/arch/i386/base'
+X86::Instructions[X86::DSL.new(16) {
+  # ASCII Adjust After Addition
+  AAA [0x37]
 
-Orgasm::Architecture.for 'i386' do
-  instructions 'orgasm/arch/i386/instructions'
-  disassembler 'orgasm/arch/i386/disassembler'
-  generator    'orgasm/arch/i386/generator'
-  styles       'orgasm/arch/i386/styles'
-end
+  # ASCII Adjust AX Before Division
+  AAD [0xD5, 0x0A],
+      [imm8] => [0xD5, ib]
+
+  # ASCII Adjust AX After Multiply
+  AAM [0xD4, 0x0A],
+      [imm8] => [0xD4, ib]
+
+  # ASCII Adjust AL After Substraction
+  AAS [0x3F]
+
+  # Add
+  ADD [al,      imm8]    => [0x04, ib],
+      [ax,      imm16]   => [0x05, iw],
+      [r8|m8,   imm8]    => [0x80, ?0, ib],
+      [r16|m16, imm16]   => [0x81, ?0, iw],
+      [r16|m16, imm8]    => [0x83, ?0, ib],
+      [r8|m8,   r8]      => [0x00, r],
+      [r16|m16, r16]     => [0x01, r],
+      [r8,      r8|m8]   => [0x02, r],
+      [r16,     r16|m16] => [0x03, r]
+
+}]

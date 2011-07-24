@@ -24,7 +24,7 @@ class Decoder
 
   def initialize (disassembler, *args, &block)
     @disassembler = disassembler
-    @args         = args.flatten.compact
+    @args         = args.flatten(1).compact
     @block        = block
   end
 
@@ -32,9 +32,33 @@ class Decoder
     @disassembler.__send__ *args, &block
   end
 
-  def with (io)
-    @io = io
-    self
+  def for (io, options)
+    decoder = self.clone
+    decoder.instance_variable_set :@io, io
+    decoder.instance_variable_set :@options, options
+    decoder
+  end
+
+  def call (what)
+    return unless @io
+
+    case what
+      when :inherit, :inherited
+        @disassembler.inherits.any? {|inherited|
+          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false).first
+            break tmp
+          end
+        }
+
+      when :extension, :extensions
+        @disassembler.extensions.select {|extension|
+          @options[:extensions].member?(extension.name)
+        }.any? {|extension|
+          if tmp = extension.disassembler.disassemble(io, limit: 1, unknown: false)
+            break tmp
+          end
+        }
+    end
   end
 
   def decode
@@ -61,8 +85,13 @@ class Decoder
 
     where, result = @io.tell, if what.is_a?(Regexp)
       !!@io.read.match(what)
+    elsif what.is_a?(Array) or what.is_a?(Integer)
+      what = [what].flatten.compact.pack('C*')
+
+      @io.read(what.length) == what
     else
       what = what.to_s
+
       @io.read(what.length) == what
     end
 
@@ -74,7 +103,7 @@ class Decoder
   def on (*args, &block)
     return unless @io
 
-    return unless match = args.flatten.compact.find {|arg|
+    return unless match = args.flatten(1).compact.find {|arg|
       matches(arg)
     }
 
@@ -123,7 +152,9 @@ class Decoder
     end rescue nil
   end
 
-  def skip (start=nil)
+  def skip (start=nil, &block)
+    return disassembler.skip &block if block
+      
     if start.nil?
       throw :skip, true
     else
