@@ -39,17 +39,18 @@ always do
         description.each {|params, definition|
           destination = params.first
           source      = params.last
-          known       = definition.reverse.drop_while {|x|
+
+          next if prefixes.small? && destination.is?(32)
+          
+          next if !prefixes.small? && destination.is?(16)
+
+          known = definition.reverse.drop_while {|x|
             !x.is_a?(Integer)
           }.reverse.map {|x|
             [x].flatten.pack('C*')
           }.join
 
           on known do |whole, which|
-            return if prefixes.small? && destination.is?(32)
-
-            return if !prefixes.small? && destination.is?(16)
-
             opcodes = definition.clone
             opcodes.slice! 0 ... known.length
 
