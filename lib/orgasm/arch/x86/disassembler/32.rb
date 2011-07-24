@@ -22,18 +22,18 @@ on 0x0F, *((0x60 .. 0x6F).to_a - [0x66, 0x67]), 0xC0, 0xC1,0xC9, 0xD6, 0xF1 do
 end
 
 always do
-  prefixes = (@prefixes ||= X86::Prefixes.new)
+  prefixes ||= X86::Prefixes.new)
 
   while prefix = X86::Prefixes.valid?(lookahead(1).to_byte)
-    @prefixes << prefix
+    prefixes << prefix
     seek +1
   end
 
   skip do
-    @prefixes.clear
+    prefixes.clear
   end
 
-  skip if @prefixes.small?
+  skip if prefixes.small?
 
   instructions.to_hash.each {|name, description|
     description.each {|description|
