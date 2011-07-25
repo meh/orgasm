@@ -20,4 +20,5 @@
 require 'orgasm/arch/x87/base/instruction'
 require 'orgasm/arch/x87/base/address'
 require 'orgasm/arch/x87/base/register'
+require 'orgasm/arch/x87/base/stack'
 require 'orgasm/arch/x87/base/immediate'

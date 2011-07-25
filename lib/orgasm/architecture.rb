@@ -60,6 +60,12 @@ class Architecture
     }
   end
 
+  def method_missing (name, *)
+    @families.find {|family|
+      name.to_s == family.name
+    } or super
+  end
+
   def instructions (path=nil, &block)
     return @instructions unless path or block
 

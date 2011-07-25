@@ -30,7 +30,7 @@ class Register < Base
   end
 
   def inspect
-    "#<Register: #{@name}, #{@size} bits>"
+    "#<Register: #{@name}#{", #{@size} bits" if @size}>"
   end
 end
 

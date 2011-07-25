@@ -37,6 +37,10 @@ class DSL
 
     :ib, # 1 byte
 
+    :i, # a number used in floating-point instructions when one of the operands is ST(i) from the FPU
+        # register stack. The number i (which can range from 0 to 7) is added to the hexadecimal
+        # byte given at the left of the plus sign to form a single opcode byte.
+
     :imm8, # an immediate byte value. The imm8 symbol is a signed number between -128 and +127 inclusive.
            # For instructins in which imm8 is combind with a word or doublewod operand, the immediate
            # value is sign-extended to for a word or doubleword. The upper byte of the word is filled
@@ -58,10 +62,10 @@ class DSL
     :m32int,
     :m64int,
 
-    :ST,  # the top element of the FPU register stack
-    :ST0,
+    :ST,  :st,  # the top element of the FPU register stack
+    :ST0, :st0,
 
-    :STi # the i^th element from the top of the FPU register stack. (i = 0 through 7)
+    :STi, :sti # the i^th element from the top of the FPU register stack. (i = 0 through 7)
   ]
 
   def initialize (&block)

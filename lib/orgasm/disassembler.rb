@@ -65,27 +65,34 @@ class Disassembler < Piece
     until io.eof?
       where = io.tell
 
-      added = @decoders.any? {|decoder|
-        if tmp = Orgasm.object?(decoder.for(io, options).decode)
-          instance_eval &@after if @after
-          
-          result << unknown(junk) and junk = nil if junk
-          result << tmp
-        end
-      }
-
-      if !added
-        io.seek where unless (@inherits + options[:extensions].map {|name|
-          arch.extensions.select {|extension|
-            extension.name == name
-          }
-        }).flatten.compact.any? {|arch|
-          io.seek where
-
-          if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
+      begin
+        added = @decoders.any? {|decoder|
+          if tmp = Orgasm.object?(decoder.for(io, options).decode)
+            instance_eval &@after if @after
+            
+            result << unknown(junk) and junk = nil if junk
             result << tmp
           end
         }
+
+        if !added
+          io.seek where unless (@inherits + options[:extensions].map {|name|
+            arch.extensions.select {|extension|
+              extension.name == name
+            }
+          }).flatten.compact.any? {|arch|
+            io.seek where
+
+            if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
+              result << unknown(junk) and junk = nil if junk
+              result << tmp
+            end
+          }
+        end
+      rescue NeedMoreData
+        io.seek where
+
+        (junk ||= '') << io.read
       end
 
       break if options[:limit] && result.flatten.compact.length >= options[:limit]

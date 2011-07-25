@@ -54,4 +54,11 @@ X86::Instructions[X86::DSL.new(32) {
   DEC [r32|m32] => [0xFF, ?1],
       [r32]     => [0x48, rd]
 
+  # Unsigned Divide
+  DIV [r32|m32] => [0xF7, ?6, id]
+  # FIXME: this is wrong, investigate
+
+  # Make Stack Frame for Procedure Parameters
+  ENTER [imm16, imm8] => [0xC8, iw, ib]
+
 }]

@@ -69,9 +69,7 @@ class Decoder
   def decode
     return unless @io
 
-    return unless match = @args.compact.find {|arg|
-      matches(arg)
-    }
+    return unless match = match(*@args)
 
     catch(:result) {
       start = @io.tell
@@ -81,6 +79,12 @@ class Decoder
 
         false
       }
+    }
+  end
+
+  def match (*args)
+    args.compact.sort.find {|arg|
+      matches(arg)
     }
   end
 
@@ -111,9 +115,7 @@ class Decoder
 
     data = args.pop if args.last.is_a?(Hash)
 
-    return unless match = args.compact.find {|arg|
-      matches(arg)
-    }
+    return unless match = match(*args)
 
     result { instance_exec args, match, data, &block }
   end
@@ -140,7 +142,7 @@ class Decoder
     data = @io.read(amount)
 
     if data.nil? or data.length != amount
-      raise RuntimeError, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
+      raise NeedMoreData, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
     end
 
     if block

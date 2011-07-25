@@ -40,8 +40,6 @@ always do
           destination, source = params
 
           next if prefixes.small? && destination.is?(32)
-          
-          next if !prefixes.small? && destination.is?(16)
 
           known = definition.reverse.drop_while {|x|
             !x.is_a?(Integer)
@@ -102,11 +100,9 @@ always do
                 end
               ).to_bytes rescue nil
 
-              immediate = if X86::Data.valid?(opcodes.first)
-                X86::Data.new(self, opcodes.first).tap {|o|
-                  return if o.size == 2 && !prefixes.small?
-                }
-              end
+              immediates = 0.upto(1).map {
+                X86::Data.new(self, opcodes.shift) if X86::Data.valid?(opcodes.first)
+              }.compact
 
               X86::Instruction.new(name) {|i|
                 next if params.ignore?
@@ -115,6 +111,8 @@ always do
                   i.send "#{type}=", if X86::Instructions.register?(obj)
                     X86::Register.new(obj)
                   elsif obj.is?(:imm)
+                    immediate = immediates.shift
+
                     X86::Immediate.new(immediate.to_i, immediate.size)
                   elsif obj.is?(:m) && displacement
                     X86::Address.new(displacement, (obj.second rescue obj).to_s[/\d+$/].to_i)
@@ -135,7 +133,7 @@ always do
           end
         }
       else
-        on description.map { |b| [b].flatten.compact.pack('C*') }.join do |whole, which|
+        on description do |whole, which|
           seek which.length
 
           X86::Instruction.new(name)

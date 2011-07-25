@@ -63,5 +63,5 @@ X86::Instructions[X86::DSL.new(32) {
 
   # Convert Word to Doubleword
   CWDE [eax].ignore => [0x98]
- 
+
 }.to_hash]

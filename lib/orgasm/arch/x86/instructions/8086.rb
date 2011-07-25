@@ -117,5 +117,10 @@ X86::Instructions[X86::DSL.new(16) {
   DEC [r8|m8]   => [0xFE, ?1],
       [r16|m16] => [0xFF, ?1],
       [r16]     => [0x48, rw]
+
+  # Unsigned Divide
+  DIV [r8|m8]   => [0xF6, ?6],
+      [r16|m16] => [0xF7, ?6]
+  # FIXME: this is wrong, investigate
     
 }]

@@ -75,9 +75,9 @@ instructions.to_hash.each {|name, description|
               end
             ).to_bytes rescue nil
 
-            immediate = if X86::Data.valid?(opcodes.first)
-              X86::Data.new(self, opcodes.first)
-            end
+            immediates = 0.upto(1).map {
+              X86::Data.new(self, opcodes.shift) if X86::Data.valid?(opcodes.first)
+            }.compact
 
             X86::Instruction.new(name) {|i|
               next if params.ignore?
@@ -86,6 +86,8 @@ instructions.to_hash.each {|name, description|
                 i.send "#{type}=", if X86::Instructions.register?(obj)
                   X86::Register.new(obj)
                 elsif obj.is?(:imm)
+                  immediate = immediates.shift
+
                   X86::Immediate.new(immediate.to_i, immediate.size)
                 elsif obj.is?(:m) && displacement
                   X86::Address.new(displacement, (obj.second rescue obj).to_s[/\d+$/].to_i)
@@ -104,7 +106,7 @@ instructions.to_hash.each {|name, description|
         end
       }
     else
-      on description.map {|b| b.chr}.join do |whole, which|
+      on description do |whole, which|
         seek which.length
 
         X86::Instruction.new(name)

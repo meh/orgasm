@@ -17,22 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module X87
+module Orgasm
 
-class Register < Orgasm::Register
-  def initialize (name=nil)
-    self.name = name if name
-  end
+NeedMoreData = Class.new(RuntimeError)
 
-  def name= (value)
-    value = value.to_s.downcase.to_sym
-
-    unless X87::Instructions.register?(value)
-      raise ArgumentError, "#{value} isn't a valid x87 register"
-    end
-
-    @name = value
-  end
 end
-
-end; end

@@ -49,4 +49,22 @@ X87::Instructions[X87::DSL.new {
 
   # Scalar Signed INT32 to Single-FP Conversion
   CVTSI2SS [xmm, r32|m32] => [0xF3, 0x0F, 0x2A, r]
+
+  # Scalar Single-FP to Signed INT32 Conversion
+  CVTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2D, r]
+
+  # Packed Single-FP o Packed INT32 Conversion (Truncate)
+  # CVTTPS2PI [mm, xmm|m64] => [0x0F, 0x2C, r]
+  # FIXME: this needs MMX™ registers, investigate further
+
+  # Scalar Single-FP to Signed INT32 Conversion (Truncate)
+  CVTTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2C, r]
+
+  # Packed Signle-FP Divide
+  DIVPS [xmm1, xmm2|m128] => [0x0F, 0x5E, r]
+
+  # Scalar Single-FP Divide
+  DIVSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5E, r]
+
+
 }]

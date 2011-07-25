@@ -21,17 +21,40 @@ instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
       description.each {|params, definition|
-        destination, sources = params
+        destination, *sources = params
 
-        known = definition.reverse.drop_while {|x|
-          !x.is_a?(Integer)
-        }.reverse.map {|x|
-          [x].flatten.pack('C*')
-        }.join
-
-        on known do |whole, which|
+        if definition.member?(:i)
           opcodes = definition.clone
-          opcodes.slice! 0 ... known.length
+          index   = definition.index(opcodes.delete(:i)) - 1
+
+          0.upto 7 do |n|
+            on opcodes.clone, code: n do |whole, which, data|
+              seek which.length
+
+              stack = X87::Stack.new(data[:code])
+
+              X86::Instruction.new(name) {|i|
+                if sources.empty?
+                  i.destination = stack
+                else
+                  i.parameters.insert -1, *(if destination.is?(:r)
+                    [stack, X87::Stack.new(sources.first.downcase)]
+                  else
+                    [X87::Stack.new(destination.downcase), stack]
+                  end)
+                end
+              }
+            end
+
+            opcodes[index] += 1
+          end
+
+          next
+        end
+
+        on definition.reverse.drop_while {|x| !x.is_a?(Integer) }.reverse do |whole, which|
+          opcodes = definition.clone
+          opcodes.slice! 0 ... which.length
 
           seek which.length do
             modr = if opcodes.first.is_a?(String) || opcodes.first == :r
@@ -47,8 +70,8 @@ instructions.to_hash.each {|name, description|
               end
             ).to_bytes rescue nil
 
-            immediate = if X87::Data.valid?(opcodes.first)
-              X87::Data.new(self, opcodes.first).tap {|o|
+            immediate = if X86::Data.valid?(opcodes.first)
+              X86::Data.new(self, opcodes.first).tap {|o|
                 return if o.size == 2 && !prefixes.small?
               }
             end
@@ -60,7 +83,7 @@ instructions.to_hash.each {|name, description|
         end
       }
     else
-      on description.map { |b| [b].flatten.compact.pack('C*') }.join do |whole, which|
+      on description do |whole, which|
         seek which.length
 
         X87::Instruction.new(name)

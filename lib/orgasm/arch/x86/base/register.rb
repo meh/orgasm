@@ -20,8 +20,6 @@
 module Orgasm; module X86
 
 class Register < Orgasm::Register
-  attr_accessor :size
-
   def initialize (name=nil)
     super(name, X86::Instructions.register?(name))
   end

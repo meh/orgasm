@@ -20,4 +20,22 @@
 X87::Instructions[X87::DSL.new {
   # Compute 2^x-1
   F2XM1 [0xD9, 0xF0]
+
+  # Absolute Value
+  FABS [0xD9, 0xE1]
+
+  # Add
+  FADD [m32real]    => [0xD8, ?0],
+       [m64real]    => [0xDC, ?0],
+       # The Intel reference states this, but it doesn't work, nasm generates what's below
+       # [:ST0, :STi] => [0xD8, 0xC0, i],
+       # [:STi, :ST0] => [0xDC, 0xC0, i],
+       [st0, sti] => [0xC0, i, 0xD8],
+       [sti, st0] => [0xC0, i, 0xDC]
+
+  FADDP [0xDE, 0xC1],
+        [sti, st0] => [0xDE, 0xC0, i]
+
+  FIADD [m32int] => [0xDA, ?0],
+        [m64int] => [0xDE, ?0]
 }]

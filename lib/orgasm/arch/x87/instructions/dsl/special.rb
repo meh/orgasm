@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module X86; class DSL
+module Orgasm; module X87; class DSL
 
 class Special
   class Operator
