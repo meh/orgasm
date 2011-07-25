@@ -41,7 +41,7 @@ class DSL
       :ib, # 1 byte
       :iw, # 2 bytes
 
-      :rb, # a registercode, from 0 through 7, added to the hexadecimal byte gien at the left
+      :rb, # a register code, from 0 through 7, added to the hexadecimal byte given at the left
       :rw, # of the plus sign to form a single opcode byte.
       :rd,
 

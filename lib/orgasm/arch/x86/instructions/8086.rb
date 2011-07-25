@@ -66,4 +66,56 @@ X86::Instructions[X86::DSL.new(16) {
       [r8,      r8|m8]   => [0x22, r],
       [r16,     r16|m16] => [0x23, r]
 
+  # Call Procedure
+  CALL [rel16]    => [0xE8, cw],
+       [r16|m16]  => [0xFF, ?2]
+
+  # Convert Byte to Word
+  CBW [ax].ignore => [0x98]
+
+  # Clear Carry Flag
+  CLC [0xF8]
+
+  # Clear Direction Flag
+  CLD [0xFC]
+
+  # Clear Interrupt Flag
+  CLI [0xFA]
+
+  # Clear Task-Switched Flag in CR0
+  CLTS [0x0F, 0x06]
+
+  # Complement Carry Flag
+  CMC [0xF5]
+
+  # Compare Two Operands
+  CMP [al,      imm8]    => [0x3C, ib],
+      [ax,      imm16]   => [0x3D, iw],
+      [r8|m8,   imm8]    => [0x80, ?7, ib],
+      [r16|m16, imm16]   => [0x81, ?7, iw],
+      [r16|m16, imm8]    => [0x83, ?7, ib],
+      [r8|m8,   r8]      => [0x38, r],
+      [r16|m16, r16]     => [0x39, r],
+      [r8,      r8|m8]   => [0x3A, r],
+      [r16,     r16|m16] => [0x3B, r]
+
+  # Compare String Operands
+  CMPSB [0xA6]
+
+  CMPSW [ax].ignore => [0xA7]
+
+  # Convert Word to Doubleword
+  CWD [ax].ignore => [0x99]
+
+  # Decimal Adjust AL after Addition
+  DAA [0x27]
+
+  # Decimal Adjust AL after Substraction
+  DAS [0x2F]
+
+  # Decrement by 1
+  DEC [r8|m8]   => [0xFE, ?1],
+      [r16|m16] => [0xFF, ?1],
+      [r16]     => [0x48, rw]
+    
 }]

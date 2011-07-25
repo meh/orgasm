@@ -17,5 +17,11 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-X87::Instructions[X87::DSL.new {
+X86::Instructions[X86::DSL.new(32) {
+  # Compare and Exchange 8 bytes
+  CMPXCHG8B [m64] => [0x0F, 0xC7, ?1, m64]
+  # FIXME: add support for this shit in 32 bit disassembler
+  
+  # CPU Identification
+  CPUID [0x0F, 0xA2]
 }]

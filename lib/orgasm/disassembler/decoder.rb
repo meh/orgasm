@@ -24,7 +24,8 @@ class Decoder
 
   def initialize (disassembler, *args, &block)
     @disassembler = disassembler
-    @args         = args.flatten(1).compact
+    @args         = args
+    @data         = args.pop if args.last.is_a?(Hash)
     @block        = block
   end
 
@@ -68,7 +69,7 @@ class Decoder
   def decode
     return unless @io
 
-    return unless match = @args.find {|arg|
+    return unless match = @args.compact.find {|arg|
       matches(arg)
     }
 
@@ -76,7 +77,7 @@ class Decoder
       start = @io.tell
 
       skip(start) if catch(:skip) {
-        result { instance_exec @args, match, &@block }
+        result { instance_exec @args, match, @data, &@block }
 
         false
       }
@@ -108,11 +109,13 @@ class Decoder
   def on (*args, &block)
     return unless @io
 
-    return unless match = args.flatten(1).compact.find {|arg|
+    data = args.pop if args.last.is_a?(Hash)
+
+    return unless match = args.compact.find {|arg|
       matches(arg)
     }
 
-    result { instance_exec args, match, &block }
+    result { instance_exec args, match, data, &block }
   end
 
   def always (&block)

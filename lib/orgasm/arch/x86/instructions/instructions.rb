@@ -20,28 +20,34 @@
 module Orgasm; module X86
 
 class Instructions < Hash
-  def self.registers
-    [:al,  :cl,  :dl,  :bl,  :ah,  :ch,  :dh,  :bh,
-     :ax,  :cx,  :dx,  :bx,  :sp,  :bp,  :si,  :di,
-     :eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi]
-  end
+  Registers = {
+    8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
+    16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
+    32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
+  }
+
+  RegisterCodes = {
+    8  => :rb,
+    16 => :rw,
+    32 => :rd
+  }
 
   def self.register? (value)
-    return unless registers.member?((value.to_sym.downcase rescue nil))
-
-    case value.to_s.downcase
-      when /^e/     then 32
-      when /[xpi]$/ then 16
-      when /[lh]$/  then 8
-    end
+    Registers.find {|bits, registers|
+      registers.member?(value.to_sym.downcase)
+    }.first rescue nil
   end
 
   def self.register (value, type=32)
-    Hash[
-      8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
-      16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
-      32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
-    ][type][value]
+    Registers[type][value]
+  end
+
+  def self.register_code? (value)
+    RegisterCodes.key(value.to_s.to_sym)
+  end
+
+  def self.register_code (value, type=32)
+    Registers[type][value]
   end
 end
 

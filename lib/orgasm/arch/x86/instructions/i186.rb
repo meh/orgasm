@@ -43,4 +43,15 @@ X86::Instructions[X86::DSL.new(32) {
   BOUND [r16, m16&16] => [0x62, r],
         [r32, m32&32] => [0x62, r]
 
+  # Call Procedure
+  CALL [rel32]    => [0xE8, cd],
+       [r32|m32]  => [0xFF, ?2],
+       [ptr16^16] => [0x9A, cd],
+       [ptr16^32] => [0x9A, cp],
+       [m16^32]   => [0xFF, ?3]
+
+  # Decrement by 1
+  DEC [r32|m32] => [0xFF, ?1],
+      [r32]     => [0x48, rd]
+
 }]

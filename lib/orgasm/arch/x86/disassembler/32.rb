@@ -45,9 +45,33 @@ always do
 
           known = definition.reverse.drop_while {|x|
             !x.is_a?(Integer)
-          }.reverse.map {|x|
-            [x].flatten.pack('C*')
-          }.join
+          }.reverse
+
+          if bits = X86::Instructions.register_code?(definition.last)
+            next if bits == 32 && prefixes.small?
+
+            0.upto 7 do |n|
+              on known do |whole, which|
+                seek which.length
+
+                reg = X86::Register.new(X86::Instructions.register_code(n, bits))
+
+                X86::Instruction.new(name) {|i|
+                  if !source
+                    i.destination = reg
+                  else
+                    i.destination, i.source = if destination.is?(:r)
+                      [reg, X86::Register.new(source)]
+                    else
+                      [X86::Register.new(destination), reg]
+                    end
+                  end
+                }
+              end
+
+              known[-1] += 1
+            end
+          end
 
           on known do |whole, which|
             opcodes = definition.clone

@@ -25,13 +25,37 @@ instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
       description.each {|params, definition|
-        destination = params.first
-        source      = params.last
-        known       = definition.reverse.drop_while {|x|
+        destination, source = params
+
+        known = definition.reverse.drop_while {|x|
           !x.is_a?(Integer)
-        }.reverse.map {|x|
-          [x].flatten.pack('C*')
-        }.join
+        }.reverse
+
+        if bits = X86::Instructions.register_code?(definition.last)
+          0.upto 7 do |n|
+            on known.clone, code: n do |whole, which, data|
+              seek which.length
+
+              reg = X86::Register.new(X86::Instructions.register_code(data[:code], bits))
+
+              X86::Instruction.new(name) {|i|
+                if !source
+                  i.destination = reg
+                else
+                  i.destination, i.source = if destination.is?(:r)
+                    [reg, X86::Register.new(source)]
+                  else
+                    [X86::Register.new(destination), reg]
+                  end
+                end
+              }
+            end
+
+            known[-1] += 1
+          end
+
+          next
+        end
 
         on known do |whole, which|
           opcodes = definition.clone
