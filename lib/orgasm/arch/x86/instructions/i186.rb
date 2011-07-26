@@ -61,4 +61,10 @@ X86::Instructions[X86::DSL.new(32) {
   # Make Stack Frame for Procedure Parameters
   ENTER [imm16, imm8] => [0xC8, iw, ib]
 
+  # Signed Divide
+  IDIV [+r32|+m32] => [0xF7, ?7]
+
+  # Signed Multiply
+  IMUL [+r32|+m32]       => [0xF7, ?5],
+       [+r32, +r32|+m32] => [0x0F, 0xAF, r],
 }]

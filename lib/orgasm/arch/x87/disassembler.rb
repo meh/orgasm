@@ -63,6 +63,8 @@ instructions.to_hash.each {|name, description|
 
             return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
+            return if modr && destination.is?(:m) && modr.mod == '11'.to_i(2)
+
             displacement = modr && read(
               if    modr.mod == '00'.to_i(2) && modr.rm == '101'.to_i(2) then 32.bit
               elsif modr.mod == '01'.to_i(2)                             then 8.bit

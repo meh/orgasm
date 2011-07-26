@@ -66,5 +66,11 @@ X87::Instructions[X87::DSL.new {
   # Scalar Single-FP Divide
   DIVSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5E, r]
 
+  # Restore FP and MMX™ State and Streaming SIMD Extension State
+  # FXRSTOR [m512byte] => [0x0F, 0xAE, ?1]
+  # FIXME: this needs MMX™, apparently
+
+  # Store FP and MMX™ State and Streaming SIMD Extension State
+  FXSAVE [m512byte] => [0x0F, 0xAE, ?0]
 
 }]

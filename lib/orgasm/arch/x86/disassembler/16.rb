@@ -17,7 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-on 0x0F, *(0x60 .. 0x6F).to_a, 0xC0, 0xC1,0xC9, 0xD6, 0xF1 do
+# undocumented opcode holes
+on 0x66, 0x67, 0xC1 do
   seek +1
 end
 
@@ -25,7 +26,7 @@ instructions.to_hash.each {|name, description|
   description.each {|description|
     if description.is_a?(Hash)
       description.each {|params, definition|
-        destination, source = params
+        destination, source, source2 = params
 
         known = definition.reverse.drop_while {|x|
           !x.is_a?(Integer)
@@ -76,13 +77,15 @@ instructions.to_hash.each {|name, description|
             ).to_bytes rescue nil
 
             immediates = 0.upto(1).map {
-              X86::Data.new(self, opcodes.shift) if X86::Data.valid?(opcodes.first)
-            }.compact
+              X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
+            }.compact.reverse
 
             X86::Instruction.new(name) {|i|
               next if params.ignore?
 
-              { destination: destination, source: source }.each {|type, obj|
+              { destination: destination, source: source, source2: source2 }.each {|type, obj|
+                next unless obj
+
                 i.send "#{type}=", if X86::Instructions.register?(obj)
                   X86::Register.new(obj)
                 elsif obj.is?(:imm)
@@ -90,13 +93,13 @@ instructions.to_hash.each {|name, description|
 
                   X86::Immediate.new(immediate.to_i, immediate.size)
                 elsif obj.is?(:m) && displacement
-                  X86::Address.new(displacement, (obj.second rescue obj).to_s[/\d+$/].to_i)
+                  X86::Address.new(displacement, obj.bits)
+                elsif obj.is?(:m) && modr.mod != '11'.to_i(2)
+                  X86::Address.new(modr.rm, obj.)
+                elsif obj.is?(:r) && opcodes.first == :r
+                  X86::Register.new(X86::Instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.to_s[/\d+$/].to_i))
                 elsif obj.is?(:r)
-                  if opcodes.first == :r
-                    X86::Register.new(X86::Instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.to_s[/\d+$/].to_i))
-                  else
-                    X86::Register.new(X86::Instructions.register(modr.rm, obj.to_s[/\d+$/].to_i))
-                  end
+                  X86::Register.new(X86::Instructions.register(modr.rm, obj.to_s[/\d+$/].to_i))
                 else
                   raise ArgumentError, "dont know what to do with #{obj} as #{type}"
                 end

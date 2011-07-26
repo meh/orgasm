@@ -83,7 +83,7 @@ class Decoder
   end
 
   def match (*args)
-    args.compact.sort.find {|arg|
+    args.compact.find {|arg|
       matches(arg)
     }
   end

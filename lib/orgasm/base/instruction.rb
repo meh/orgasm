@@ -34,7 +34,7 @@ class Instruction < Base
   end
 
   def inspect
-    "#<Instruction(#{name})#{": #{parameters.map {|p| p.inspect}.join(', ')}" unless parameters.empty?}>"
+    "#<Instruction(#{name})#{": #{parameters.map { |p| p.inspect }.join(', ')}" unless parameters.empty?}>"
   end
 end
 

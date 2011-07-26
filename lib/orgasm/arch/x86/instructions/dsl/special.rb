@@ -55,6 +55,22 @@ class Special
     @value = value.to_sym
   end
 
+  def +@
+    @signed = true
+
+    self
+  end
+
+  def -@
+    @signed = false
+
+    self
+  end
+
+  def signed?
+    !!@signed
+  end
+
   def | (value)
     Or.new(self, value)
   end
@@ -69,10 +85,14 @@ class Special
 
   def is? (value)
     if value.is_a?(Integer)
-      to_s[/\d+$/].to_i == value or Instructions.register?(to_s) == value
+      bits == value or Instructions.register?(to_s) == value
     else
       to_s.start_with?(value.to_s)
     end
+  end
+
+  def bits
+    to_s[/\d+$/].to_i
   end
 
   suppress_warnings {
