@@ -17,3 +17,30 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+module Orgasm; class Format; class ELF; class Header; class Identification
+
+class Version
+  def self.from (io)
+    Retarded.new IO.get(io) do |io|
+      io.seek 6
+
+      Version.new(io.read(1).to_byte)
+    end
+  end
+
+  def initialize (value)
+    @value = value
+  end
+
+  def to_s
+    "version #{to_i} (#{{
+      1 => 'SYSV'
+    }[to_i]})"
+  end
+
+  def to_i
+    @value
+  end
+end
+
+end; end; end; end; end

@@ -127,12 +127,14 @@ X86::Instructions[X86::DSL.new(16) {
   HLT [0xF4]
 
   # Signed Divide
-  IDIV [+r8|+m8]   => [0xF6, ?7],
-       [+r16|+m16] => [0xF7, ?7]
+  IDIV [r8|m8]   => [0xF6, ?7],
+       [r16|m16] => [0xF7, ?7]
 
   # Signed Multiply
-  IMUL [+r8|+m8]                => [0xF6, ?5],
-       [+r16|+m16]              => [0xF7, ?5],
-       [+r16, +r16|+m16]        => [0x0F, 0xAF, r],
-       [+r16, +r16|+m16, +imm8] => [0x6B, r, ib]
+  IMUL [r8|m8]               => [0xF6, ?5],
+       [r16|m16]             => [0xF7, ?5],
+       [r16, r16|m16]        => [0x0F, 0xAF, r],
+       [r16, r16|m16, imm8]  => [0x6B, r, ib],
+       [r16, imm8]           => [0x6B, r, ib],
+       [r16, r16|m16, imm16] => [0x69, r, iw]
 }]

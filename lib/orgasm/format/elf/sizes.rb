@@ -17,3 +17,28 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+module Orgasm; class Format; class ELF
+
+Sizes = {
+  32 => {
+    half:    2,
+    word:    4,
+    xword:   8,
+    addr:    4,
+    off:     4,
+    section: 2,
+    versym:  2
+  },
+
+  64 => {
+    half:    2,
+    word:    4,
+    xword:   8,
+    addr:    8,
+    off:     8,
+    section: 2,
+    versym:  2
+  }
+}
+
+end; end; end

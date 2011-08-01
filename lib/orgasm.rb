@@ -17,13 +17,5 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/exceptions'
-require 'orgasm/base'
-
 require 'orgasm/architecture'
-
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
+require 'orgasm/format'

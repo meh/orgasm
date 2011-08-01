@@ -62,9 +62,12 @@ X86::Instructions[X86::DSL.new(32) {
   ENTER [imm16, imm8] => [0xC8, iw, ib]
 
   # Signed Divide
-  IDIV [+r32|+m32] => [0xF7, ?7]
+  IDIV [r32|m32] => [0xF7, ?7]
 
   # Signed Multiply
-  IMUL [+r32|+m32]       => [0xF7, ?5],
-       [+r32, +r32|+m32] => [0x0F, 0xAF, r],
+  IMUL [r32|m32]             => [0xF7, ?5],
+       [r32, r32|m32]        => [0x0F, 0xAF, r],
+       [r32, r32|m32, imm8]  => [0x6B, r, ib],
+       [r32, imm8]           => [0x6B, r, ib],
+       [r32, r32|m32, imm16] => [0x69, r, id
 }]

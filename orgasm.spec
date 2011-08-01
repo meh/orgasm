@@ -14,5 +14,6 @@ Gem::Specification.new {|s|
 
   s.add_dependency('memoized')
   s.add_dependency('refining')
+  s.add_dependency('retarded')
   s.add_dependency('packable')
 }

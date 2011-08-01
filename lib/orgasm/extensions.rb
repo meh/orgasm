@@ -21,6 +21,7 @@ require 'forwardable'
 require 'refining'
 require 'memoized'
 require 'packable'
+require 'retarded'
 
 class String
   def to_bytes (options={})
@@ -77,5 +78,16 @@ module Kernel
     end
 
     result
+  end
+end
+
+class IO
+  def self.get (io)
+    if io.is_a?(String)
+      File.open(io, ?r)
+    else
+      io.rewind
+      io
+    end
   end
 end
