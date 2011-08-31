@@ -1,5 +1,5 @@
-Orgasm - a Ruby (dis)?assembler library
-====================================
+Orgasm - a Ruby (dis)?assembler library (NOT a (dis)?assembler FOR Ruby, a (dis)?assembler IN Ruby)
+===================================================================================================
 
 Well, tonight I worked a bit on this and it's coming out pretty cool, here's a partial usage
 
