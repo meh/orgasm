@@ -22,47 +22,47 @@ require 'orgasm/styles/style'
 module Orgasm
 
 class Styles < Piece
-  def initialize (*)
-    @styles = []
+	def initialize (*)
+		@styles = []
 
-    super
-  end
+		super
+	end
 
-  def style (*args, &block)
-    @styles << Style.new(*args, &block)
-  end
+	def style (*args, &block)
+		@styles << Style.new(*args, &block)
+	end
 
-  def use (name)
-    @current = @styles.find {|style|
-      style.names.member?(name)
-    }
-  end
+	def use (name)
+		@current = @styles.find {|style|
+			style.names.member?(name)
+		}
+	end
 
-  def current
-    @current or use(@styles.first.name)
-  end
+	def current
+		@current or use(@styles.first.name)
+	end
 
-  def extend (*things)
-    styles = self
+	def extend (*things)
+		styles = self
 
-    things.flatten.compact.each {|thing|
-      if thing.is_a?(Instruction)
-        extend(thing.parameters)
-      end
+		things.flatten.compact.each {|thing|
+			if thing.is_a?(Instruction)
+				extend(thing.parameters)
+			end
 
-      thing.refine_method :to_s do |old, *|
-        begin
-          styles.apply(self) or old.call or inspect
-        rescue
-          old.call or inspect
-        end
-      end
-    }
-  end
+			thing.refine_method :to_s do |old, *|
+				begin
+					styles.apply(self) or old.call or inspect
+				rescue
+					old.call or inspect
+				end
+			end
+		}
+	end
 
-  def apply (thing)
-    current.apply(thing)
-  end
+	def apply (thing)
+		current.apply(thing)
+	end
 end
 
 end

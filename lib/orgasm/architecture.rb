@@ -30,101 +30,101 @@ require 'orgasm/assembler'
 module Orgasm
 
 class Architecture
-  @@archs = {}
+	@@archs = {}
 
-  class << self
-    def for (name, &block)
-      (@@archs[name.downcase.to_sym] ||= Architecture.new(name)).do(&block)
-    end
+	class << self
+		def for (name, &block)
+			(@@archs[name.downcase.to_sym] ||= Architecture.new(name)).do(&block)
+		end
 
-    alias is for
-    alias in for
+		alias is for
+		alias in for
 
-    def [] (name)
-      @@archs[name.downcase.to_sym]
-    end
+		def [] (name)
+			@@archs[name.downcase.to_sym]
+		end
 
-    def method_missing (id, *)
-      self[id] or super
-    end
-  end
+		def method_missing (id, *)
+			self[id] or super
+		end
+	end
 
-  attr_reader :name, :families, :extensions
+	attr_reader :name, :families, :extensions
 
-  def initialize (name, &block)
-    @name = name
+	def initialize (name, &block)
+		@name = name
 
-    @families   = []
-    @extensions = []
+		@families   = []
+		@extensions = []
 
-    self.do(&block)
-  end
+		self.do(&block)
+	end
 
-  def do (&block)
-    instance_eval &block if block
-  end
+	def do (&block)
+		instance_eval &block if block
+	end
 
-  def [] (name)
-    @families.find {|family|
-      name.to_s == family.name
-    }
-  end
+	def [] (name)
+		@families.find {|family|
+			name.to_s == family.name
+		}
+	end
 
-  def method_missing (name, *)
-    @families.find {|family|
-      name.to_s == family.name
-    } or super
-  end
+	def method_missing (name, *)
+		@families.find {|family|
+			name.to_s == family.name
+		} or super
+	end
 
-  def instructions (path=nil, &block)
-    return @instructions unless path or block
+	def instructions (path=nil, &block)
+		return @instructions unless path or block
 
-    @instructions = if path
-      path = $:.each {|dir|
-        dir = File.join(dir, "#{path}.rb")
+		@instructions = if path
+			path = $:.each {|dir|
+				dir = File.join(dir, "#{path}.rb")
 
-        break dir if File.readable?(dir)
-      }.tap {|o|
-        raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-      }
+				break dir if File.readable?(dir)
+			}.tap {|o|
+				raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+			}
 
-      instance_eval File.read(path), path, 1
-    else
-      instance_eval &block
-    end
-  end
+			instance_eval File.read(path), path, 1
+		else
+			instance_eval &block
+		end
+	end
 
-  [:disassembler, :assembler, :generator, :styles].each {|name|
-    define_method name do |path=nil, &block|
-      return instance_variable_get("@#{name}") unless path or block
+	[:disassembler, :assembler, :generator, :styles].each {|name|
+		define_method name do |path=nil, &block|
+			return instance_variable_get("@#{name}") unless path or block
 
-      instance_variable_set("@#{name}", if path
-        io = File.open($:.each {|dir|
-          dir = File.join(dir, "#{path}.rb")
+			instance_variable_set("@#{name}", if path
+				io = File.open($:.each {|dir|
+					dir = File.join(dir, "#{path}.rb")
 
-          break dir if File.readable?(dir)
-        }.tap {|o|
-          raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-        }, ?r)
+					break dir if File.readable?(dir)
+				}.tap {|o|
+					raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+				}, ?r)
 
-        Orgasm.const_get(name.capitalize).new(self, io) or super
-      else      
-        Orgasm.const_get(name.capitalize).new(self, &block) or super
-      end)
-    end
-  }
+				Orgasm.const_get(name.capitalize).new(self, io) or super
+			else      
+				Orgasm.const_get(name.capitalize).new(self, &block) or super
+			end)
+		end
+	}
 
-  def family (name, &block)
-    @families << Family.new(self, name, &block)
-  end
+	def family (name, &block)
+		@families << Family.new(self, name, &block)
+	end
 
-  def extension (name, &block)
-    @extensions << Extension.new(self, name, &block)
-  end
+	def extension (name, &block)
+		@extensions << Extension.new(self, name, &block)
+	end
 
-  def to_s
-    @name
-  end
+	def to_s
+		@name
+	end
 end
 
 end

@@ -20,36 +20,36 @@
 module Orgasm; class Styles < Piece
 
 class Style
-  attr_reader :names
+	attr_reader :names
 
-  def initialize (*names)
-    @names = names
-    @for   = {}
+	def initialize (*names)
+		@names = names
+		@for   = {}
 
-    yield self
-  end
+		yield self
+	end
 
-  def for (klass, &block)
-    @for[klass] = block
-  end
+	def for (klass, &block)
+		@for[klass] = block
+	end
 
-  def apply (thing)
-    callback = @for[thing.class] or @for.find {|(what, block)|
-      what.ancestors.member?(thing.class)
-    }.last
+	def apply (thing)
+		callback = @for[thing.class] or @for.find {|(what, block)|
+			what.ancestors.member?(thing.class)
+		}.last
 
-    if callback
-      thing.instance_eval &callback
-    end
-  end
+		if callback
+			thing.instance_eval &callback
+		end
+	end
 
-  def name
-    names.first
-  end
+	def name
+		names.first
+	end
 
-  def to_s
-    name
-  end
+	def to_s
+		name
+	end
 end
 
 end; end

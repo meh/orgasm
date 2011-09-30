@@ -20,18 +20,18 @@
 module Orgasm; class Architecture
 
 class Family < Architecture
-  attr_reader  :arch
-  undef_method :family
+	attr_reader  :arch
+	undef_method :family
 
-  def initialize (arch, name, &block)
-    @arch = arch
+	def initialize (arch, name, &block)
+		@arch = arch
 
-    super(name, &block)
-  end
+		super(name, &block)
+	end
 
-  def extensions
-    @extensions + arch.extensions
-  end
+	def extensions
+		@extensions + arch.extensions
+	end
 end
 
 end; end

@@ -23,41 +23,41 @@ require 'orgasm/exceptions'
 module Orgasm
 
 class Format
-  @@formats = {}
+	@@formats = {}
 
-  def self.define (name, &block)
-    @@formats[name] = Format.new(name, &block)
-  end
+	def self.define (name, &block)
+		@@formats[name] = Format.new(name, &block)
+	end
 
-  def self.load (path)
-    name, format = @@formats.find {|name, format|
-      format.valid?(File.open(path, 'r'))
-    }
-    
-    raise ArgumentError, "#{path} is not in the known file formats" unless format
+	def self.load (path)
+		name, format = @@formats.find {|name, format|
+			format.valid?(File.open(path, 'r'))
+		}
+		
+		raise ArgumentError, "#{path} is not in the known file formats" unless format
 
-    format.load(File.open(path, 'r'))
-  end
+		format.load(File.open(path, 'r'))
+	end
 
-  attr_reader :name
+	attr_reader :name
 
-  def initialize (name, &block)
-    @name = name
+	def initialize (name, &block)
+		@name = name
 
-    instance_eval &block
-  end
+		instance_eval &block
+	end
 
-  [:valid?, :load].each {|name|
-    define_method name do |*args, &block|
-      name = name.to_s.gsub('?', '')
+	[:valid?, :load].each {|name|
+		define_method name do |*args, &block|
+			name = name.to_s.gsub('?', '')
 
-      if block
-        instance_variable_set "@#{name}", block
-      else
-        instance_variable_get("@#{name}").call(*args)
-      end
-    end
-  }
+			if block
+				instance_variable_set "@#{name}", block
+			else
+				instance_variable_get("@#{name}").call(*args)
+			end
+		end
+	}
 end
 
 end

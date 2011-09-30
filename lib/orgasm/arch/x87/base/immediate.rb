@@ -20,13 +20,13 @@
 module Orgasm; module X87
 
 class Immediate < Orgasm::Constant
-  def inspect
-    if @value.nil?
-      '#<Immediate: NULL>'
-    else
-      "#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
-    end
-  end
+	def inspect
+		if @value.nil?
+			'#<Immediate: NULL>'
+		else
+			"#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
+		end
+	end
 end
 
 end; end

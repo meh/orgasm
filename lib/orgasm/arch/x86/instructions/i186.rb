@@ -18,56 +18,64 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-  # Add with Carry
-  ADC [eax,     imm32]   => [0x15, id],
-      [r32|m32, imm32]   => [0x81, ?2, id],
-      [r32|m32, imm8]    => [0x83, ?2, ib],
-      [r32|m32, r32]     => [0x11, r],
-      [r32,     r32|m32] => [0x13, r]
+	# Add with Carry
+	ADC [eax,     imm32]   => [0x15, id],
+	    [r32|m32, imm32]   => [0x81, ?2, id],
+	    [r32|m32, imm8]    => [0x83, ?2, ib],
+	    [r32|m32, r32]     => [0x11, r],
+	    [r32,     r32|m32] => [0x13, r]
 
-  # Add
-  ADD [eax,     imm32]   => [0x05, id],
-      [r32|m32, imm32]   => [0x81, ?0, id],
-      [r32|m32, imm8]    => [0x83, ?0, ib],
-      [r32|m32, r32]     => [0x01, r],
-      [r32,     r32|m32] => [0x03, r]
+	# Add
+	ADD [eax,     imm32]   => [0x05, id],
+	    [r32|m32, imm32]   => [0x81, ?0, id],
+	    [r32|m32, imm8]    => [0x83, ?0, ib],
+	    [r32|m32, r32]     => [0x01, r],
+	    [r32,     r32|m32] => [0x03, r]
 
-  # Logical AND
-  AND [eax,     imm32]   => [0x25, id],
-      [r32|m32, imm32]   => [0x81, ?4, id],
-      [r32|m32, imm8]    => [0x83, ?4, ib],
-      [r32|m32, r32]     => [0x21, r],
-      [r32,     r32|m32] => [0x23, r]
+	# Logical AND
+	AND [eax,     imm32]   => [0x25, id],
+	    [r32|m32, imm32]   => [0x81, ?4, id],
+	    [r32|m32, imm8]    => [0x83, ?4, ib],
+	    [r32|m32, r32]     => [0x21, r],
+	    [r32,     r32|m32] => [0x23, r]
 
-  # Check Array Index Against Bounds
-  BOUND [r16, m16&16] => [0x62, r],
-        [r32, m32&32] => [0x62, r]
+	# Check Array Index Against Bounds
+	BOUND [r16, m16&16] => [0x62, r],
+	      [r32, m32&32] => [0x62, r]
 
-  # Call Procedure
-  CALL [rel32]    => [0xE8, cd],
-       [r32|m32]  => [0xFF, ?2],
-       [ptr16^16] => [0x9A, cd],
-       [ptr16^32] => [0x9A, cp],
-       [m16^32]   => [0xFF, ?3]
+	# Call Procedure
+	CALL [rel32]    => [0xE8, cd],
+	     [r32|m32]  => [0xFF, ?2],
+	     [ptr16^16] => [0x9A, cd],
+	     [ptr16^32] => [0x9A, cp],
+	     [m16^32]   => [0xFF, ?3]
 
-  # Decrement by 1
-  DEC [r32|m32] => [0xFF, ?1],
-      [r32]     => [0x48, rd]
+	# Decrement by 1
+	DEC [r32|m32] => [0xFF, ?1],
+	    [r32]     => [0x48, rd]
 
-  # Unsigned Divide
-  DIV [r32|m32] => [0xF7, ?6, id]
-  # FIXME: this is wrong, investigate
+	# Unsigned Divide
+	DIV [r32|m32] => [0xF7, ?6, id]
+	# FIXME: this is wrong, investigate
 
-  # Make Stack Frame for Procedure Parameters
-  ENTER [imm16, imm8] => [0xC8, iw, ib]
+	# Make Stack Frame for Procedure Parameters
+	ENTER [imm16, imm8] => [0xC8, iw, ib]
 
-  # Signed Divide
-  IDIV [r32|m32] => [0xF7, ?7]
+	# Signed Divide
+	IDIV [r32|m32] => [0xF7, ?7]
 
-  # Signed Multiply
-  IMUL [r32|m32]             => [0xF7, ?5],
-       [r32, r32|m32]        => [0x0F, 0xAF, r],
-       [r32, r32|m32, imm8]  => [0x6B, r, ib],
-       [r32, imm8]           => [0x6B, r, ib],
-       [r32, r32|m32, imm16] => [0x69, r, id
+	# Signed Multiply
+	IMUL [r32|m32]             => [0xF7, ?5],
+	     [r32, r32|m32]        => [0x0F, 0xAF, r],
+	     [r32, r32|m32, imm8]  => [0x6B, r, ib],
+	     [r32, imm8]           => [0x6B, r, ib],
+	     [r32, r32|m32, imm16] => [0x69, r, id]
+
+	# Input from Port
+	IN [eax, imm8] => [0xE5, ib],
+	   [eax, dx]   => [0xED]
+
+	# Increment by 1
+	INC [r32|m32] => [0xFF, ?0],
+	    [r32]     => [0x40, rd]
 }]

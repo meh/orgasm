@@ -18,6 +18,6 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-  # Adjust RPL Field of Segment Selector
-  ARPL [r16|m16, r16] => [0x63, r]
+	# Adjust RPL Field of Segment Selector
+	ARPL [r16|m16, r16] => [0x63, r]
 }]

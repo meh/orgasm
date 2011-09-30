@@ -20,16 +20,16 @@
 module Orgasm; class Disassembler < Piece
 
 class Pipeline < Disassembler
-  attr_reader :first, :second
+	attr_reader :first, :second
 
-  def initialize (first, second)
-    super(first.arch)
+	def initialize (first, second)
+		super(first.arch)
 
-    @first  = first
-    @second = second
+		@first  = first
+		@second = second
 
-    inherit first, second
-  end
+		inherit first, second
+	end
 end
 
 end; end

@@ -20,30 +20,30 @@
 module Orgasm
 
 class Piece
-  attr_reader :arch
+	attr_reader :arch
 
-  def initialize (arch, io=nil, &block)
-    @arch = arch
+	def initialize (arch, io=nil, &block)
+		@arch = arch
 
-    instance_eval io.read, io.path, 1 if io
-    instance_eval &block              if block
-  end
+		instance_eval io.read, io.path, 1 if io
+		instance_eval &block              if block
+	end
 
-  def self.inherited (subclass)
-    subclass.class_eval {
-      define_method subclass.name[/([^:]+)$/].downcase do
-        self
-      end
-    }
-  end
+	def self.inherited (subclass)
+		subclass.class_eval {
+			define_method subclass.name[/([^:]+)$/].downcase do
+				self
+			end
+		}
+	end
 
-  def method_missing (id, *args, &block)
-    if @arch.respond_to? id
-      @arch.__send__ id, *args, &block
-    else
-      super
-    end
-  end
+	def method_missing (id, *args, &block)
+		if @arch.respond_to? id
+			@arch.__send__ id, *args, &block
+		else
+			super
+		end
+	end
 end
 
 end

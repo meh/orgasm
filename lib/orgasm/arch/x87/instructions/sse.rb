@@ -18,59 +18,59 @@
 #++
 
 X87::Instructions[X87::DSL.new {
-  # Packed Single-FP Add
-  ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
+	# Packed Single-FP Add
+	ADDPS [xmm1, xmm2|m128] => [0x0F, 0x58, r]
 
-  # Scalar Single-FP Add
-  ADDSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
+	# Scalar Single-FP Add
+	ADDSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x58, r]
 
-  # Bit-wise Logical And ot For Single-FP
-  ANDNPS [xmm1, xmm2|m128] => [0x0F, 0x55, r]
+	# Bit-wise Logical And ot For Single-FP
+	ANDNPS [xmm1, xmm2|m128] => [0x0F, 0x55, r]
 
-  # Bit-wise Logical And For Single FP
-  ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
+	# Bit-wise Logical And For Single FP
+	ANDPS [xmm1, xmm2|m128] => [0x0F, 0x54, r]
 
-  # Packed Single-FP Compare
-  CMPPS [xmm1, xmm2|m128, imm8] => [0x0F, 0xC2, r, ib]
+	# Packed Single-FP Compare
+	CMPPS [xmm1, xmm2|m128, imm8] => [0x0F, 0xC2, r, ib]
 
-  # Scalar Singl-FP Compare
-  CMPSS [xmm1, xmm2|m32, imm8] => [0xF3, 0x0F, 0xC2, r, ib]
+	# Scalar Singl-FP Compare
+	CMPSS [xmm1, xmm2|m32, imm8] => [0xF3, 0x0F, 0xC2, r, ib]
 
-  # Scalar Ordere Single-FP Compare and Set EFLAGS
-  COMISS [xmm1, xmm2|m32] => [0x0F, 0x2F, r]
+	# Scalar Ordere Single-FP Compare and Set EFLAGS
+	COMISS [xmm1, xmm2|m32] => [0x0F, 0x2F, r]
 
-  # Packed Signed INT32 to Packed Single-FP Conversion
-  # CVTPI2PS [xmm, mm/m64] => [0x0F, 0x2A, r]
-  # FIXME: this needs MMX™ registers, investigate further
+	# Packed Signed INT32 to Packed Single-FP Conversion
+	# CVTPI2PS [xmm, mm/m64] => [0x0F, 0x2A, r]
+	# FIXME: this needs MMX™ registers, investigate further
 
-  # Pakcked Single-FP to Packed INT32 Conversion
-  # CVTPS2PI [mm, xmm|m64] => [0x0F, 0x2D, r]
-  # FIXME: this needs MMX™ registers, investigate further
+	# Pakcked Single-FP to Packed INT32 Conversion
+	# CVTPS2PI [mm, xmm|m64] => [0x0F, 0x2D, r]
+	# FIXME: this needs MMX™ registers, investigate further
 
-  # Scalar Signed INT32 to Single-FP Conversion
-  CVTSI2SS [xmm, r32|m32] => [0xF3, 0x0F, 0x2A, r]
+	# Scalar Signed INT32 to Single-FP Conversion
+	CVTSI2SS [xmm, r32|m32] => [0xF3, 0x0F, 0x2A, r]
 
-  # Scalar Single-FP to Signed INT32 Conversion
-  CVTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2D, r]
+	# Scalar Single-FP to Signed INT32 Conversion
+	CVTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2D, r]
 
-  # Packed Single-FP o Packed INT32 Conversion (Truncate)
-  # CVTTPS2PI [mm, xmm|m64] => [0x0F, 0x2C, r]
-  # FIXME: this needs MMX™ registers, investigate further
+	# Packed Single-FP o Packed INT32 Conversion (Truncate)
+	# CVTTPS2PI [mm, xmm|m64] => [0x0F, 0x2C, r]
+	# FIXME: this needs MMX™ registers, investigate further
 
-  # Scalar Single-FP to Signed INT32 Conversion (Truncate)
-  CVTTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2C, r]
+	# Scalar Single-FP to Signed INT32 Conversion (Truncate)
+	CVTTSS2SI [r32, xmm|m32] => [0xF3, 0x0F, 0x2C, r]
 
-  # Packed Signle-FP Divide
-  DIVPS [xmm1, xmm2|m128] => [0x0F, 0x5E, r]
+	# Packed Signle-FP Divide
+	DIVPS [xmm1, xmm2|m128] => [0x0F, 0x5E, r]
 
-  # Scalar Single-FP Divide
-  DIVSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5E, r]
+	# Scalar Single-FP Divide
+	DIVSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5E, r]
 
-  # Restore FP and MMX™ State and Streaming SIMD Extension State
-  # FXRSTOR [m512byte] => [0x0F, 0xAE, ?1]
-  # FIXME: this needs MMX™, apparently
+	# Restore FP and MMX™ State and Streaming SIMD Extension State
+	# FXRSTOR [m512byte] => [0x0F, 0xAE, ?1]
+	# FIXME: this needs MMX™, apparently
 
-  # Store FP and MMX™ State and Streaming SIMD Extension State
-  FXSAVE [m512byte] => [0x0F, 0xAE, ?0]
+	# Store FP and MMX™ State and Streaming SIMD Extension State
+	FXSAVE [m512byte] => [0x0F, 0xAE, ?0]
 
 }]

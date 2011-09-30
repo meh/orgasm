@@ -18,94 +18,94 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-  # Conditional Move
-  CMOVA [r16, r16|m16] => [0x0F, 0x47, r],
-        [r32, r32|m32] => [0x0F, 0x47, r]
+	# Conditional Move
+	CMOVA [r16, r16|m16] => [0x0F, 0x47, r],
+	      [r32, r32|m32] => [0x0F, 0x47, r]
 
-  CMOVAE [r16, r16|m16] => [0x0F, 0x43, r],
-         [r32, r32|m32] => [0x0F, 0x43, r]
+	CMOVAE [r16, r16|m16] => [0x0F, 0x43, r],
+	       [r32, r32|m32] => [0x0F, 0x43, r]
 
-  CMOVB [r16, r16|m16] => [0x0F, 0x42, r],
-        [r32, r32|m32] => [0x0F, 0x42, r]
+	CMOVB [r16, r16|m16] => [0x0F, 0x42, r],
+	      [r32, r32|m32] => [0x0F, 0x42, r]
 
-  CMOVBE [r16, r16|m16] => [0x0F, 0x46, r],
-         [r32, r32|m32] => [0x0F, 0x46, r]
+	CMOVBE [r16, r16|m16] => [0x0F, 0x46, r],
+	       [r32, r32|m32] => [0x0F, 0x46, r]
 
-  CMOVC [r16, r16|m16] => [0x0F, 0x42, r],
-        [r32, r32|m32] => [0x0F, 0x42, r]
+	CMOVC [r16, r16|m16] => [0x0F, 0x42, r],
+	      [r32, r32|m32] => [0x0F, 0x42, r]
 
-  CMOVE [r16, r16|m16] => [0x0F, 0x44, r],
-        [r32, r32|m32] => [0x0F, 0x44, r]
+	CMOVE [r16, r16|m16] => [0x0F, 0x44, r],
+	      [r32, r32|m32] => [0x0F, 0x44, r]
 
-  CMOVG [r16, r16|m16] => [0x0F, 0x4F, r],
-        [r32, r32|m32] => [0x0F, 0x4F, r]
+	CMOVG [r16, r16|m16] => [0x0F, 0x4F, r],
+	      [r32, r32|m32] => [0x0F, 0x4F, r]
 
-  CMOVGE [r16, r16|m16] => [0x0F, 0x4D, r],
-         [r32, r32|m32] => [0x0F, 0x4D, r]
+	CMOVGE [r16, r16|m16] => [0x0F, 0x4D, r],
+	       [r32, r32|m32] => [0x0F, 0x4D, r]
 
-  CMOVL [r16, r16|m16] => [0x0F, 0x4C, r],
-        [r32, r32|m32] => [0x0F, 0x4C, r]
+	CMOVL [r16, r16|m16] => [0x0F, 0x4C, r],
+	      [r32, r32|m32] => [0x0F, 0x4C, r]
 
-  CMOVLE [r16, r16|m16] => [0x0F, 0x4E, r],
-         [r32, r32|m32] => [0x0F, 0x4E, r]
+	CMOVLE [r16, r16|m16] => [0x0F, 0x4E, r],
+	       [r32, r32|m32] => [0x0F, 0x4E, r]
 
-  CMOVNA [r16, r16|m16] => [0x0F, 0x46, r],
-         [r32, r32|m32] => [0x0F, 0x46, r]
+	CMOVNA [r16, r16|m16] => [0x0F, 0x46, r],
+	       [r32, r32|m32] => [0x0F, 0x46, r]
 
-  CMOVNAE [r16, r16|m16] => [0x0F, 0x42, r],
-          [r32, r32|m32] => [0x0F, 0x42, r]
+	CMOVNAE [r16, r16|m16] => [0x0F, 0x42, r],
+	        [r32, r32|m32] => [0x0F, 0x42, r]
 
-  CMOVNB [r16, r16|m16] => [0x0F, 0x43, r],
-         [r32, r32|m32] => [0x0F, 0x43, r]
+	CMOVNB [r16, r16|m16] => [0x0F, 0x43, r],
+	       [r32, r32|m32] => [0x0F, 0x43, r]
 
-  CMOVNBE [r16, r16|m16] => [0x0F, 0x47, r],
-          [r32, r32|m32] => [0x0F, 0x47, r]
+	CMOVNBE [r16, r16|m16] => [0x0F, 0x47, r],
+	        [r32, r32|m32] => [0x0F, 0x47, r]
 
-  CMOVNC [r16, r16|m16] => [0x0F, 0x43, r],
-         [r32, r32|m32] => [0x0F, 0x43, r]
+	CMOVNC [r16, r16|m16] => [0x0F, 0x43, r],
+	       [r32, r32|m32] => [0x0F, 0x43, r]
 
-  CMOVNE [r16, r16|m16] => [0x0F, 0x45, r],
-         [r32, r32|m32] => [0x0F, 0x45, r]
+	CMOVNE [r16, r16|m16] => [0x0F, 0x45, r],
+	       [r32, r32|m32] => [0x0F, 0x45, r]
 
-  CMOVNG [r16, r16|m16] => [0x0F, 0x4E, r],
-         [r32, r32|m32] => [0x0F, 0x4E, r]
+	CMOVNG [r16, r16|m16] => [0x0F, 0x4E, r],
+	       [r32, r32|m32] => [0x0F, 0x4E, r]
 
-  CMOVNGE [r16, r16|m16] => [0x0F, 0x4C, r],
-          [r32, r32|m32] => [0x0F, 0x4C, r]
+	CMOVNGE [r16, r16|m16] => [0x0F, 0x4C, r],
+	        [r32, r32|m32] => [0x0F, 0x4C, r]
 
-  CMOVNL [r16, r16|m16] => [0x0F, 0x4D, r],
-         [r32, r32|m32] => [0x0F, 0x4D, r]
+	CMOVNL [r16, r16|m16] => [0x0F, 0x4D, r],
+	       [r32, r32|m32] => [0x0F, 0x4D, r]
 
-  CMOVNLE [r16, r16|m16] => [0x0F, 0x4F, r],
-          [r32, r32|m32] => [0x0F, 0x4F, r]
+	CMOVNLE [r16, r16|m16] => [0x0F, 0x4F, r],
+	        [r32, r32|m32] => [0x0F, 0x4F, r]
 
-  CMOVNO [r16, r16|m16] => [0x0F, 0x41, r],
-         [r32, r32|m32] => [0x0F, 0x41, r]
+	CMOVNO [r16, r16|m16] => [0x0F, 0x41, r],
+	       [r32, r32|m32] => [0x0F, 0x41, r]
 
-  CMOVNP [r16, r16|m16] => [0x0F, 0x4B, r],
-         [r32, r32|m32] => [0x0F, 0x4B, r]
+	CMOVNP [r16, r16|m16] => [0x0F, 0x4B, r],
+	       [r32, r32|m32] => [0x0F, 0x4B, r]
 
-  CMOVNS [r16, r16|m16] => [0x0F, 0x49, r],
-         [r32, r32|m32] => [0x0F, 0x49, r]
+	CMOVNS [r16, r16|m16] => [0x0F, 0x49, r],
+	       [r32, r32|m32] => [0x0F, 0x49, r]
 
-  CMOVNZ [r16, r16|m16] => [0x0F, 0x45, r],
-         [r32, r32|m32] => [0x0F, 0x45, r]
+	CMOVNZ [r16, r16|m16] => [0x0F, 0x45, r],
+	       [r32, r32|m32] => [0x0F, 0x45, r]
 
-  CMOVO [r16, r16|m16] => [0x0F, 0x40, r],
-        [r32, r32|m32] => [0x0F, 0x40, r]
+	CMOVO [r16, r16|m16] => [0x0F, 0x40, r],
+	      [r32, r32|m32] => [0x0F, 0x40, r]
 
-  CMOVP [r16, r16|m16] => [0x0F, 0x4A, r],
-        [r32, r32|m32] => [0x0F, 0x4A, r]
+	CMOVP [r16, r16|m16] => [0x0F, 0x4A, r],
+	      [r32, r32|m32] => [0x0F, 0x4A, r]
 
-  CMOPE [r16, r16|m16] => [0x0F, 0x4A, r],
-        [r32, r32|m32] => [0x0F, 0x4A, r]
+	CMOPE [r16, r16|m16] => [0x0F, 0x4A, r],
+	      [r32, r32|m32] => [0x0F, 0x4A, r]
 
-  CMOVPO [r16, r16|m16] => [0x0F, 0x4B, r],
-         [r32, r32|m32] => [0x0F, 0x4B, r]
+	CMOVPO [r16, r16|m16] => [0x0F, 0x4B, r],
+	       [r32, r32|m32] => [0x0F, 0x4B, r]
 
-  CMOVS [r16, r16|m16] => [0x0F, 0x48, r],
-        [r32, r32|m32] => [0x0F, 0x48, r]
+	CMOVS [r16, r16|m16] => [0x0F, 0x48, r],
+	      [r32, r32|m32] => [0x0F, 0x48, r]
 
-  CMOVZ [r16, r16|m16] => [0x0F, 0x44, r],
-        [r32, r32|m32] => [0x0F, 0x44, r]
+	CMOVZ [r16, r16|m16] => [0x0F, 0x44, r],
+	      [r32, r32|m32] => [0x0F, 0x44, r]
 }]

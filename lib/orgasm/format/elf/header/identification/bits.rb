@@ -20,25 +20,25 @@
 module Orgasm; class Format; class ELF; class Header; class Identification
 
 class Bits
-  def self.from (io)
-    Retarded.new IO.get(io) do |io|
-      io.seek 4
+	def self.from (io)
+		Retarded.new IO.get(io) do |io|
+			io.seek 4
 
-      Bits.new({ 1 => 32, 2 => 64 }[io.read(1).to_byte])
-    end
-  end
+			Bits.new({ 1 => 32, 2 => 64 }[io.read(1).to_byte])
+		end
+	end
 
-  def initialize (value)
-    @value = value
-  end
+	def initialize (value)
+		@value = value
+	end
 
-  def to_s
-    to_i.to_s
-  end
+	def to_s
+		to_i.to_s
+	end
 
-  def to_i
-    @value
-  end
+	def to_i
+		@value
+	end
 end
 
 end; end; end; end; end

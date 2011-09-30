@@ -20,14 +20,14 @@
 module Orgasm; class Architecture
 
 class Extension < Architecture
-  attr_reader  :arch
-  undef_method :family, :extension
+	attr_reader  :arch
+	undef_method :family, :extension
 
-  def initialize (arch, name, &block)
-    @arch = arch
+	def initialize (arch, name, &block)
+		@arch = arch
 
-    super(name, &block)
-  end
+		super(name, &block)
+	end
 end
 
 end; end

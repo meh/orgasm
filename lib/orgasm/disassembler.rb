@@ -20,128 +20,132 @@
 module Orgasm
 
 class Disassembler < Piece
-  attr_reader :inherits
+	attr_reader :inherits
 
-  def initialize (*)
-    @inherits = []
-    @decoders = []
+	def initialize (*)
+		@inherits = []
+		@decoders = []
 
-    super
-  end
+		super
+	end
 
-  def inherit (*args)
-    @inherits << args
+	def inherit (*args)
+		@inherits << args
 
-    @inherits.flatten!
-    @inherits.compact!
+		@inherits.flatten!
+		@inherits.compact!
 
-    self
-  end
+		self
+	end
 
-  def disassemble (io, options={})
-    options = {
-      extensions: []
-    }.merge(options)
+	def disassemble (io, options={})
+		options = {
+			extensions: []
+		}.merge(options)
 
-    if io.is_a?(String)
-      require 'stringio'
+		if io.is_a?(String)
+			require 'stringio'
 
-      io = StringIO.new(io)
-    end
+			io = StringIO.new(io)
+		end
 
-    options[:extensions].clone.each {|name|
-      unless arch.extensions.all? { |extension| extension.name == extension && extension.disassembler }
-        if options[:exceptions] == false
-          options[:extensions].delete(name)
-        else
-          raise ArgumentError, "#{name} isn't supported by #{arch.name}"
-        end
-      end
-    }
+		options[:extensions].clone.each {|name|
+			unless arch.extensions.all? { |extension| extension.name == extension && extension.disassembler }
+				if options[:exceptions] == false
+					options[:extensions].delete(name)
+				else
+					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+				end
+			end
+		}
 
-    result = []
-    junk   = nil
+		result = []
+		junk   = nil
 
-    until io.eof?
-      where = io.tell
+		until io.eof?
+			where = io.tell
 
-      begin
-        added = @decoders.any? {|decoder|
-          if tmp = Orgasm.object?(decoder.for(io, options).decode)
-            instance_eval &@after if @after
-            
-            result << unknown(junk) and junk = nil if junk
-            result << tmp
-          end
-        }
+			begin
+				added = @decoders.any? {|decoder|
+					decoded = decoder.for(io, options).decode
 
-        if !added
-          io.seek where unless (@inherits + options[:extensions].map {|name|
-            arch.extensions.select {|extension|
-              extension.name == name
-            }
-          }).flatten.compact.any? {|arch|
-            io.seek where
+					if Orgasm.object?(decoded) || decoded.is_a?(Orgasm::True)
+						instance_eval &@after if @after
+						
+						result << unknown(junk) and junk = nil if junk
+						result << decoded                      unless decoded.is_a?(Orgasm::True)
 
-            if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
-              result << unknown(junk) and junk = nil if junk
-              result << tmp
-            end
-          }
-        end
-      rescue NeedMoreData
-        io.seek where
+						true
+					end
+				}
 
-        (junk ||= '') << io.read
-      end
+				if !added
+					io.seek where unless (@inherits + options[:extensions].map {|name|
+						arch.extensions.select {|extension|
+							extension.name == name
+						}
+					}).flatten.compact.any? {|arch|
+						io.seek where
 
-      break if options[:limit] && result.flatten.compact.length >= options[:limit]
+						if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
+							result << unknown(junk) and junk = nil if junk
+							result << tmp
+						end
+					}
+				end
+			rescue NeedMoreData
+				io.seek where
 
-      if where == io.tell
-        break if options[:unknown] == false
-          
-        (junk ||= '') << io.read(1)
-      end
-    end
+				(junk ||= '') << io.read
+			end
 
-    result << unknown(junk) if junk
+			break if options[:limit] && result.flatten.compact.length >= options[:limit]
 
-    result.flatten.compact
-  end; alias do disassemble
+			if where == io.tell
+				break if options[:unknown] == false
+					
+				(junk ||= '') << io.read(1)
+			end
+		end
 
-  def on (*args, &block)
-    @decoders << Decoder.new(self, *args, &block)
-  end
+		result << unknown(junk) if junk
 
-  def always (&block)
-    @decoders << Decoder.new(self, true, &block)
-  end
+		result.flatten.compact
+	end; alias do disassemble
 
-  def unknown (data=nil, &block)
-    if block
-      @unknown = block
-    elsif data
-      if @unknown
-        instance_exec data, &@unknown
-      else
-        instance_exec data do |data|
-          Unknown.new(data)
-        end
-      end
-    end
-  end
+	def on (*args, &block)
+		@decoders << Decoder.new(self, *args, &block)
+	end
 
-  def skip (&block)
-    @skip ||= block
-  end
+	def always (&block)
+		@decoders << Decoder.new(self, true, &block)
+	end
 
-  def after (&block)
-    @after ||= block
-  end
+	def unknown (data=nil, &block)
+		if block
+			@unknown = block
+		elsif data
+			if @unknown
+				instance_exec data, &@unknown
+			else
+				instance_exec data do |data|
+					Unknown.new(data)
+				end
+			end
+		end
+	end
 
-  def | (value)
-    Pipeline.new(self, value)
-  end
+	def skip (&block)
+		@skip ||= block
+	end
+
+	def after (&block)
+		@after ||= block
+	end
+
+	def | (value)
+		Pipeline.new(self, value)
+	end
 end
 
 end

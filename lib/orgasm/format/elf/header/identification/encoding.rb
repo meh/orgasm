@@ -20,25 +20,25 @@
 module Orgasm; class Format; class ELF; class Header; class Identification
 
 class Encoding
-  def self.from (io)
-    Retarded.new IO.get(io) do |io|
-      io.seek 5
+	def self.from (io)
+		Retarded.new IO.get(io) do |io|
+			io.seek 5
 
-      Encoding.new({ 1 => :LSB, 2 => :MSB }[io.read(1).to_byte])
-    end
-  end
+			Encoding.new({ 1 => :LSB, 2 => :MSB }[io.read(1).to_byte])
+		end
+	end
 
-  def initialize (value)
-    @value = value
-  end
+	def initialize (value)
+		@value = value
+	end
 
-  def to_sym
-    @value
-  end
+	def to_sym
+		@value
+	end
 
-  def to_s
-    to_sym.to_s
-  end
+	def to_s
+		to_sym.to_s
+	end
 end
 
 end; end; end; end; end

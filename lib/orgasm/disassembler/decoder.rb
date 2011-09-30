@@ -20,170 +20,174 @@
 module Orgasm; class Disassembler < Piece
 
 class Decoder
-  attr_reader :disassembler
+	attr_reader :disassembler
 
-  def initialize (disassembler, *args, &block)
-    @disassembler = disassembler
-    @args         = args
-    @data         = args.pop if args.last.is_a?(Hash)
-    @block        = block
-  end
+	def initialize (disassembler, *args, &block)
+		@disassembler = disassembler
+		@args         = args
+		@data         = args.pop if args.last.is_a?(Hash)
+		@block        = block
+	end
 
-  def method_missing (*args, &block)
-    @disassembler.__send__ *args, &block
-  end
+	def method_missing (*args, &block)
+		@disassembler.__send__ *args, &block
+	end
 
-  def for (io, options)
-    decoder = self.clone
-    decoder.instance_variable_set :@io, io
-    decoder.instance_variable_set :@options, options
-    decoder
-  end
+	def for (io, options)
+		decoder = self.clone
+		decoder.instance_variable_set :@io, io
+		decoder.instance_variable_set :@options, options
+		decoder
+	end
 
-  def inherited?
-    @options[:inherited]
-  end
+	def inherited?
+		@options[:inherited]
+	end
 
-  def call (what)
-    return unless @io
+	def call (what)
+		return unless @io
 
-    case what
-      when :inherit, :inherited
-        @disassembler.inherits.any? {|inherited|
-          if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
-            break tmp
-          end
-        }
+		case what
+			when :inherit, :inherited
+				@disassembler.inherits.any? {|inherited|
+					if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
+						break tmp
+					end
+				}
 
-      when :extension, :extensions
-        @disassembler.extensions.select {|extension|
-          @options[:extensions].member?(extension.name)
-        }.any? {|extension|
-          if tmp = extension.disassembler.disassemble(io, limit: 1, unknown: false)
-            break tmp
-          end
-        }
-    end
-  end
+			when :extension, :extensions
+				@disassembler.extensions.select {|extension|
+					@options[:extensions].member?(extension.name)
+				}.any? {|extension|
+					if tmp = extension.disassembler.disassemble(io, limit: 1, unknown: false)
+						break tmp
+					end
+				}
+		end
+	end
 
-  def decode
-    return unless @io
+	def decode
+		return unless @io
 
-    return unless match = match(*@args)
+		return unless match = match(*@args)
 
-    catch(:result) {
-      start = @io.tell
+		catch(:result) {
+			start = @io.tell
 
-      skip(start) if catch(:skip) {
-        result { instance_exec @args, match, @data, &@block }
+			skip(start) if catch(:skip) {
+				result { instance_exec @args, match, @data, &@block }
 
-        false
-      }
-    }
-  end
+				false
+			}
+		}
+	end
 
-  def match (*args)
-    args.compact.find {|arg|
-      matches(arg)
-    }
-  end
+	def match (*args)
+		args.compact.find {|arg|
+			matches(arg)
+		}
+	end
 
-  def matches (what)
-    return false unless @io
+	def matches (what)
+		return false unless @io
 
-    return true if what === true
+		return true if what === true
 
-    where, result = @io.tell, if what.is_a?(Regexp)
-      !!@io.read.match(what)
-    elsif what.is_a?(Array) or what.is_a?(Integer)
-      what = [what].flatten.compact.pack('C*')
+		where, result = @io.tell, if what.is_a?(Regexp)
+			!!@io.read.match(what)
+		elsif what.is_a?(Array) or what.is_a?(Integer)
+			what = [what].flatten.compact.pack('C*')
 
-      @io.read(what.length) == what
-    else
-      what = what.to_s
+			@io.read(what.length) == what
+		else
+			what = what.to_s
 
-      @io.read(what.length) == what
-    end
+			@io.read(what.length) == what
+		end
 
-    @io.seek where
+		@io.seek where
 
-    result
-  end
+		result
+	end
 
-  def on (*args, &block)
-    return unless @io
+	def on (*args, &block)
+		return unless @io
 
-    data = args.pop if args.last.is_a?(Hash)
+		data = args.pop if args.last.is_a?(Hash)
 
-    return unless match = match(*args)
+		return unless match = match(*args)
 
-    result { instance_exec args, match, data, &block }
-  end
+		result { instance_exec args, match, data, &block }
+	end
 
-  def always (&block)
-    result { instance_eval &block }
-  end
+	def always (&block)
+		result { instance_eval &block }
+	end
 
-  def seek (amount, whence=IO::SEEK_CUR, &block)
-    return unless @io
+	def seek (amount, whence=IO::SEEK_CUR, &block)
+		return unless @io
 
-    if block
-      where, = @io.tell, @io.seek(amount, whence)
+		if block
+			where, = @io.tell, @io.seek(amount, whence)
 
-      result { instance_eval &block }.tap { @io.seek(where) }
-    else
-      @io.seek(amount, whence)
-    end
-  end
+			result { instance_eval &block }.tap { @io.seek(where) }
+		else
+			@io.seek(amount, whence)
+		end
+	end
 
-  def read (amount, &block)
-    return unless @io and amount.to_i > 0
+	def read (amount, &block)
+		return unless @io and amount.to_i > 0
 
-    data = @io.read(amount)
+		data = @io.read(amount)
 
-    if data.nil? or data.length != amount
-      raise NeedMoreData, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
-    end
+		if data.nil? or data.length != amount
+			raise NeedMoreData, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
+		end
 
-    if block
-      result { instance_exec data, &block }.tap { seek -amount }
-    else
-      data
-    end
-  end
+		if block
+			result { instance_exec data, &block }.tap { seek -amount }
+		else
+			data
+		end
+	end
 
-  def lookahead (amount)
-    read(amount) do |data|
-      data
-    end rescue nil
-  end
+	def lookahead (amount)
+		read(amount) do |data|
+			data
+		end rescue nil
+	end
 
-  def skip (start=nil, &block)
-    return disassembler.skip &block if block
-      
-    if start.nil?
-      throw :skip, true
-    else
-      instance_eval &disassembler.skip if disassembler.skip
+	def skip (start=nil, &block)
+		return disassembler.skip &block if block
+			
+		if start.nil?
+			throw :skip, true
+		else
+			instance_eval &disassembler.skip if disassembler.skip
 
-      @io.seek(start)
-    end
-  end
+			@io.seek(start)
+		end
+	end
 
-  def after (&block)
-    return disassembler.after &block
-  end
+	def done
+		throw :result, Orgasm::True.new
+	end
 
-  private
-    def result
-      value = begin; yield; rescue LocalJumpError; end
+	def after (&block)
+		return disassembler.after &block
+	end
 
-      if Orgasm.object?(value)
-        throw :result, value
-      end
+	private
+		def result
+			value = begin; yield; rescue LocalJumpError; end
 
-      value
-    end
+			if Orgasm.object?(value)
+				throw :result, value
+			end
+
+			value
+			end
 end
 
 end; end

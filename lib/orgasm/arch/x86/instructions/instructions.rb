@@ -20,35 +20,35 @@
 module Orgasm; module X86
 
 class Instructions < Hash
-  Registers = {
-    8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
-    16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
-    32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
-  }
+	Registers = {
+		8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
+		16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
+		32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
+	}
 
-  RegisterCodes = {
-    8  => :rb,
-    16 => :rw,
-    32 => :rd
-  }
+	RegisterCodes = {
+		8  => :rb,
+		16 => :rw,
+		32 => :rd
+	}
 
-  def self.register? (value)
-    Registers.find {|bits, registers|
-      registers.member?(value.to_sym.downcase)
-    }.first rescue nil
-  end
+	def self.register? (value)
+		Registers.find {|bits, registers|
+			registers.member?(value.to_sym.downcase)
+		}.first rescue nil
+	end
 
-  def self.register (value, type=32)
-    Registers[type][value]
-  end
+	def self.register (value, type=32)
+		Registers[type][value]
+	end
 
-  def self.register_code? (value)
-    RegisterCodes.key(value.to_s.to_sym)
-  end
+	def self.register_code? (value)
+		RegisterCodes.key(value.to_s.to_sym)
+	end
 
-  def self.register_code (value, type=32)
-    Registers[type][value]
-  end
+	def self.register_code (value, type=32)
+		Registers[type][value]
+	end
 end
 
 end; end

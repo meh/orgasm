@@ -22,23 +22,25 @@ require 'orgasm/extensions'
 module Orgasm
 
 def self.object? (value)
-  value.is_a?(Base) ? value : false
+	value.is_a?(Base) ? value : false
 end
 
+class True; end
+
 class Base
-  def initialize
-    yield self if block_given?
-  end
+	def initialize
+		yield self if block_given?
+	end
 
-  def to_s
-    begin
-      raise LoadError unless respond_to? :arch
+	def to_s
+		begin
+			raise LoadError unless respond_to? :arch
 
-      Architecture[arch].style.apply(self)
-    rescue LoadError
-      super
-    end
-  end
+			Architecture[arch].style.apply(self)
+		rescue LoadError
+			super
+		end
+	end
 end
 
 end

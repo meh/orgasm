@@ -24,19 +24,19 @@ require 'orgasm/format/elf/header/identification/version'
 module Orgasm; class Format; class ELF; class Header
 
 class Identification
-  def self.from (io)
-    Retarded.new IO.get(io) do |io|
-      Identification.new(Bits.from(io), Encoding.from(io), Version.from(io))
-    end
-  end
+	def self.from (io)
+		Retarded.new IO.get(io) do |io|
+			Identification.new(Bits.from(io), Encoding.from(io), Version.from(io))
+		end
+	end
 
-  attr_reader :bits, :encoding, :version
+	attr_reader :bits, :encoding, :version
 
-  def initialize (bits, encoding, version)
-    @bits     = bits
-    @encoding = encoding
-    @version  = version
-  end
+	def initialize (bits, encoding, version)
+		@bits     = bits
+		@encoding = encoding
+		@version  = version
+	end
 end
 
 end; end; end; end

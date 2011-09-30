@@ -20,22 +20,27 @@
 module Orgasm
 
 class Instruction < Base
-  attr_reader :name, :parameters
+	attr_reader :name, :parameters
 
-  def initialize (name=nil, *parameters)
-    self.name   = name if name
-    @parameters = parameters.to_a.flatten.compact
+	def initialize (name=nil, *parameters)
+		self.name   = name if name
+		@parameters = parameters.to_a.flatten.compact
 
-    super()
-  end
+		super()
+	end
 
-  def name= (value)
-    @name = value.downcase.to_sym
-  end
+	def name= (value)
+		@name = value.downcase.to_sym
+	end
 
-  def inspect
-    "#<Instruction(#{name})#{": #{parameters.map { |p| p.inspect }.join(', ')}" unless parameters.empty?}>"
-  end
+	def == (other)
+		name == other.name && parameters == other.parameters
+	end; alias === ==
+
+
+	def inspect
+		"#<Instruction(#{name})#{": #{parameters.map { |p| p.inspect }.join(', ')}" unless parameters.empty?}>"
+	end
 end
 
 end

@@ -20,90 +20,95 @@
 module Orgasm; module X86; class DSL
 
 class Special
-  class Operator
-    attr_reader :first, :second
+	class Operator
+		attr_reader :first, :second
 
-    def initialize (first, second)
-      @first  = first
-      @second = second
-    end
+		def initialize (first, second)
+			@first  = first
+			@second = second
+		end
 
-    def is? (value)
-      first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
-    end
-  end
+		def is? (value)
+			first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
+		end
 
-  class Or < Operator
-    def to_s
-      "#{first}|#{second}"
-    end
-  end
+		def method_missing (id, *args, &block)
+			return first.__send__(id, *args, &block)  if first.respond_to?(id)
+			return second.__send__(id, *args, &block) if second.respond_to?(id)
 
-  class And < Operator
-    def to_s
-      "#{first}&#{second}"
-    end
-  end
+			super
+		end
+	end
 
-  class Offset < Operator
-    def to_s
-      "#{first}:#{second}"
-    end
-  end
+	class Or < Operator
+		def to_s
+			"#{first}|#{second}"
+		end
+	end
 
-  def initialize (value)
-    @value = value.to_sym
-  end
+	class And < Operator
+		def to_s
+			"#{first}&#{second}"
+		end
+	end
 
-  def +@
-    @signed = true
+	class Offset < Operator
+		def to_s
+			"#{first}:#{second}"
+		end
+	end
 
-    self
-  end
+	def initialize (value)
+		@value = value.to_sym
+	end
 
-  def -@
-    @signed = false
+	def +@
+		@signed = true
 
-    self
-  end
+		self
+	end
 
-  def signed?
-    !!@signed
-  end
+	def -@
+		@signed = false
 
-  def | (value)
-    Or.new(self, value)
-  end
+		self
+	end
 
-  def & (value)
-    And.new(self, value)
-  end
+	def signed?
+		!!@signed
+	end
 
-  def ^ (value)
-    Offset.new(self, value)
-  end
+	def | (value)
+		Or.new(self, value)
+	end
 
-  def is? (value)
-    if value.is_a?(Integer)
-      bits == value or Instructions.register?(to_s) == value
-    else
-      to_s.start_with?(value.to_s)
-    end
-  end
+	def & (value)
+		And.new(self, value)
+	end
 
-  def bits
-    to_s[/\d+$/].to_i
-  end
+	def ^ (value)
+		Offset.new(self, value)
+	end
 
-  suppress_warnings {
-    Symbol.instance_methods.each {|name|
-      undef_method name rescue nil
-    }
-  }
+	def is? (value)
+		if value.is_a?(Integer)
+			bits == value or Instructions.register?(to_s) == value
+		else
+			to_s.start_with?(value.to_s)
+		end
+	end
 
-  def method_missing (*args, &block)
-    @value.__send__ *args, &block
-  end
+	def bits
+		to_s[/\d+$/].to_i rescue nil
+	end
+
+	def to_s
+		to_sym.to_s
+	end
+
+	def to_sym
+		@value
+	end
 end
 
 end; end; end

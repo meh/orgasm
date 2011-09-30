@@ -20,19 +20,19 @@
 module Orgasm; module X86
 
 class Instruction < Orgasm::Instruction
-  def initialize (name=nil, destination=nil, source=nil, source2=nil)
-    super(name, destination, source, source2)
-  end
+	def initialize (name=nil, destination=nil, source=nil, source2=nil)
+		super(name, destination, source, source2)
+	end
 
-  [:destination, :source, :source2].each_with_index {|name, index|
-    define_method name do
-      parameters[index]
-    end
+	[:destination, :source, :source2].each_with_index {|name, index|
+		define_method name do
+			parameters[index]
+		end
 
-    define_method "#{name}=" do |value|
-      parameters[index] = value
-    end
-  }
+		define_method "#{name}=" do |value|
+			parameters[index] = value
+		end
+	}
 end
 
 end; end

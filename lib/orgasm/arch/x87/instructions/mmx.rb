@@ -18,6 +18,6 @@
 #++
 
 X87::Instructions[X87::DSL.new {
-  # Empty MMX™ State
-  EMMS [0x0F, 0x77]
+	# Empty MMX™ State
+	EMMS [0x0F, 0x77]
 }]

@@ -22,25 +22,25 @@ require 'orgasm/generator/dsl'
 module Orgasm
 
 class Generator < Piece
-  def initialize (*)
-    @for = {}
+	def initialize (*)
+		@for = {}
 
-    super
-  end
+		super
+	end
 
-  def generate (&block)
-    DSL.new(&block).execute(self)
-  end; alias do generate
+	def generate (&block)
+		DSL.new(&block).execute(self)
+	end; alias do generate
 
-  def for (klass, &block)
-    if block
-      @for[klass] = block
-    else
-      @for[klass] or @for.find {|(what, block)|
-        what.ancestors.member?(klass)
-      }.last
-    end
-  end
+	def for (klass, &block)
+		if block
+			@for[klass] = block
+		else
+			@for[klass] or @for.find {|(what, block)|
+				what.ancestors.member?(klass)
+			}.last
+		end
+	end
 end
 
 end

@@ -18,53 +18,53 @@
 #++
 
 style 'Intel' do |style|
-  style.for Register do
-    name.to_s.downcase
-  end
+	style.for Register do
+		name.to_s.downcase
+	end
 
-  style.for X87::Address do
-    offset? ? "[#{start}#{'%+d' % to_i}]" : "0x#{to_i.to_s(16)}"
-  end
+	style.for X87::Address do
+		offset? ? "[#{start}#{'%+d' % to_i}]" : "0x#{to_i.to_s(16)}"
+	end
 
-  style.for X87::Immediate do
-    to_i.to_s
-  end
+	style.for X87::Immediate do
+		to_i.to_s
+	end
 
-  style.for X87::Instruction do
-    "#{name.to_s.downcase}#{
-      case parameters.length
-        when 1 then " #{destination}"
-        when 2 then " #{destination}, #{source}"
-      end
-    }"
-  end
+	style.for X87::Instruction do
+		"#{name.to_s.downcase}#{
+			case parameters.length
+				when 1 then " #{destination}"
+				when 2 then " #{destination}, #{source}"
+			end
+		}"
+	end
 
-  style.for Unknown do
-    "???(#{to_i})"
-  end
+	style.for Unknown do
+		"???(#{to_i})"
+	end
 end
 
 style 'AT&T' do |style|
-  style.for Register do
-    "%#{name.to_s.downcase}"
-  end
+	style.for Register do
+		"%#{name.to_s.downcase}"
+	end
 
-  style.for Address do
-    offset? ? "#{to_i}(#{start})" : "0x#{to_i.to_s(16)}"
-  end
+	style.for Address do
+		offset? ? "#{to_i}(#{start})" : "0x#{to_i.to_s(16)}"
+	end
 
-  style.for X87::Immediate do
-    "$#{to_i.to_s}"
-  end
+	style.for X87::Immediate do
+		"$#{to_i.to_s}"
+	end
 
-  style.for X87::Instruction do
-    "#{name.to_s.downcase}#{
-      { b: 8, w: 16, l: 32 }.key((parameters.last.size rescue parameters.first.size rescue nil))
-    } #{parameters.reverse.join(', ')}"
-  end
+	style.for X87::Instruction do
+		"#{name.to_s.downcase}#{
+			{ b: 8, w: 16, l: 32 }.key((parameters.last.size rescue parameters.first.size rescue nil))
+		} #{parameters.reverse.join(', ')}"
+	end
 
-  style.for Unknown do
-    "???(#{to_i})"
-  end
+	style.for Unknown do
+		"???(#{to_i})"
+	end
 
 end

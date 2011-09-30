@@ -23,50 +23,50 @@ require 'orgasm/format/elf/header'
 module Orgasm; class Format
 
 class ELF
-  def self.valid? (io)
-    IO.get(io).read(4) == "\x7FELF"
-  end
+	def self.valid? (io)
+		IO.get(io).read(4) == "\x7FELF"
+	end
 
-  def self.from (io)
-    io = IO.get(io)
+	def self.from (io)
+		io = IO.get(io)
 
-    ELF.new(Header.from(io), Sections.from(io))
-  end
+		ELF.new(Header.from(io), Sections.from(io))
+	end
 
-  attr_reader :header
+	attr_reader :header
 
-  def initialize (header, optionals={})
-    @header = header
+	def initialize (header, optionals={})
+		@header = header
 
-    optionals.each {|name, value|
-      instance_variable_set "@#{name}", value
-    }
-  end
+		optionals.each {|name, value|
+			instance_variable_set "@#{name}", value
+		}
+	end
 
-  [:program_table, :sections, :segments, :section_table].each {|name|
-    define_method name do
-      instance_variable_get "@#{name}"
-    end
-  }
+	[:program_table, :sections, :segments, :section_table].each {|name|
+		define_method name do
+			instance_variable_get "@#{name}"
+		end
+	}
 
-  memoize
-  def header
-    Header.new(self)
-  end
+	memoize
+	def header
+		Header.new(self)
+	end
 
-  def inspect
-    "#<ELF #{header.identification.class}-bit #{header.identification.encoding} #{header.type}, #{header.machine}, #{header.version}>"
-  end
+	def inspect
+		"#<ELF #{header.identification.class}-bit #{header.identification.encoding} #{header.type}, #{header.machine}, #{header.version}>"
+	end
 end
 
 Format.define 'ELF' do
-  valid? do |io|
-    ELF.valid?(io)
-  end
+	valid? do |io|
+		ELF.valid?(io)
+	end
 
-  load do |io|
-    ELF.from(io)
-  end
+	load do |io|
+		ELF.from(io)
+	end
 end
 
 end; end

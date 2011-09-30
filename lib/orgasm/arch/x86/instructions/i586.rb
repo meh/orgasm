@@ -18,10 +18,10 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-  # Compare and Exchange 8 bytes
-  CMPXCHG8B [m64] => [0x0F, 0xC7, ?1, m64]
-  # FIXME: add support for this shit in 32 bit disassembler
-  
-  # CPU Identification
-  CPUID [0x0F, 0xA2]
+	# Compare and Exchange 8 bytes
+	CMPXCHG8B [m64] => [0x0F, 0xC7, ?1, m64]
+	# FIXME: add support for this shit in 32 bit disassembler
+	
+	# CPU Identification
+	CPUID [0x0F, 0xA2]
 }]

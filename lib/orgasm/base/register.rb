@@ -20,18 +20,26 @@
 module Orgasm
 
 class Register < Base
-  attr_accessor :name, :size
+	attr_accessor :name, :size
 
-  def initialize (name=nil, size=nil)
-    @name = name.to_s.downcase.to_sym if name
-    @size = size.to_i                 if size
+	def initialize (name=nil, size=nil)
+		@name = name.to_s.downcase.to_sym if name
+		@size = size.to_i                 if size
 
-    super()
-  end
+		super()
+	end
 
-  def inspect
-    "#<Register: #{@name}#{", #{@size} bits" if @size}>"
-  end
+	def == (other)
+		name == other.name && (size.nil? || other.size.nil? || size == other.size)
+	end
+
+	def === (other)
+		name == other.name && size == other.size
+	end
+
+	def inspect
+		"#<Register: #{@name}#{", #{@size} bits" if @size}>"
+	end
 end
 
 end

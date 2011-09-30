@@ -20,19 +20,19 @@
 module Orgasm; module X87
 
 class Register < Orgasm::Register
-  def initialize (name=nil)
-    self.name = name if name
-  end
+	def initialize (name=nil)
+		self.name = name if name
+	end
 
-  def name= (value)
-    value = value.to_s.downcase.to_sym
+	def name= (value)
+		value = value.to_s.downcase.to_sym
 
-    unless X87::Instructions.register?(value)
-      raise ArgumentError, "#{value} isn't a valid x87 register"
-    end
+		unless X87::Instructions.register?(value)
+			raise ArgumentError, "#{value} isn't a valid x87 register"
+		end
 
-    @name = value
-  end
+		@name = value
+	end
 end
 
 end; end

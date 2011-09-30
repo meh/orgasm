@@ -20,13 +20,13 @@
 module Orgasm
 
 class Assembler < Piece
-  def initialize (*)
-    super
-  end
+	def initialize (*)
+		super
+	end
 
-  def assemble (instructions)
+	def assemble (instructions)
 
-  end; alias do assemble
+	end; alias do assemble
 end
 
 end

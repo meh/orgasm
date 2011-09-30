@@ -18,11 +18,11 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-  # Byte Swap
-  BSWAP [r32] => [0x0F, 0xC8, rd]
+	# Byte Swap
+	BSWAP [r32] => [0x0F, 0xC8, rd]
 
-  # Compare and Exchange
-  CMPXCHG [r8|m8,   r8]  => [0x0F, 0xB0, r],
-          [r16|m16, r16] => [0x0F, 0xB1, r],
-          [r32|m32, r32] => [0x0F, 0xB1, r],
+	# Compare and Exchange
+	CMPXCHG [r8|m8,   r8]  => [0x0F, 0xB0, r],
+	        [r16|m16, r16] => [0x0F, 0xB1, r],
+	        [r32|m32, r32] => [0x0F, 0xB1, r],
 }]

@@ -20,26 +20,34 @@
 module Orgasm
 
 class Constant < Base
-  attr_accessor :value, :size
+	attr_accessor :value, :size
 
-  def initialize (value=nil, size=nil)
-    @value = value.to_i if value
-    @size  = size.to_i  if size
+	def initialize (value=nil, size=nil)
+		@value = value.to_i if value
+		@size  = size.to_i  if size
 
-    super()
-  end
+		super()
+	end
 
-  def to_i
-    @value
-  end
+	def == (other)
+		value == other.value && (size.nil? || other.size.nil? || size == other.size)
+	end
 
-  def inspect
-    if @value.nil?
-      '#<Constant: NULL>'
-    else
-      "#<Constant: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
-    end
-  end
+	def === (other)
+		value == other.value && size == other.size
+	end
+
+	def to_i
+		@value
+	end
+
+	def inspect
+		if @value.nil?
+			'#<Constant: NULL>'
+		else
+			"#<Constant: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
+		end
+	end
 end
 
 end

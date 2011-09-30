@@ -23,41 +23,41 @@ require 'orgasm/arch/x87/base'
 require 'orgasm/arch/x87/instructions'
 
 Orgasm::Architecture.is 'x87' do
-  family '8087' do
-    instructions 'orgasm/arch/x87/instructions/8087'
+	family '8087' do
+		instructions 'orgasm/arch/x87/instructions/8087'
 
-    disassembler 'orgasm/arch/x87/disassembler'
-  end
+		disassembler 'orgasm/arch/x87/disassembler'
+	end
 
 =begin
-  family 'i187' do
-    instructions 'orgasm/arch/x87/instructions/i187'
+	family 'i187' do
+		instructions 'orgasm/arch/x87/instructions/i187'
 
-    disassembler 'orgasm/arch/x87/disassembler/32'
-    disassembler.inherit(arch[8087].disassembler)
-  end
+		disassembler 'orgasm/arch/x87/disassembler/32'
+		disassembler.inherit(arch[8087].disassembler)
+	end
 
-  family 'i287' do
-    instructions 'orgasm/arch/x87/instructions/i287'
+	family 'i287' do
+		instructions 'orgasm/arch/x87/instructions/i287'
 
-    disassembler 'orgasm/arch/x87/disassembler/32'
-    disassembler.inherit(arch[:i187].disassembler)
-  end
+		disassembler 'orgasm/arch/x87/disassembler/32'
+		disassembler.inherit(arch[:i187].disassembler)
+	end
 
-  family 'i387' do
-    instructions 'orgasm/arch/x87/instructions/i387'
+	family 'i387' do
+		instructions 'orgasm/arch/x87/instructions/i387'
 
-    disassembler 'orgasm/arch/x87/disassembler/32'
-    disassembler.inherit(arch[:i287].disassembler)
-  end
+		disassembler 'orgasm/arch/x87/disassembler/32'
+		disassembler.inherit(arch[:i287].disassembler)
+	end
 
-  family 'i487' do
-    instructions 'orgasm/arch/x87/instructions/i487'
+	family 'i487' do
+		instructions 'orgasm/arch/x87/instructions/i487'
 
-    disassembler 'orgasm/arch/x87/disassembler/32'
-    disassembler.inherit(arch[:i387].disassembler)
-  end
+		disassembler 'orgasm/arch/x87/disassembler/32'
+		disassembler.inherit(arch[:i387].disassembler)
+	end
 
-  styles 'orgasm/arch/x87/styles'
+	styles 'orgasm/arch/x87/styles'
 =end
 end

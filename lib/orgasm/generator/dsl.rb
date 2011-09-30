@@ -20,41 +20,41 @@
 module Orgasm; class Generator < Piece
 
 class DSL < BasicObject
-  def initialize (&block)
-    @block = block
-  end
+	def initialize (&block)
+		@block = block
+	end
 
-  def execute (generator)
-    @generator    = generator
-    @instructions = []
+	def execute (generator)
+		@generator    = generator
+		@instructions = []
 
-    instance_eval &@block
+		instance_eval &@block
 
-    @instructions
-  end
+		@instructions
+	end
 
-  def method_missing (id, *args, &block)
-    if @generator.respond_to? id
-      return @generator.__send__ id, *args, &block
-    end
+	def method_missing (id, *args, &block)
+		if @generator.respond_to? id
+			return @generator.__send__ id, *args, &block
+		end
 
-    @instructions << if @generator.respond_to? :callback
-      @generator.callback id, *args, &block
-    else
-      @generator.for(::Orgasm::Instruction).call(id) {|i|
-        args.each {|arg|
-          i.parameters << case arg
-            when ::Symbol  then @generator.for(::Orgasm::Register).call(arg)
-            when ::Array   then @generator.for(::Orgasm::Address).call(arg)
-            when ::Integer then
-              if arg.frozen? then @generator.for(::Orgasm::Constant).call(arg)
-              else                @generator.for(::Orgasm::Address).call(arg)
-              end
-          end
-        }
-      }
-    end
-  end
+		@instructions << if @generator.respond_to? :callback
+			@generator.callback id, *args, &block
+		else
+			@generator.for(::Orgasm::Instruction).call(id) {|i|
+				args.each {|arg|
+					i.parameters << case arg
+						when ::Symbol  then @generator.for(::Orgasm::Register).call(arg)
+						when ::Array   then @generator.for(::Orgasm::Address).call(arg)
+						when ::Integer then
+							if arg.frozen? then @generator.for(::Orgasm::Constant).call(arg)
+							else                @generator.for(::Orgasm::Address).call(arg)
+							end
+					end
+				}
+			}
+		end
+	end
 end
 
 end; end

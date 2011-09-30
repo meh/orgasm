@@ -20,22 +20,22 @@
 module Orgasm; module X87
 
 class Stack < Orgasm::Register
-  attr_reader :index
+	attr_reader :index
 
-  def initialize (index=nil)
-    self.index = index if index
-  end
+	def initialize (index=nil)
+		self.index = index if index
+	end
 
-  def index= (value)
-    value = 0 if [:ST0, :ST].member?(value.to_sym.upcase) rescue false
+	def index= (value)
+		value = 0 if [:ST0, :ST].member?(value.to_sym.upcase) rescue false
 
-    unless (0 .. 7) === value.to_i
-      raise ArgumentError, "#{value} isn't a valid x87 stack index"
-    end
+		unless (0 .. 7) === value.to_i
+			raise ArgumentError, "#{value} isn't a valid x87 stack index"
+		end
 
-    @index = value
-    @name  = "ST(#{@index})"
-  end
+		@index = value
+		@name  = "ST(#{@index})"
+	end
 end
 
 end; end

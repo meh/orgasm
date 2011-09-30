@@ -20,19 +20,19 @@
 module Orgasm
 
 class Address < Base
-  def initialize (value=nil)
-    @value = value.to_i
+	def initialize (value=nil)
+		@value = value.to_i
 
-    super()
-  end
+		super()
+	end
 
-  def to_i
-    @value
-  end
+	def to_i
+		@value
+	end
 
-  def inspect
-    "#<Address: #{'0x%X' % to_i}>"
-  end
+	def inspect
+		"#<Address: #{'0x%X' % to_i}>"
+	end
 end
 
 end

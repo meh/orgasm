@@ -20,70 +20,70 @@
 module Orgasm; module X87; class DSL
 
 class Special
-  class Operator
-    attr_reader :first, :second
+	class Operator
+		attr_reader :first, :second
 
-    def initialize (first, second)
-      @first  = first
-      @second = second
-    end
+		def initialize (first, second)
+			@first  = first
+			@second = second
+		end
 
-    def is? (value)
-      first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
-    end
-  end
+		def is? (value)
+			first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
+		end
+	end
 
-  class Or < Operator
-    def to_s
-      "#{first}|#{second}"
-    end
-  end
+	class Or < Operator
+		def to_s
+			"#{first}|#{second}"
+		end
+	end
 
-  class And < Operator
-    def to_s
-      "#{first}&#{second}"
-    end
-  end
+	class And < Operator
+		def to_s
+			"#{first}&#{second}"
+		end
+	end
 
-  class Offset < Operator
-    def to_s
-      "#{first}:#{second}"
-    end
-  end
+	class Offset < Operator
+		def to_s
+			"#{first}:#{second}"
+		end
+	end
 
-  def initialize (value)
-    @value = value.to_sym
-  end
+	def initialize (value)
+		@value = value.to_sym
+	end
 
-  def | (value)
-    Or.new(self, value)
-  end
+	def | (value)
+		Or.new(self, value)
+	end
 
-  def & (value)
-    And.new(self, value)
-  end
+	def & (value)
+		And.new(self, value)
+	end
 
-  def ^ (value)
-    Offset.new(self, value)
-  end
+	def ^ (value)
+		Offset.new(self, value)
+	end
 
-  def is? (value)
-    if value.is_a?(Integer)
-      to_s[/\d+$/].to_i == value or Instructions.register?(to_s) == value
-    else
-      to_s.start_with?(value.to_s)
-    end
-  end
+	def is? (value)
+		if value.is_a?(Integer)
+			to_s[/\d+$/].to_i == value or Instructions.register?(to_s) == value
+		else
+			to_s.start_with?(value.to_s)
+		end
+	end
 
-  suppress_warnings {
-    Symbol.instance_methods.each {|name|
-      undef_method name rescue nil
-    }
-  }
+	suppress_warnings {
+		Symbol.instance_methods.each {|name|
+			undef_method name rescue nil
+		}
+	}
 
-  def method_missing (*args, &block)
-    @value.__send__ *args, &block
-  end
+	def method_missing (*args, &block)
+		@value.__send__ *args, &block
+	end
 end
 
 end; end; end

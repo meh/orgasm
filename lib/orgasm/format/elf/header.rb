@@ -25,20 +25,20 @@ require 'orgasm/format/elf/header/version'
 module Orgasm; class Format; class ELF
 
 class Header
-  def self.from (io)
-    Retarded.new IO.get(io) do |io|
-      Header.new(Identification.from(io), Type.from(io), Machine.from(io), Version.from(io))
-    end
-  end
+	def self.from (io)
+		Retarded.new IO.get(io) do |io|
+			Header.new(Identification.from(io), Type.from(io), Machine.from(io), Version.from(io))
+		end
+	end
 
-  attr_reader :identification, :type, :machine, :version
+	attr_reader :identification, :type, :machine, :version
 
-  def initialize (identification, type, machine, version)
-    @identification = identification
-    @type           = type
-    @machine        = machine
-    @version        = version
-  end
+	def initialize (identification, type, machine, version)
+		@identification = identification
+		@type           = type
+		@machine        = machine
+		@version        = version
+	end
 end
 
 end; end; end

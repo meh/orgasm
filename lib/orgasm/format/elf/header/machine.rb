@@ -20,40 +20,40 @@
 module Orgasm; class Format; class ELF
 
 class Machine
-  attr_reader :header
+	attr_reader :header
 
-  def initialize (header, what)
-    @header = header
-    @value  = what.is_a?(Symbol) ? what : {
-      1 => :m32,
-      2 => :sparc,
-      3 => :i386,
-      4 => :m68k,
-      5 => :m88k,
-      7 => :i860,
-      8 => :mips
-    }[what]
-  end
+	def initialize (header, what)
+		@header = header
+		@value  = what.is_a?(Symbol) ? what : {
+			1 => :m32,
+			2 => :sparc,
+			3 => :i386,
+			4 => :m68k,
+			5 => :m88k,
+			7 => :i860,
+			8 => :mips
+		}[what]
+	end
 
-  def to_sym
-    @value
-  end
+	def to_sym
+		@value
+	end
 
-  def to_s
-    {
-      m32:   'AT&T WE32100',
-      sparc: 'SPARC',
-      i386:  'Intel 80386',
-      m68k:  'Motorola 68000',
-      m88k:  'Motorola 88000',
-      i860:  'Intel 80860',
-      mips:  'MIPS RS3000'
-    }[to_sym]
-  end
+	def to_s
+		{
+			m32:   'AT&T WE32100',
+			sparc: 'SPARC',
+			i386:  'Intel 80386',
+			m68k:  'Motorola 68000',
+			m88k:  'Motorola 88000',
+			i860:  'Intel 80860',
+			mips:  'MIPS RS3000'
+		}[to_sym]
+	end
 
-  def size
-    Sizes[@header.identification.class][:half]
-  end
+	def size
+		Sizes[@header.identification.class][:half]
+	end
 end
 
 end; end; end

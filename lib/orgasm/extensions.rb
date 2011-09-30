@@ -24,70 +24,70 @@ require 'packable'
 require 'retarded'
 
 class String
-  def to_bytes (options={})
-    self.unpack(Integer, { endian: :little, signed: false, bytes: length }.merge(options))
-  end; alias to_byte to_bytes
+	def to_bytes (options={})
+		self.unpack(Integer, { endian: :little, signed: false, bytes: length }.merge(options))
+	end; alias to_byte to_bytes
 end
 
 class NilClass
-  def to_bytes
-    nil
-  end; alias to_byte to_bytes
+	def to_bytes
+		nil
+	end; alias to_byte to_bytes
 end
 
 class Array
-  def to_syms
-    map {|x|
-      x.to_sym
-    }
-  end
+	def to_syms
+		map {|x|
+			x.to_sym
+		}
+	end
 
-  def ignore
-    @ignore = true
-    self
-  end
+	def ignore
+		@ignore = true
+		self
+	end
 
-  def ignore?
-    !!@ignore
-  end
+	def ignore?
+		!!@ignore
+	end
 end
 
 class Integer
-  def bits
-    self / 8
-  end; alias bit bits
+	def bits
+		self / 8
+	end; alias bit bits
 
-  def bytes
-    self * 8
-  end; alias byte bytes
+	def bytes
+		self * 8
+	end; alias byte bytes
 end
 
 module Kernel
-  def suppress_warnings
-    exception = nil
-    tmp, $VERBOSE = $VERBOSE, nil
+	def suppress_warnings
+		exception = nil
+		tmp, $VERBOSE = $VERBOSE, nil
 
-    begin
-      result = yield
+		begin
+			result = yield
 
-      $VERBOSE = tmp
-    rescue Exception => e
-      $VERBOSE = tmp
+			$VERBOSE = tmp
+		rescue Exception => e
+			$VERBOSE = tmp
 
-      raise
-    end
+			raise
+		end
 
-    result
-  end
+		result
+	end
 end
 
 class IO
-  def self.get (io)
-    if io.is_a?(String)
-      File.open(io, ?r)
-    else
-      io.rewind
-      io
-    end
-  end
+	def self.get (io)
+		if io.is_a?(String)
+			File.open(io, ?r)
+		else
+			io.rewind
+			io
+		end
+	end
 end
