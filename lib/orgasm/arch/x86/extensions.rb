@@ -25,19 +25,19 @@ class ModR
 	end
 
 	def mod
-		(to_i & '11000000'.to_i(2)) >> 6
+		(to_i & '11000000'.bin) >> 6
 	end
 
 	def reg
-		(to_i & '00111000'.to_i(2)) >> 3
+		(to_i & '00111000'.bin) >> 3
 	end; alias opcode reg
 
 	def rm
-		(to_i & '00000111'.to_i(2))
+		(to_i & '00000111'.bin)
 	end
 
 	def register?
-		mod == '11'.to_i(2)
+		mod == '11'.bin
 	end
 
 	def memory?
@@ -59,15 +59,15 @@ class SIB
 	end
 
 	def scale
-		(to_i & '11000000'.to_i(2)) >> 6
+		(to_i & '11000000'.bin) >> 6
 	end
 
 	def index
-		(to_i & '00111000'.to_i(2)) >> 3
+		(to_i & '00111000'.bin) >> 3
 	end
 
 	def base
-		(to_i & '00000111'.to_i(2))
+		(to_i & '00000111'.bin)
 	end
 
 	def to_i
@@ -129,8 +129,12 @@ class Prefixes < Array
 		}
 	end
 
-	def small?
+	def size?
 		operand? or address?
+	end
+
+	def inspect
+		"#<Prefixes(#{' address' if address?}#{' operand' if operand?})>"
 	end
 end
 

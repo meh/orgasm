@@ -23,13 +23,15 @@ class Instructions < Hash
 	Registers = {
 		8  => %w(al  cl  dl  bl  ah  ch  dh  bh).to_syms,
 		16 => %w(ax  cx  dx  bx  sp  bp  si  di).to_syms,
-		32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms
+		32 => %w(eax ecx edx ebx esp ebp esi edi).to_syms,
+		64 => %w(rax rcx rdx rbx rsp rbp rsi rdi).to_syms
 	}
 
 	RegisterCodes = {
 		8  => :rb,
 		16 => :rw,
-		32 => :rd
+		32 => :rd,
+		64 => :rq,
 	}
 
 	def self.register? (value)
@@ -38,16 +40,30 @@ class Instructions < Hash
 		}.first rescue nil
 	end
 
-	def self.register (value, type=32)
-		Registers[type][value]
+	def self.register (value, type)
+		if type == 64 && value > 7
+			"r#{value}".to_sym
+		else
+			Registers[type][value]
+		end
 	end
 
 	def self.register_code? (value)
 		RegisterCodes.key(value.to_s.to_sym)
 	end
 
-	def self.register_code (value, type=32)
+	def self.register_code (value, type)
 		Registers[type][value]
+	end
+
+	def merge! (other)
+		other.each {|name, value|
+			if has_key?(name)
+				self[name].push(*value)
+			else
+				self[name] = value
+			end
+		}
 	end
 end
 

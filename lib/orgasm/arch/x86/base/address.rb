@@ -41,6 +41,10 @@ class Address < Orgasm::Address
 		!!@options[:offset]
 	end
 
+	def === (other)
+		self == other && size == other.size
+	end
+
 	def inspect
 		"#<Address: #{'0x%X' % to_i}, #{size} bits>"
 	end

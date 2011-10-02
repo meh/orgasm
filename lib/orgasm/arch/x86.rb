@@ -29,31 +29,31 @@ Orgasm::Architecture.is 'x86' do
 	end
 
 	family 'i186' do
+		instructions arch[8086].instructions
 		instructions 'orgasm/arch/x86/instructions/i186'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
-		disassembler.inherit(arch[8086])
 	end
 
 	family 'i286' do
+		instructions arch[:i186].instructions
 		instructions 'orgasm/arch/x86/instructions/i286'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
-		disassembler.inherit(arch[:i186])
 	end
 
 	family 'i386' do
+		instructions arch[:i286].instructions
 		instructions 'orgasm/arch/x86/instructions/i386'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
-		disassembler.inherit(arch[:i286])
 	end
 
 	family 'i486' do
+		instructions arch[:i386].instructions
 		instructions 'orgasm/arch/x86/instructions/i486'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
-		disassembler.inherit(arch[:i386])
 	end
 
 	styles 'orgasm/arch/x86/styles'

@@ -17,23 +17,9 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; class Architecture
-
-class Family < Architecture
-	attr_reader  :architecture
-	undef_method :family
-
-	alias arch architecture
-
-	def initialize (arch, name, &block)
-		@architecture = arch
-
-		super(name, &block)
-	end
-
-	def extensions
-		@extensions + arch.extensions
-	end
+# undocumented opcode holes
+on 0x66, 0x67, 0xC1 do
+	seek +1 and done
 end
 
-end; end
+# TODO: this lololol

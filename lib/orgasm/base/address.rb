@@ -26,6 +26,10 @@ class Address < Base
 		super()
 	end
 
+	def == (other)
+		to_i == other.to_i
+	end; alias === ==
+
 	def to_i
 		@value
 	end

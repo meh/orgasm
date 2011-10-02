@@ -79,18 +79,30 @@ class Architecture
 	def instructions (path=nil, &block)
 		return @instructions unless path or block
 
-		@instructions = if path
-			path = $:.each {|dir|
-				dir = File.join(dir, "#{path}.rb")
+		data = if path
+			if path.is_a?(String)
+				path = $:.each {|dir|
+					dir = File.join(dir, "#{path}.rb")
 
-				break dir if File.readable?(dir)
-			}.tap {|o|
-				raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-			}
+					break dir if File.readable?(dir)
+				}.tap {|o|
+					raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+				}
 
-			instance_eval File.read(path), path, 1
+				instance_eval File.read(path), path, 1
+			else
+				path
+			end
 		else
 			instance_eval &block
+		end
+
+		if !@instructions
+			@instructions = data
+		else
+			if @instructions.respond_to?(:merge!)
+				@instructions.merge!(data)
+			end
 		end
 	end
 
@@ -108,7 +120,7 @@ class Architecture
 				}, ?r)
 
 				Orgasm.const_get(name.capitalize).new(self, io) or super
-			else      
+			else
 				Orgasm.const_get(name.capitalize).new(self, &block) or super
 			end)
 		end

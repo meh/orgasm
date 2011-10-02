@@ -28,8 +28,8 @@ class Special
 			@second = second
 		end
 
-		def is? (value)
-			first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
+		def =~ (value)
+			first =~ value || second =~ value
 		end
 
 		def method_missing (id, *args, &block)
@@ -90,7 +90,15 @@ class Special
 		Offset.new(self, value)
 	end
 
-	def is? (value)
+	def == (value)
+		if value.is_a?(Symbol)
+			to_sym == value
+		else
+			super
+		end
+	end
+
+	def =~ (value)
 		if value.is_a?(Integer)
 			bits == value or Instructions.register?(to_s) == value
 		else
@@ -99,7 +107,9 @@ class Special
 	end
 
 	def bits
-		to_s[/\d+$/].to_i rescue nil
+		{ b: 8, w: 16, d: 32, q: 64 }[to_s[-1].to_sym] || to_s[/\d+$/].to_i
+	rescue
+		nil
 	end
 
 	def to_s

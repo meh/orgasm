@@ -25,8 +25,12 @@ require 'retarded'
 
 class String
 	def to_bytes (options={})
-		self.unpack(Integer, { endian: :little, signed: false, bytes: length }.merge(options))
+		self.unpack(Integer, { endian: :little, signed: false, bytes: bytesize }.merge(options))
 	end; alias to_byte to_bytes
+
+	def bin
+		to_i(2)
+	end
 end
 
 class NilClass

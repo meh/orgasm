@@ -27,6 +27,7 @@ always do
 
 	while prefix = X86::Prefixes.valid?(lookahead(1).to_byte)
 		prefixes << prefix
+
 		seek +1
 	end
 
@@ -34,21 +35,20 @@ always do
 		prefixes.clear
 	end
 
-	instructions.to_hash.each {|name, description|
+	instructions.each {|name, description|
 		description.each {|description|
 			if description.is_a?(Hash)
 				description.each {|params, definition|
 					destination, source, source2 = params
 
-					next if prefixes.small? && destination.is?(32)
+					next if (options[:mode] == :real && destination.bits == 16 && prefixes.operand?) ||
+					        (options[:mode] != :real && destination.bits == 32 && prefixes.operand?)
 
 					known = definition.reverse.drop_while {|x|
 						!x.is_a?(Integer)
 					}.reverse
 
 					if bits = X86::Instructions.register_code?(definition.last)
-						next if bits == 32 && prefixes.small?
-
 						0.upto 7 do |n|
 							on known do |whole, which|
 								seek which.length
@@ -59,7 +59,7 @@ always do
 									if !source
 										i.destination = reg
 									else
-										i.destination, i.source = if destination.is?(:r)
+										i.destination, i.source = if destination =~ :r
 											[reg, X86::Register.new(source)]
 										else
 											[X86::Register.new(destination), reg]
@@ -83,23 +83,23 @@ always do
 
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-							sib = if modr && modr.mod != '11'.to_i(2) && modr.rm == '100'.to_i(2) && !prefixes.small?
+							sib = if modr && modr.mod != '11'.bin && modr.rm == '100'.bin && !(options[:mode] != :real && prefixes.size?)
 								X86::SIB.new(read(1).to_byte)
 							end
 
-							displacement = modr && read(
-								if prefixes.small?
-									if    modr.mod == '00'.to_i(2) && modr.rm == '110'.to_i(2) then 16.bit
-									elsif modr.mod == '01'.to_i(2)                             then 8.bit
-									elsif modr.mod == '10'.to_i(2)                             then 16.bit
+							displacement = if modr then read(
+								if prefixes.address? || (options[:mode] == :real && !prefixes.address?)
+									if    modr.mod == '00'.bin && modr.rm == '110'.bin then 16.bit
+									elsif modr.mod == '01'.bin                         then 8.bit
+									elsif modr.mod == '10'.bin                         then 16.bit
 									end
 								else
-									if    modr.mod == '00'.to_i(2) && modr.rm == '101'.to_i(2) then 32.bit
-									elsif modr.mod == '01'.to_i(2)                             then 8.bit
-									elsif modr.mod == '10'.to_i(2)                             then 32.bit
+									if    modr.mod == '00'.bin && modr.rm == '101'.bin then 32.bit
+									elsif modr.mod == '01'.bin                         then 8.bit
+									elsif modr.mod == '10'.bin                         then 32.bit
 									end
 								end
-							).to_bytes rescue nil
+							).to_bytes end
 
 							immediates = 0.upto(1).map {
 								X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
@@ -113,18 +113,16 @@ always do
 
 									i.send "#{type}=", if X86::Instructions.register?(obj)
 										X86::Register.new(obj)
-									elsif obj.is?(:imm)
+									elsif obj =~ :imm
 										immediate = immediates.shift
 
 										X86::Immediate.new(immediate.to_i, immediate.size)
-									elsif obj.is?(:m) && displacement
-										X86::Address.new(address: displacement, bits: obj.bits)
-									elsif obj.is?(:m) && modr.mod != '11'.to_i(2)
-										X86::Address.new(modr.rm, obj.bits)
-									elsif obj.is?(:r) && opcodes.first == :r
-										X86::Register.new(X86::Instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.to_s[/\d+$/].to_i))
-									elsif obj.is?(:r)
-										X86::Register.new(X86::Instructions.register(modr.rm, obj.to_s[/\d+$/].to_i))
+									elsif obj =~ :m && modr.mod != '11'.bin
+										X86::Address.new(displacement, obj.bits)
+									elsif obj =~ :r && opcodes.first == :r
+										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
+									elsif obj =~ :r
+										X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
 									else
 										raise ArgumentError, "dont know what to do with #{obj} as #{type}"
 									end

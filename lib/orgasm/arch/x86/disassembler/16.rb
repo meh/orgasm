@@ -22,7 +22,7 @@ on 0x66, 0x67, 0xC1 do
 	seek +1 and done
 end
 
-instructions.to_hash.each {|name, description|
+instructions.each {|name, description|
 	description.each {|description|
 		if description.is_a?(Hash)
 			description.each {|params, definition|
@@ -43,7 +43,7 @@ instructions.to_hash.each {|name, description|
 								if !source
 									i.destination = reg
 								else
-									i.destination, i.source = if destination.is?(:r)
+									i.destination, i.source = if destination =~ :r
 										[reg, X86::Register.new(source)]
 									else
 										[X86::Register.new(destination), reg]
@@ -69,12 +69,14 @@ instructions.to_hash.each {|name, description|
 
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-						displacement = modr && read(
-							if    modr.mod == '00'.to_i(2) && modr.rm == '110'.to_i(2) then 16.bit
-							elsif modr.mod == '01'.to_i(2)                             then 8.bit
-							elsif modr.mod == '10'.to_i(2)                             then 16.bit
-							end
-						).to_bytes rescue nil
+						displacement = if modr
+							read(
+								if    modr.mod == '00'.bin && modr.rm == '110'.bin then 16.bit
+								elsif modr.mod == '01'.bin                         then 8.bit
+								elsif modr.mod == '10'.bin                         then 16.bit
+								end
+							).to_bytes
+						end
 
 						immediates = 0.upto(1).map {
 							X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
@@ -88,17 +90,15 @@ instructions.to_hash.each {|name, description|
 
 								i.send "#{type}=", if X86::Instructions.register?(obj)
 									X86::Register.new(obj)
-								elsif obj.is?(:imm)
+								elsif obj =~ :imm
 									immediate = immediates.shift
 
 									X86::Immediate.new(immediate.to_i, immediate.size)
-								elsif obj.is?(:m) && displacement
+								elsif obj =~ :m && modr.mod != '11'.bin
 									X86::Address.new(displacement, obj.bits)
-								elsif obj.is?(:m) && modr.mod != '11'.to_i(2)
-									X86::Address.new(modr.rm, obj.bits)
-								elsif obj.is?(:r) && opcodes.first == :r
-									X86::Register.new(X86::Instructions.register({ destination: modr.reg, source: modr.rm }[type], obj.bits))
-								elsif obj.is?(:r)
+								elsif obj =~ :r && opcodes.first == :r
+									X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
+								elsif obj =~ :r
 									X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
 								else
 									raise ArgumentError, "dont know what to do with #{obj} as #{type}"

@@ -20,7 +20,7 @@
 module Orgasm; class Disassembler < Piece
 
 class Decoder
-	attr_reader :disassembler
+	attr_reader :disassembler, :options
 
 	def initialize (disassembler, *args, &block)
 		@disassembler = disassembler
@@ -36,7 +36,7 @@ class Decoder
 	def for (io, options)
 		decoder = self.clone
 		decoder.instance_variable_set :@io, io
-		decoder.instance_variable_set :@options, options
+		decoder.instance_variable_set :@options, options.clone.freeze
 		decoder
 	end
 

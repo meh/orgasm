@@ -17,6 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+require 'stringio'
+
 module Orgasm
 
 class Disassembler < Piece
@@ -43,9 +45,11 @@ class Disassembler < Piece
 			extensions: []
 		}.merge(options)
 
-		if io.is_a?(String)
-			require 'stringio'
+		if io.is_a?(Array)
+			io = io.map { |b| [b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil) }.join ''
+		end
 
+		if io.is_a?(String)
 			io = StringIO.new(io)
 		end
 
