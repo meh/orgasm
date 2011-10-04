@@ -119,6 +119,20 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Register.new(:dx))
 				}
 			end
+
+			it 'disassembles ADC r8, m8' do
+				disasm.do(%w(12 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles ADC r16, m16' do
+				disasm.do(%w(13 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
 		end
 
 		describe 'ADD (Add)' do
@@ -130,16 +144,151 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 
 			it 'disassembles ADD ax, imm16' do
-				disasm.do(%w(05 39 05)).tap {|i|
+				disasm.do(%w(05 62 02)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(1337, 2))
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 2))
 				}
 			end
 
 			it 'disassembles ADD r8, imm8' do
-				disasm.do(%w(80 c3 2a)).tap {|i|
+				disasm.do(%w(80 c7 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:bh), Orgasm::X86::Immediate.new(42, 1))
+				}
+			end
+
+			it 'disassembles ADD r16, imm16' do
+				disasm.do(%w(81 c6 13 09)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:si), Orgasm::X86::Immediate.new(2323, 2))
+				}
+			end
+
+			it 'disassembles ADD r16, imm8' do
+				disasm.do(%w(83 c5 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:bp), Orgasm::X86::Immediate.new(42, 1))
+				}
+			end
+
+			it 'disassembles ADD r8, r8' do
+				disasm.do(%w(00 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Register.new(:bl))
+				}
+			end
+
+			it 'disassembles ADD m8, r8' do
+				disasm.do(%w(00 06 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles ADD r16, r16' do
+				disasm.do(%w(01 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:cx), Orgasm::X86::Register.new(:bx))
+				}
+			end
+
+			it 'disassembles ADD m16, r16' do
+				disasm.do(%w(01 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Register.new(:dx))
+				}
+			end
+
+			it 'disassembles ADD r8, m8' do
+				disasm.do(%w(02 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles ADD r16, m16' do
+				disasm.do(%w(03 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'AND (Logical AND)' do
+			it 'disassembles AND al, imm8' do
+				disasm.do(%w(24 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 1))
+				}
+			end
+
+			it 'disassembles AND ax, imm16' do
+				disasm.do(%w(25 62 02)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 2))
+				}
+			end
+
+			it 'disassembles AND r8, imm8' do
+				disasm.do(%w(80 e3 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
 						Orgasm::X86::Register.new(:bl), Orgasm::X86::Immediate.new(42, 1))
+				}
+			end
+
+			it 'disassembles AND r16, imm16' do
+				disasm.do(%w(81 e3 13 09)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(2323, 2))
+				}
+			end
+
+			it 'disassembles AND r16, imm8' do
+				disasm.do(%w(83 e3 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(42, 1))
+				}
+			end
+
+			it 'disassembles AND r8, r8' do
+				disasm.do(%w(20 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Register.new(:bl))
+				}
+			end
+
+			it 'disassembles AND m8, r8' do
+				disasm.do(%w(20 06 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles AND r16, r16' do
+				disasm.do(%w(21 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:cx), Orgasm::X86::Register.new(:bx))
+				}
+			end
+
+			it 'disassembles AND m16, r16' do
+				disasm.do(%w(21 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Register.new(:dx))
+				}
+			end
+
+			it 'disassembles AND r8, m8' do
+				disasm.do(%w(22 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles AND r16, m16' do
+				disasm.do(%w(23 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
 				}
 			end
 		end
