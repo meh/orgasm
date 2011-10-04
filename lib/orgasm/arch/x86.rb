@@ -47,6 +47,7 @@ Orgasm::Architecture.is 'x86' do
 		instructions 'orgasm/arch/x86/instructions/i386'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler.supports :mode
 	end
 
 	family 'i486' do
@@ -54,6 +55,7 @@ Orgasm::Architecture.is 'x86' do
 		instructions 'orgasm/arch/x86/instructions/i486'
 
 		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler.supports :mode
 	end
 
 	styles 'orgasm/arch/x86/styles'

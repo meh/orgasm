@@ -28,10 +28,10 @@ class Instructions < Hash
 	}
 
 	RegisterCodes = {
-		8  => :rb,
-		16 => :rw,
-		32 => :rd,
-		64 => :rq,
+		1 => :rb,
+		2 => :rw,
+		4 => :rd,
+		8 => :rq,
 	}
 
 	def self.register? (value)
@@ -49,7 +49,9 @@ class Instructions < Hash
 	end
 
 	def self.register_code? (value)
-		RegisterCodes.key(value.to_s.to_sym)
+		RegisterCodes.key(value.to_s.to_sym) * 8
+	rescue
+		nil
 	end
 
 	def self.register_code (value, type)

@@ -113,10 +113,14 @@ always do
 
 									i.send "#{type}=", if X86::Instructions.register?(obj)
 										X86::Register.new(obj)
-									elsif obj =~ :imm
+									elsif obj =~ :imm || obj =~ :rel
 										immediate = immediates.shift
 
-										X86::Immediate.new(immediate.to_i, immediate.size)
+										if obj =~ :imm
+											X86::Immediate.new(immediate.to_i, immediate.size)
+										else
+											X86::Address.new(immediate.to_i, immediate.size, relative: true)
+										end
 									elsif obj =~ :m && modr.mod != '11'.bin
 										X86::Address.new(displacement, obj.bits)
 									elsif obj =~ :r && opcodes.first == :r

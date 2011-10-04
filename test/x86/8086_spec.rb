@@ -292,5 +292,54 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 				}
 			end
 		end
+
+		describe 'CALL (Call Procedure)' do
+			it 'disassembles CALL rel16' do
+				disasm.do(%w(e8 1f 13)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CALL,
+						Orgasm::X86::Address.new(0x131f, 16, relative: true))
+				}
+			end
+		end
+
+		describe 'CBW (Convert Byte to Word)' do
+			it 'disassembles CBW' do
+				disasm.do(%w(98)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CBW)
+				}
+			end
+		end
+
+		describe 'CLC (Clear Carry Flag)' do
+			it 'disassembles CLC' do
+				disasm.do(%w(f8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CLC)
+				}
+			end
+		end
+
+		describe 'CLD (Clear Direction Flag)' do
+			it 'disassembles CLD' do
+				disasm.do(%w(fc)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CLD)
+				}
+			end
+		end
+
+		describe 'CLI (Clear Interrupt Flag)' do
+			it 'disassembles CLI' do
+				disasm.do(%w(fa)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CLI)
+				}
+			end
+		end
+
+		describe 'CLTS (Clear Task-Switched Flag in CR0)' do
+			it 'disassembles CLTS' do
+				disasm.do(%w(0f 06)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CLTS)
+				}
+			end
+		end
 	end
 end

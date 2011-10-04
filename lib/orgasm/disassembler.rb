@@ -22,13 +22,24 @@ require 'stringio'
 module Orgasm
 
 class Disassembler < Piece
-	attr_reader :inherits
+	attr_reader :inherits, :supports
 
 	def initialize (*)
 		@inherits = []
 		@decoders = []
+		@supports = []
 
 		super
+	end
+
+	def supports (name)
+		@supports << name
+		@supports.uniq!
+		@supports
+	end
+
+	def supports? (name)
+		@supports.member?(name)
 	end
 
 	def inherit (*args)
@@ -44,6 +55,14 @@ class Disassembler < Piece
 		options = {
 			extensions: []
 		}.merge(options)
+
+		options.each_key {|name|
+			next if [:extensions, :exceptions, :limit, :unknown, :inherited].member?(name)
+
+			unless supports?(name)
+				raise ArgumentError, "#{name} is an unsupported option"
+			end
+		}
 
 		if io.is_a?(Array)
 			io = io.map { |b| [b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil) }.join ''
