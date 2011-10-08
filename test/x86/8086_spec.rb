@@ -27,7 +27,7 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles AAD imm8' do
 				disasm.do(%w(d5 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AAD,
-						Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 		end
@@ -42,7 +42,7 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles AAM imm8' do
 				disasm.do(%w(d4 17)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AAM,
-						Orgasm::X86::Immediate.new(23, 1))
+						Orgasm::X86::Immediate.new(23, 8))
 				}
 			end
 		end
@@ -60,37 +60,60 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles ADC al, imm8' do
 				disasm.do(%w(14 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
-						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles ADC ax, imm16' do
 				disasm.do(%w(15 62 02)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
-						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 2))
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 16))
 				}
 			end
 
 			it 'disassembles ADC r8, imm8' do
 				disasm.do(%w(80 d6 17)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
-						Orgasm::X86::Register.new(:dh), Orgasm::X86::Immediate.new(23, 1))
+						Orgasm::X86::Register.new(:dh), Orgasm::X86::Immediate.new(23, 8))
+				}
+			end
+
+			it 'disassembles ADC m8, imm8' do
+				disasm.do(%w(80 16 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles ADC r16, imm16' do
 				disasm.do(%w(81 d3 39 05)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
-						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(1337, 2))
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(1337, 16))
+				}
+			end
+
+			it 'disassembles ADC m16, imm16' do
+				disasm.do(%w(81 16 00 20 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(1337, 16))
 				}
 			end
 
 			it 'disassembles ADC r16, imm8' do
 				disasm.do(%w(83 d1 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
-						Orgasm::X86::Register.new(:cx), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:cx), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
+
+			it 'disassembles ADC m16, imm8' do
+				disasm.do(%w(83 16 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+
 
 			it 'disassembles ADC r8, r8' do
 				disasm.do(%w(10 d9)).tap {|i|
@@ -139,35 +162,56 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles ADD al, imm8' do
 				disasm.do(%w(04 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles ADD ax, imm16' do
 				disasm.do(%w(05 62 02)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 2))
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 16))
 				}
 			end
 
 			it 'disassembles ADD r8, imm8' do
 				disasm.do(%w(80 c7 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:bh), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:bh), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles ADD m8, imm8' do
+				disasm.do(%w(80 06 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles ADD r16, imm16' do
 				disasm.do(%w(81 c6 13 09)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:si), Orgasm::X86::Immediate.new(2323, 2))
+						Orgasm::X86::Register.new(:si), Orgasm::X86::Immediate.new(2323, 16))
+				}
+			end
+
+			it 'disassembles ADD m16, imm16' do
+				disasm.do(%w(81 06 00 20 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(1337, 16))
 				}
 			end
 
 			it 'disassembles ADD r16, imm8' do
 				disasm.do(%w(83 c5 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
-						Orgasm::X86::Register.new(:bp), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:bp), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles ADD m16, imm8' do
+				disasm.do(%w(83 06 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADD,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
@@ -218,35 +262,56 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles AND al, imm8' do
 				disasm.do(%w(24 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
-						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles AND ax, imm16' do
 				disasm.do(%w(25 62 02)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
-						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 2))
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 16))
 				}
 			end
 
 			it 'disassembles AND r8, imm8' do
 				disasm.do(%w(80 e3 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
-						Orgasm::X86::Register.new(:bl), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:bl), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles AND m8, imm8' do
+				disasm.do(%w(80 26 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
 			it 'disassembles AND r16, imm16' do
 				disasm.do(%w(81 e3 13 09)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
-						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(2323, 2))
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(2323, 16))
+				}
+			end
+
+			it 'disassembles AND m16, imm16' do
+				disasm.do(%w(81 26 00 20 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(1337, 16))
 				}
 			end
 
 			it 'disassembles AND r16, imm8' do
 				disasm.do(%w(83 e3 2a)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
-						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(42, 1))
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles AND m16, imm8' do
+				disasm.do(%w(83 26 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:AND,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(42, 8))
 				}
 			end
 
@@ -338,6 +403,332 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			it 'disassembles CLTS' do
 				disasm.do(%w(0f 06)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CLTS)
+				}
+			end
+		end
+
+		describe 'CMC (Complement Carry Flag)' do
+			it 'disassembles CMC' do
+				disasm.do(%w(f5)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMC)
+				}
+			end
+		end
+
+		describe 'CMP (Compare Two Operands)' do
+			it 'disassembles CMP al, imm8' do
+				disasm.do(%w(3c 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles CMP ax, imm16' do
+				disasm.do(%w(3d 62 02)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(610, 16))
+				}
+			end
+
+			it 'disassembles CMP r8, imm8' do
+				disasm.do(%w(80 fb 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:bl), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles CMP m8, imm8' do
+				disasm.do(%w(80 3e 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles CMP r16, imm16' do
+				disasm.do(%w(81 fb 13 09)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(2323, 16))
+				}
+			end
+
+			it 'disassembles CMP m16, imm16' do
+				disasm.do(%w(81 3e 00 20 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(1337, 16))
+				}
+			end
+
+			it 'disassembles CMP r16, imm8' do
+				disasm.do(%w(83 fb 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+			it 'disassembles CMP m16, imm8' do
+				disasm.do(%w(83 3e 00 20 2a)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(42, 8))
+				}
+			end
+
+
+			it 'disassembles CMP r8, r8' do
+				disasm.do(%w(38 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Register.new(:bl))
+				}
+			end
+
+			it 'disassembles CMP m8, r8' do
+				disasm.do(%w(38 06 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles CMP r16, r16' do
+				disasm.do(%w(39 d9)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:cx), Orgasm::X86::Register.new(:bx))
+				}
+			end
+
+			it 'disassembles CMP m16, r16' do
+				disasm.do(%w(39 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Register.new(:dx))
+				}
+			end
+
+			it 'disassembles CMP r8, m8' do
+				disasm.do(%w(3a 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:cl), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles CMP r16, m16' do
+				disasm.do(%w(3b 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMP,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'CMPSB (Compare String Operands)' do
+			it 'disassembles CMPSB' do
+				disasm.do(%w(a6)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMPSB)
+				}
+			end
+		end
+
+		describe 'CMPSW (Compare String Operands)' do
+			it 'disassembles CMPSW' do
+				disasm.do(%w(a7)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMPSW)
+				}
+			end
+		end
+
+		describe 'CWD (Convert Word t Doubleword)' do
+			it 'disassembles CWD' do
+				disasm.do(%w(99)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CWD)
+				}
+			end
+		end
+
+		describe 'DAA (Decimal Adjust AL after Addition)' do
+			it 'disassembles DAA' do
+				disasm.do(%w(27)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DAA)
+				}
+			end
+		end
+
+		describe 'DAS (Decimal Adjust AL after Substraction)' do
+			it 'disassembles DAS' do
+				disasm.do(%w(2f)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DAS)
+				}
+			end
+		end
+
+		describe 'DEC (Decrement by 8)' do
+			it 'disassembles DEC r8' do
+				disasm.do(%w(fe c8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
+						Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles DEC m8' do
+				disasm.do(%w(fe 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
+						Orgasm::X86::Address.new(0x2000, 8))
+				}
+			end
+
+			it 'disassembles DEC r16' do
+				disasm.do(%w(ff c8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
+						Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassembles DEC m16' do
+				disasm.do(%w(ff 0e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
+						Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles DEC r16 (alone)' do
+				disasm.do(%w(4e)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
+						Orgasm::X86::Register.new(:si))
+				}
+			end
+		end
+
+		describe 'DIV (Unsigned Divide)' do
+			it 'disassembles DIV r8' do
+				disasm.do(%w(f6 f0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DIV,
+						Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles DIV m8' do
+				disasm.do(%w(f6 36 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DIV,
+						Orgasm::X86::Address.new(0x2000, 8))
+				}
+			end
+
+			it 'disassembles DIV r16' do
+				disasm.do(%w(f7 f0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DIV,
+						Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassembles DIV m16' do
+				disasm.do(%w(f7 36 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DIV,
+						Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'HLT (Halt)' do
+			it 'disassembles HLT' do
+				disasm.do(%w(f4)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:HLT)
+				}
+			end
+		end
+
+		describe 'IDIV (Signed Divide)' do
+			it 'disassembles IDIV r8' do
+				disasm.do(%w(f6 f8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IDIV,
+						Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles IDIV m8' do
+				disasm.do(%w(f6 3e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IDIV,
+						Orgasm::X86::Address.new(0x2000, 8))
+				}
+			end
+
+			it 'disassembles IDIV r16' do
+				disasm.do(%w(f7 f8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IDIV,
+						Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassembles IDIV m16' do
+				disasm.do(%w(f7 3e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IDIV,
+						Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'IMUL (Signed Multiply)' do
+			it 'disassembles IMUL r8' do
+				disasm.do(%w(f6 e8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles IMUL m8' do
+				disasm.do(%w(f6 2e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Address.new(0x2000, 8))
+				}
+			end
+
+			it 'disassembles IMUL r16' do
+				disasm.do(%w(f7 e8)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassembles IMUL m16' do
+				disasm.do(%w(f7 2e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles IMUL r16, r16' do
+				disasm.do(%w(0f af f5)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:si), Orgasm::X86::Register.new(:bp))
+				}
+			end
+
+			it 'disassembles IMUL r16, m16' do
+				disasm.do(%w(0f af 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles IMUL r16, r16, imm8' do
+				disasm.do(%w(6b d8 17)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(23, 8))
+				}
+			end
+
+			it 'disassembles IMUL r16, m16, imm8' do
+				disasm.do(%w(6b 1e 00 20 17)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(23, 8))
+				}
+			end
+
+			it 'disassembles IMUL r16, r16, imm16' do
+				disasm.do(%w(69 d8 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(1337, 16))
+				}
+			end
+
+			it 'disassembles IMUL r16, m16, imm16' do
+				disasm.do(%w(69 1e 00 20 39 05)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IMUL,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Immediate.new(1337, 16))
 				}
 			end
 		end

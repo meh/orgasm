@@ -24,7 +24,7 @@ class Immediate < Orgasm::Constant
 		if @value.nil?
 			'#<Immediate: NULL>'
 		else
-			"#<Immediate: #{"0x%0#{size * 2}X" % to_i}#{", #{size.bytes} bits" if size}>"
+			"#<Immediate: #{"0x%0#{size.bit * 2}X" % to_i}#{", #{size} bits" if size}>"
 		end
 	end
 end

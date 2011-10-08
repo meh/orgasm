@@ -90,8 +90,8 @@ class Data
 
 	def initialize (io, type)
 		@type  = type.to_sym.downcase
-		@size  = Sizes[@type.to_sym] or raise ArgumentError, "unknown type #{type}"
-		@value = io.read(size).to_bytes
+		@size  = Sizes[@type.to_sym].bytes or raise ArgumentError, "unknown type #{type}"
+		@value = io.read(size.bits).to_bytes
 	end
 
 	def to_i

@@ -121,7 +121,6 @@ X86::Instructions[X86::DSL.new(16) {
 	# Unsigned Divide
 	DIV [r8|m8]   => [0xF6, ?6],
 	    [r16|m16] => [0xF7, ?6]
-	# FIXME: this is wrong, investigate
 
 	# Halt
 	HLT [0xF4]
@@ -142,7 +141,7 @@ X86::Instructions[X86::DSL.new(16) {
 	IN [al, imm8] => [0xE4, ib],
 	   [ax, imm8] => [0xE5, ib],
 	   [al, dx]   => [0xEC],
-		 [ax, dx]   => [0xED]
+	   [ax, dx]   => [0xED]
 
 	# Increment by 1
 	INC [r8|m8]   => [0xFE, ?0],
