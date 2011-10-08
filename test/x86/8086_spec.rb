@@ -556,7 +556,7 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 		end
 
-		describe 'DEC (Decrement by 8)' do
+		describe 'DEC (Decrement by 1)' do
 			it 'disassembles DEC r8' do
 				disasm.do(%w(fe c8)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
@@ -732,5 +732,74 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 				}
 			end
 		end
+
+		describe 'IN (Input from Port)' do
+			it 'disassembles IN al, imm8' do
+				disasm.do(%w(e4 17)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IN,
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Immediate.new(23, 8))
+				}
+			end
+
+			it 'disassembles IN ax, imm8' do
+				disasm.do(%w(e5 17)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IN,
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Immediate.new(23, 8))
+				}
+			end
+
+			it 'disassembles IN al, dx' do
+				disasm.do(%w(ec)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IN,
+						Orgasm::X86::Register.new(:al), Orgasm::X86::Register.new(:dx))
+				}
+			end
+
+			it 'disassembles IN ax, dx' do
+				disasm.do(%w(ed)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IN,
+						Orgasm::X86::Register.new(:ax), Orgasm::X86::Register.new(:dx))
+				}
+			end
+		end
+
+		describe 'INC (Increment by 1)' do
+			it 'disassembles INC r8' do
+				disasm.do(%w(fe c0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INC,
+						Orgasm::X86::Register.new(:al))
+				}
+			end
+
+			it 'disassembles INC m8' do
+				disasm.do(%w(fe 06 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INC,
+						Orgasm::X86::Address.new(0x2000, 8))
+				}
+			end
+
+			it 'disassembles INC r16' do
+				disasm.do(%w(ff c0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INC,
+						Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassembles INC m16' do
+				disasm.do(%w(ff 06 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INC,
+						Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+
+			it 'disassembles INC r16 (alone)' do
+				disasm.do(%w(47)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INC,
+						Orgasm::X86::Register.new(:di))
+				}
+			end
+		end
+
+
 	end
 end
