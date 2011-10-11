@@ -65,6 +65,7 @@ instructions.each {|name, description|
 					seek which.length do
 						modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
 
+						# return when the /n is wrong
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
 						displacement = read(modr.displacement_size(16)).to_bytes(
