@@ -41,18 +41,24 @@ class Special
 	end
 
 	class Or < Operator
+		def or?; true; end
+			
 		def to_s
 			"#{first}|#{second}"
 		end
 	end
 
 	class And < Operator
+		def and?; true; end
+
 		def to_s
 			"#{first}&#{second}"
 		end
 	end
 
 	class Offset < Operator
+		def offset?; true; end
+
 		def to_s
 			"#{first}:#{second}"
 		end
@@ -61,6 +67,12 @@ class Special
 	def initialize (value)
 		@value = value.to_sym
 	end
+
+	%w(or and offset).each {|name|
+		define_method "#{name}?" do
+			false
+		end
+	}
 
 	def +@
 		@signed = true

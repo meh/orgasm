@@ -20,6 +20,19 @@
 module Orgasm; module X86
 
 class ModR
+	EffectiveAddress = {
+		16 => {
+			'000'.bin => [:bx, :si],
+			'001'.bin => [:bx, :di],
+			'010'.bin => [:bp, :si],
+			'011'.bin => [:bp, :di],
+			'100'.bin => [:si],
+			'101'.bin => [:di],
+			'110'.bin => [:bp],
+			'111'.bin => [:bx]
+		}
+	}
+
 	def initialize (value)
 		@value = value.to_i
 	end
@@ -44,12 +57,42 @@ class ModR
 		!register?
 	end
 
+	def sib?
+		mod != '11'.bin && rm == '100'.bin
+	end
+
+	def displacement_size (bits)
+		case bits
+		when 16
+			if    mod == '00'.bin && rm == '110'.bin then 16.bit
+			elsif mod == '01'.bin                    then 8.bit
+			elsif mod == '10'.bin                    then 16.bit
+			end
+		when 32
+			if    mod == '00'.bin && rm == '101'.bin then 32.bit
+			elsif mod == '01'.bin                    then 8.bit
+			elsif mod == '10'.bin                    then 32.bit
+			end
+		end
+	end
+
+	def displacement_options (bits)
+		{ signed: displacement_size(bits) == 8.bit }
+	end
+
+	def effective_address (bits, displacement=nil)
+		return displacement if bits == 16 && mod == '00'.bin && rm == '110'.bin ||
+			                     bits == 32 && mod == '00'.bin && rm == '101'.bin
+
+		EffectiveAddress[bits][rm] + [displacement].compact
+	end
+
 	def to_i
 		@value
 	end
 
 	def inspect
-		"#<ModR/M: Mod=#{'%02b' % mod} Reg/Opcode=#{'%03b' % reg} R/M=#{'%03b' % rm}>"
+		"#<M: Mod=#{'%02b' % mod} Reg/Opcode=#{'%03b' % reg} R/M=#{'%03b' % rm}>"
 	end
 end
 
@@ -90,8 +133,8 @@ class Data
 
 	def initialize (io, type)
 		@type  = type.to_sym.downcase
-		@size  = Sizes[@type.to_sym].bytes or raise ArgumentError, "unknown type #{type}"
-		@value = io.read(size.bits).to_bytes
+		@size  = Sizes[@type].bytes or raise ArgumentError, "unknown type #{type}"
+		@value = io.read(size.bits).to_bytes(signed: type.signed?)
 	end
 
 	def to_i
@@ -115,6 +158,16 @@ class Prefixes < Array
 		[Lock, Override::Segment, Override::Size::Operand, Override::Size::Address].any? {|check|
 			check.member?(value)
 		} && value
+	end
+	
+	attr_reader :options
+
+	def initialize (options={})
+		@options = options
+	end
+
+	def size
+		prefixes.address? || (options[:mode] == :real && !prefixes.address?) ? 16 : 32
 	end
 
 	def operand?

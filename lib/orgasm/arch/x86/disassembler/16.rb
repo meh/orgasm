@@ -63,20 +63,12 @@ instructions.each {|name, description|
 					opcodes.slice! 0 ... known.length
 
 					seek which.length do
-						modr = if opcodes.first.is_a?(String) || opcodes.first == :r
-							X86::ModR.new(read(1).to_byte)
-						end
+						modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
 
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-						displacement = if modr
-							read(
-								if    modr.mod == '00'.bin && modr.rm == '110'.bin then 16.bit
-								elsif modr.mod == '01'.bin                         then 8.bit
-								elsif modr.mod == '10'.bin                         then 16.bit
-								end
-							).to_bytes
-						end
+						displacement = read(modr.displacement_size(16)).to_bytes(
+							modr.displacement_options(16)) if modr
 
 						immediates = 0.upto(1).map {
 							X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
@@ -98,8 +90,8 @@ instructions.each {|name, description|
 									else
 										X86::Address.new(immediate.to_i, immediate.size, relative: true)
 									end
-								elsif obj =~ :m && modr.mod != '11'.bin
-									X86::Address.new(displacement, obj.bits)
+								elsif modr && !modr.register? && obj =~ :m
+									X86::Address.new(modr.effective_address(16, displacement), obj.bits)
 								elsif obj =~ :r && opcodes.first == :r
 									X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
 								elsif obj =~ :r

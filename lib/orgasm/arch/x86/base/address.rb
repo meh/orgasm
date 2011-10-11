@@ -26,7 +26,13 @@ class Address < Orgasm::Address
 		if value.respond_to? :to_i
 			super(value)
 		else
-			super()
+			@base = value
+
+			if @base.last.respond_to? :to_i
+				super(@base.pop)
+			else
+				super()
+			end
 		end
 
 		@size    = size
@@ -38,7 +44,7 @@ class Address < Orgasm::Address
 	end
 
 	def offset?
-		!!@options[:offset]
+		!!@base
 	end
 
 	def == (other)
@@ -50,7 +56,13 @@ class Address < Orgasm::Address
 	end
 
 	def inspect
-		"#<Address: #{'+' if relative?}#{'0x%X' % to_i}, #{size} bits>"
+		if offset?
+			"#<Address: [#{@base.join '+'}#{'%+d' % to_i}], #{size} bits>"
+		elsif relative?
+			"#<Address: #{'%+d' % to_i}, #{size} bits>"
+		else
+			"#<Address: #{'0x%x' % to_i}, #{size} bits>"
+		end
 	end
 end
 

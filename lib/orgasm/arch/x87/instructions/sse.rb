@@ -73,4 +73,7 @@ X87::Instructions[X87::DSL.new {
 	# Store FP and MMX™ State and Streaming SIMD Extension State
 	FXSAVE [m512byte] => [0x0F, 0xAE, ?0]
 
+	# Load Streaming SIMD Extension Control/Status
+	LDMXCSR [m32] => [0x0F, 0xAE, ?2]
+ 
 }]

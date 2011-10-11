@@ -1059,5 +1059,40 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 				}
 			end
 		end
+
+		describe 'JMP (Jump)' do
+			it 'disassembles JMP rel8' do
+				disasm.do(%w(eb 07)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JMP,
+						Orgasm::X86::Address.new(0x07, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JMP rel16' do
+				disasm.do(%w(e9 07 f0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JMP,
+						Orgasm::X86::Address.new(-4089, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JMP r16' do
+				disasm.do(%w(ff e5)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JMP,
+						Orgasm::X86::Register.new(:bp))
+				}
+			end
+
+			# TODO: JMP m16 missing, don't know how to force gas to generate it
+		end
+
+		describe 'LAHF (Load Status Flags into AH Register)' do
+			it 'disassembles LAHF' do
+				disasm.do(%w(9f)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LAHF)
+				}
+			end
+
+		end
+
 	end
 end

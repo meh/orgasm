@@ -133,9 +133,9 @@ X86::Instructions[X86::DSL.new(16) {
 	IMUL [r8|m8]               => [0xF6, ?5],
 	     [r16|m16]             => [0xF7, ?5],
 	     [r16, r16|m16]        => [0x0F, 0xAF, r],
-	     [r16, r16|m16, imm8]  => [0x6B, r, ib],
-	     [r16, imm8]           => [0x6B, r, ib],
-	     [r16, r16|m16, imm16] => [0x69, r, iw]
+	     [r16, r16|m16, imm8]  => [0x6B, r, +ib],
+	     [r16, imm8]           => [0x6B, r, +ib],
+	     [r16, r16|m16, imm16] => [0x69, r, +iw]
 
 	# Input from Port
 	IN [al, imm8] => [0xE4, ib],
@@ -159,97 +159,108 @@ X86::Instructions[X86::DSL.new(16) {
 	IRET [ax].ignore => [0xCF]
 
 	# Jump if Condition Is Met
-	JA [rel8]  => [0x77, cb],
-	   [rel16] => [0x0F, 0x87, cw]
+	JA [rel8]  => [0x77, +cb],
+	   [rel16] => [0x0F, 0x87, +cw]
 
-	JAE [rel8]  => [0x73, cb],
-	    [rel16] => [0x0F, 0x83, cw]
+	JAE [rel8]  => [0x73, +cb],
+	    [rel16] => [0x0F, 0x83, +cw]
 
-	JB [rel8]  => [0x72, cb],
-	   [rel16] => [0x0F, 0x82, cw]
+	JB [rel8]  => [0x72, +cb],
+	   [rel16] => [0x0F, 0x82, +cw]
 
-	JBE [rel8]  => [0x76, cb],
-	    [rel16] => [0x0F, 0x86, cw]
+	JBE [rel8]  => [0x76, +cb],
+	    [rel16] => [0x0F, 0x86, +cw]
 
-	JC [rel8]  => [0x72, cb],
-	   [rel16] => [0x0F, 0x82, cw]
+	JC [rel8]  => [0x72, +cb],
+	   [rel16] => [0x0F, 0x82, +cw]
 
-	JCXZ [rel8] => [0xE3, cb]
+	JCXZ [rel8] => [0xE3, +cb]
 
-	JECXZ [rel8] => [0xE3, cb]
+	JECXZ [rel8] => [0xE3, +cb]
 
-	JE [rel8]  => [0x74, cb],
-	   [rel16] => [0x0F, 0x84, cw]
+	JE [rel8]  => [0x74, +cb],
+	   [rel16] => [0x0F, 0x84, +cw]
 
-	JG [rel8]  => [0x7F, cb],
-	   [rel16] => [0x0F, 0x8F, cw]
+	JG [rel8]  => [0x7F, +cb],
+	   [rel16] => [0x0F, 0x8F, +cw]
 
-	JGE [rel8]  => [0x7D, cb],
-	    [rel16] => [0x0F, 0x8D, cw]
+	JGE [rel8]  => [0x7D, +cb],
+	    [rel16] => [0x0F, 0x8D, +cw]
 
-	JL [rel8]  => [0x7C, cb],
-	   [rel16] => [0x0F, 0x8C, cw]
+	JL [rel8]  => [0x7C, +cb],
+	   [rel16] => [0x0F, 0x8C, +cw]
 
-	JLE [rel8]  => [0x7E, cb],
-	    [rel16] => [0x0F, 0x8E, cw]
+	JLE [rel8]  => [0x7E, +cb],
+	    [rel16] => [0x0F, 0x8E, +cw]
 
-	JNA [rel8]  => [0x76, cb],
-	    [rel16] => [0x0F, 0x86, cw]
+	JNA [rel8]  => [0x76, +cb],
+	    [rel16] => [0x0F, 0x86, +cw]
 
-	JNAE [rel8]  => [0x72, cb],
-	     [rel16] => [0x0F, 0x82, cw]
+	JNAE [rel8]  => [0x72, +cb],
+	     [rel16] => [0x0F, 0x82, +cw]
 
-	JNB [rel8]  => [0x73, cb],
-	    [rel16] => [0x0F, 0x83, cw]
+	JNB [rel8]  => [0x73, +cb],
+	    [rel16] => [0x0F, 0x83, +cw]
 
-	JNBE [rel8]  => [0x77, cb],
-	     [rel16] => [0x0F, 0x87, cw]
+	JNBE [rel8]  => [0x77, +cb],
+	     [rel16] => [0x0F, 0x87, +cw]
 
-	JNC [rel8]  => [0x73, cb],
-	    [rel16] => [0x0F, 0x83, cw]
+	JNC [rel8]  => [0x73, +cb],
+	    [rel16] => [0x0F, 0x83, +cw]
 
-	JNE [rel8]  => [0x75, cb],
-	    [rel16] => [0x0F, 0x85, cw]
+	JNE [rel8]  => [0x75, +cb],
+	    [rel16] => [0x0F, 0x85, +cw]
 
-	JNG [rel8]  => [0x7E, cb],
-	    [rel16] => [0x0F, 0x8E, cw]
+	JNG [rel8]  => [0x7E, +cb],
+	    [rel16] => [0x0F, 0x8E, +cw]
 
-	JNGE [rel8]  => [0x7C, cb],
-	     [rel16] => [0x0F, 0x8C, cw]
+	JNGE [rel8]  => [0x7C, +cb],
+	     [rel16] => [0x0F, 0x8C, +cw]
 
-	JNL [rel8]  => [0x7D, cb],
-	    [rel16] => [0x0F, 0x8D, cw]
+	JNL [rel8]  => [0x7D, +cb],
+	    [rel16] => [0x0F, 0x8D, +cw]
 
-	JNLE [rel8]  => [0x7F, cb],
-	     [rel16] => [0x0F, 0x8F, cw]
+	JNLE [rel8]  => [0x7F, +cb],
+	     [rel16] => [0x0F, 0x8F, +cw]
 
-	JNO [rel8]  => [0x71, cb],
-	    [rel16] => [0x0F, 0x81, cw]
+	JNO [rel8]  => [0x71, +cb],
+	    [rel16] => [0x0F, 0x81, +cw]
 
-	JNP [rel8]  => [0x7B, cb],
-	    [rel16] => [0x0F, 0x8B, cw]
+	JNP [rel8]  => [0x7B, +cb],
+	    [rel16] => [0x0F, 0x8B, +cw]
 
-	JNS [rel8]  => [0x79, cb],
-	    [rel16] => [0x0F, 0x89, cw]
+	JNS [rel8]  => [0x79, +cb],
+	    [rel16] => [0x0F, 0x89, +cw]
 
-	JNZ [rel8]  => [0x75, cb],
-	    [rel16] => [0x0F, 0x85, cw]
+	JNZ [rel8]  => [0x75, +cb],
+	    [rel16] => [0x0F, 0x85, +cw]
 
-	JO [rel8]  => [0x70, cb],
-	   [rel16] => [0x0F, 0x80, cw]
+	JO [rel8]  => [0x70, +cb],
+	   [rel16] => [0x0F, 0x80, +cw]
 
-	JP [rel8]  => [0x7A, cb],
-	   [rel16] => [0x0F, 0x8A, cw]
+	JP [rel8]  => [0x7A, +cb],
+	   [rel16] => [0x0F, 0x8A, +cw]
 
-	JPE [rel8]  => [0x7A, cb],
-	    [rel16] => [0x0F, 0x8A, cw]
+	JPE [rel8]  => [0x7A, +cb],
+	    [rel16] => [0x0F, 0x8A, +cw]
 
-	JPO [rel8]  => [0x7B, cb],
-	    [rel16] => [0x0F, 0x8B, cw]
+	JPO [rel8]  => [0x7B, +cb],
+	    [rel16] => [0x0F, 0x8B, +cw]
 
-	JS [rel8]  => [0x78, cb],
-	   [rel16] => [0x0F, 0x88, cw]
+	JS [rel8]  => [0x78, +cb],
+	   [rel16] => [0x0F, 0x88, +cw]
 
-	JZ [rel8]  => [0x74, cb],
-	   [rel16] => [0x0F, 0x84, cw]
+	JZ [rel8]  => [0x74, +cb],
+	   [rel16] => [0x0F, 0x84, +cw]
+
+	# Jump
+	JMP [rel8]    => [0xEB, +cb],
+	    [rel16]   => [0xE9, +cw],
+	    [r16|m16] => [0xFF, ?4]
+
+	# Load Status Flags into AH Register
+	LAHF [0x9F]
+
+	# Load Far Pointer
+#	LDS 
 }]

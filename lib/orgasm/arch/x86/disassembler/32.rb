@@ -23,7 +23,7 @@ on 0xC1 do
 end
 
 always do
-	prefixes ||= X86::Prefixes.new
+	prefixes ||= X86::Prefixes.new(options)
 
 	while prefix = X86::Prefixes.valid?(lookahead(1).to_byte)
 		prefixes << prefix
@@ -77,29 +77,13 @@ always do
 						opcodes.slice! 0 ... known.length
 
 						seek which.length do
-							modr = if opcodes.first.is_a?(String) || opcodes.first == :r
-								X86::ModR.new(read(1).to_byte)
-							end
+							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
+							sib  = X86::SIB.new(read(1).to_byte) if modr && modr.sib? && !(options[:mode] != :real && prefixes.size?)
 
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-							sib = if modr && modr.mod != '11'.bin && modr.rm == '100'.bin && !(options[:mode] != :real && prefixes.size?)
-								X86::SIB.new(read(1).to_byte)
-							end
-
-							displacement = if modr then read(
-								if prefixes.address? || (options[:mode] == :real && !prefixes.address?)
-									if    modr.mod == '00'.bin && modr.rm == '110'.bin then 16.bit
-									elsif modr.mod == '01'.bin                         then 8.bit
-									elsif modr.mod == '10'.bin                         then 16.bit
-									end
-								else
-									if    modr.mod == '00'.bin && modr.rm == '101'.bin then 32.bit
-									elsif modr.mod == '01'.bin                         then 8.bit
-									elsif modr.mod == '10'.bin                         then 32.bit
-									end
-								end
-							).to_bytes end
+							displacement = read(modr.displacement_size(prefixes.size)).to_bytes(
+								modr.displacement_options(prefixes.size)) if modr
 
 							immediates = 0.upto(1).map {
 								X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
@@ -121,8 +105,8 @@ always do
 										else
 											X86::Address.new(immediate.to_i, immediate.size, relative: true)
 										end
-									elsif obj =~ :m && modr.mod != '11'.bin
-										X86::Address.new(displacement, obj.bits)
+									elsif modr && !modr.register? && obj =~ :m
+										X86::Address.new(modr.effective_address(prefixes.size, displacement), obj.bits)
 									elsif obj =~ :r && opcodes.first == :r
 										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
 									elsif obj =~ :r
