@@ -64,4 +64,13 @@ X86::Instructions[X86::DSL.new(32) {
 	# Convert Word to Doubleword
 	CWDE [eax].ignore => [0x98]
 
+	# Input from Port to String
+	INSB [0x6C]
+
+	INSW [0x6D]
+
+	INSD [0x6D]
+
+	# Interrupt Return
+	IRETD [eax].ignore => [0xCF]
 }.to_hash]

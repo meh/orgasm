@@ -516,15 +516,13 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 		end
 
-		describe 'CMPSB (Compare String Operands)' do
+		describe 'CMPSB/CMPSW (Compare String Operands)' do
 			it 'disassembles CMPSB' do
 				disasm.do(%w(a6)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMPSB)
 				}
 			end
-		end
 
-		describe 'CMPSW (Compare String Operands)' do
 			it 'disassembles CMPSW' do
 				disasm.do(%w(a7)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CMPSW)
@@ -532,7 +530,7 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 		end
 
-		describe 'CWD (Convert Word t Doubleword)' do
+		describe 'CWD (Convert Word to Doubleword)' do
 			it 'disassembles CWD' do
 				disasm.do(%w(99)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:CWD)
@@ -800,6 +798,266 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 		end
 
+		describe 'INT/INT3/INTO (Call to Interrupt Procedure)' do
+			it 'disassembles INT imm8' do
+				disasm.do(%w(cd 80)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INT,
+						Orgasm::X86::Immediate.new(0x80, 8))
+				}
+			end
 
+			it 'disassembles INT3' do
+				disasm.do(%w(cc)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INT3)
+				}
+			end
+
+			it 'disassembles INTO' do
+				disasm.do(%w(ce)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:INTO)
+				}
+			end
+		end
+
+		describe 'IRET (Interrupt Return)' do
+			it 'disassembles IRET' do
+				disasm.do(%w(cf)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:IRET)
+				}
+			end
+		end
+
+		describe 'J** (Jump if Condition Is Met)' do
+			it 'disassembles JA/JNBE rel8' do
+				disasm.do(%w(77 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JA,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JA/JNBE rel16' do
+				disasm.do(%w(0f 87 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JA,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JAE/JNB/JNC rel8' do
+				disasm.do(%w(73 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JAE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JAE/JNB/JNC rel16' do
+				disasm.do(%w(0f 83 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JAE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JB/JC/JNAE rel8' do
+				disasm.do(%w(72 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JB,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JB/JC/JNAE rel16' do
+				disasm.do(%w(0f 82 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JB,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JBE/JNA rel8' do
+				disasm.do(%w(76 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JBE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JBE/JNA rel16' do
+				disasm.do(%w(0f 86 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JBE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JCXZ/JECXZ rel8' do
+				disasm.do(%w(e3 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JCXZ,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JE/JZ rel8' do
+				disasm.do(%w(74 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JE/JZ rel16' do
+				disasm.do(%w(0f 84 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JG/JNLE rel8' do
+				disasm.do(%w(7f 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JG,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JG/JNLE rel16' do
+				disasm.do(%w(0f 8f 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JG,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JGE/JNL rel8' do
+				disasm.do(%w(7d 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JGE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JGE/JNL rel16' do
+				disasm.do(%w(0f 8d 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JGE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JL/JNGE rel8' do
+				disasm.do(%w(7c 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JL,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JL/JNGE rel16' do
+				disasm.do(%w(0f 8c 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JL,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JLE/JNG rel8' do
+				disasm.do(%w(7e 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JLE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JLE/JNG rel16' do
+				disasm.do(%w(0f 8e 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JLE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JNE/JNZ rel8' do
+				disasm.do(%w(75 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNE,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JNE/JNZ rel16' do
+				disasm.do(%w(0f 85 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNE,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JNO rel8' do
+				disasm.do(%w(71 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNO,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JNO rel16' do
+				disasm.do(%w(0f 81 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNO,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JNP/JPO rel8' do
+				disasm.do(%w(7b 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNP,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JNP/JPO rel16' do
+				disasm.do(%w(0f 8b 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNP,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JNS rel8' do
+				disasm.do(%w(79 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNS,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JNS rel16' do
+				disasm.do(%w(0f 89 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JNS,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JO rel8' do
+				disasm.do(%w(70 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JO,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JO rel16' do
+				disasm.do(%w(0f 80 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JO,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JP/JPE rel8' do
+				disasm.do(%w(7a 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JP,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JP/JPE rel16' do
+				disasm.do(%w(0f 8a 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JP,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+
+			it 'disassembles JS rel8' do
+				disasm.do(%w(78 23)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JS,
+						Orgasm::X86::Address.new(0x23, 8, relative: true))
+				}
+			end
+
+			it 'disassembles JS rel16' do
+				disasm.do(%w(0f 88 13 03)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:JS,
+						Orgasm::X86::Address.new(0x313, 16, relative: true))
+				}
+			end
+		end
 	end
 end

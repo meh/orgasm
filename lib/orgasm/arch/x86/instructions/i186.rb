@@ -78,4 +78,70 @@ X86::Instructions[X86::DSL.new(32) {
 	# Increment by 1
 	INC [r32|m32] => [0xFF, ?0],
 	    [r32]     => [0x40, rd]
+
+	# Input from Port to String
+	INS [m8, dx]  => [0x6C],
+	    [m16, dx] => [0x6D],
+	    [m32, dx] => [0x6D]
+
+	# Jump if Condition Is Met
+	JA [rel32] => [0x0F, 0x87, cd]
+
+	JAE [rel32] => [0x0F, 0x83, cd]
+
+	JB [rel32] => [0x0F, 0x82, cd]
+
+	JBE [rel32] => [0x0F, 0x86, cd]
+
+	JC [rel32] => [0x0F, 0x82, cd]
+
+	JE [rel32] => [0x0F, 0x84, cd]
+
+	JG [rel32] => [0x0F, 0x8F, cd]
+
+	JGE [rel32] => [0x0F, 0x8D, cd]
+
+	JL [rel32] => [0x0F, 0x8C, cd]
+
+	JLE [rel32] => [0x0F, 0x8E, cd]
+
+	JNA [rel32] => [0x0F, 0x86, cd]
+
+	JNAE [rel32] => [0x0F, 0x82, cd]
+
+	JNB [rel32] => [0x0F, 0x83, cd]
+
+	JNBE [rel32] => [0x0F, 0x87, cd]
+
+	JNC [rel32] => [0x0F, 0x83, cd]
+
+	JNE [rel32] => [0x0F, 0x85, cd]
+
+	JNG [rel32] => [0x0F, 0x8E, cd]
+
+	JNGE [rel32] => [0x0F, 0x8C, cd]
+
+	JNL [rel32] => [0x0F, 0x8D, cd]
+
+	JNLE [rel32] => [0x0F, 0x8F, cd]
+
+	JNO [rel32] => [0x0F, 0x81, cd]
+
+	JNP [rel32] => [0x0F, 0x8B, cd]
+
+	JNS [rel32] => [0x0F, 0x89, cd]
+
+	JNZ [rel32] => [0x0F, 0x85, cd]
+
+	JO [rel32] => [0x0F, 0x80, cd]
+
+	JP [rel32] => [0x0F, 0x8A, cd]
+
+	JPE [rel32] => [0x0F, 0x8A, cd]
+
+	JPO [rel32] => [0x0F, 0x8B, cd]
+
+	JS [rel32] => [0x0F, 0x88, cd]
+
+	JZ [rel32] => [0x0F, 0x84, cd]
 }]
