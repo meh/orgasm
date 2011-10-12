@@ -20,13 +20,27 @@
 module Orgasm
 
 class Register < Base
-	attr_accessor :name, :size
+	attr_reader :name, :size
 
 	def initialize (name=nil, size=nil)
-		@name = name.to_s.downcase.to_sym if name
-		@size = size.to_i                 if size
+		self.name = name if name
+		self.size = size if size
 
 		super()
+	end
+
+	def name= (value)
+		@name = value.downcase.to_sym
+	end
+
+	def size= (value)
+		@size = value.to_i
+	end
+
+	alias bits size
+
+	def =~ (sym)
+		name == sym.downcase
 	end
 
 	def == (other)

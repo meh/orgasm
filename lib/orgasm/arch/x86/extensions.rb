@@ -76,10 +76,6 @@ class ModR
 		end
 	end
 
-	def displacement_options (bits)
-		{ signed: displacement_size(bits) == 8.bit }
-	end
-
 	def effective_address (bits, displacement=nil)
 		return displacement if bits == 16 && mod == '00'.bin && rm == '110'.bin ||
 			                     bits == 32 && mod == '00'.bin && rm == '101'.bin

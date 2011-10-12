@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby
+
 require 'rubygems'
 require 'orgasm'
 require 'orgasm/arch/x86'
@@ -563,9 +563,9 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 
 			it 'disassembles DEC m8' do
-				disasm.do(%w(fe 0e 00 20)).tap {|i|
+				disasm.do(%w(fe 4f fc)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
-						Orgasm::X86::Address.new(0x2000, 8))
+						Orgasm::X86::Address.new([:bx, -4], 8))
 				}
 			end
 
@@ -577,9 +577,9 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 
 			it 'disassembles DEC m16' do
-				disasm.do(%w(ff 0e 00 20)).tap {|i|
+				disasm.do(%w(ff 48 fc)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:DEC,
-						Orgasm::X86::Address.new(0x2000, 16))
+						Orgasm::X86::Address.new([:bx, :si, -4], 16))
 				}
 			end
 

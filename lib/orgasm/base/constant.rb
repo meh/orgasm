@@ -29,6 +29,8 @@ class Constant < Base
 		super()
 	end
 
+	alias bits size
+
 	def == (other)
 		value == other.value && (size.nil? || other.size.nil? || size == other.size)
 	end

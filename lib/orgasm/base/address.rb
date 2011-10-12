@@ -20,10 +20,16 @@
 module Orgasm
 
 class Address < Base
+	attr_reader :value
+
 	def initialize (value=nil)
-		@value = value.to_i
+		self.value = value if value
 
 		super()
+	end
+
+	def value= (value)
+		@value = value.to_i
 	end
 
 	def == (other)

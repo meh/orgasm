@@ -68,8 +68,7 @@ instructions.each {|name, description|
 						# return when the /n is wrong
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
-						displacement = read(modr.displacement_size(16)).to_bytes(
-							modr.displacement_options(16)) if modr
+						displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
 						immediates = 0.upto(1).map {
 							X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
