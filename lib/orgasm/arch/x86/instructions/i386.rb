@@ -67,10 +67,16 @@ X86::Instructions[X86::DSL.new(32) {
 	# Input from Port to String
 	INSB [0x6C]
 
-	INSW [0x6D]
+	INSW [ax].ignore => [0x6D]
 
-	INSD [0x6D]
+	INSD [eax].ignore => [0x6D]
 
 	# Interrupt Return
 	IRETD [eax].ignore => [0xCF]
+
+	# Load String
+	LODSD [eax].ignore => [0xAD]
+
+	# Load Full Pointer
+	# LSS
 }.to_hash]

@@ -152,4 +152,8 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# Load Effective Address
 	LEA [r32, m] => [0x8D, r]
+
+	# High Level Procedure Exit
+	LEAVE [ax].ignore  => [0xC9],
+	      [eax].ignore => [0xC9]
 }]

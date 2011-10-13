@@ -18,29 +18,7 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
-	# Adjust RPL Field of Segment Selector
-	ARPL [r16|m16, r16] => [0x63, r]
-
-	# Load Access Rights Byte
-	LAR [r16, r16|m16] => [0x0F, 0x02, r],
-	    [r32, r32|m32] => [0x0F, 0x02, r]
-
-	# Load Global Descriptor Table Register
-	LGDT [m16&32] => [0x0F, 0x01, ?2]
-
-	# Load Interrupt Descriptor Table Register
-	LIDT [m16&32] => [0x0F, 0x01, ?3]
-
-	# Load Local Descriptor Table Register
-	LDDT [r16|m16] => [0x0F, 0x00, ?2]
-
-	# Load Machine Status Word
-	LMSW [r16|m16] => [0x0F, 0x01, ?6]
-
-	# Load Segment Limit
-	LSL [r16, r16|m16] => [0x0F, 0x03, r],
-	    [r32, r32|m32] => [0x0F, 0x03, r]
-
-	# Load Task Register
-	LTR [r16|m16] => [0x0F, 0x00, ?3]
+	# Byte Mask Write
+	# MASKMOVQ [mm1, mm2] => [0x0F, 0xF7, r]
+	# FIXME: needs MMX™
 }]
