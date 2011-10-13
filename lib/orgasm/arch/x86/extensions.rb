@@ -88,7 +88,7 @@ class ModR
 	end
 
 	def inspect
-		"#<M: Mod=#{'%02b' % mod} Reg/Opcode=#{'%03b' % reg} R/M=#{'%03b' % rm}>"
+		"#<ModR: Mod=#{'%02b' % mod} Reg/Opcode=#{'%03b' % reg} R/M=#{'%03b' % rm}>"
 	end
 end
 

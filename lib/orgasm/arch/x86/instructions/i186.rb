@@ -149,4 +149,7 @@ X86::Instructions[X86::DSL.new(32) {
 	# TODO: the various *:(16|32), still don't know how to proceed with those
 	JMP [rel32]   => [0xE9, +cd],
 	    [r32|m32] => [0xFF, ?4]
+
+	# Load Effective Address
+	LEA [r32, m] => [0x8D, r]
 }]

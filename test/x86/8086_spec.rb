@@ -1091,8 +1091,15 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LAHF)
 				}
 			end
-
 		end
 
+		describe 'LEA (Load Effective Address)' do
+			it 'disassembles LEA r16, m16' do
+				disasm.do(%w(8d 1e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LEA,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
 	end
 end

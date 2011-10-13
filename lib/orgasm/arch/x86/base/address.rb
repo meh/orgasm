@@ -20,9 +20,22 @@
 module Orgasm; module X86
 
 class Address < Orgasm::Address
-	attr_accessor :size, :base
+	attr_reader :size, :base, :options
 
 	def initialize (value=nil, size=32, options={})
+		self.value = value if value
+		self.size  = size  if size
+
+		@options = options
+
+		super()
+	end
+
+	def size= (value)
+		@size = value.to_i
+	end
+
+	def value= (value)
 		if value.respond_to? :to_i
 			super(value)
 		else
@@ -30,17 +43,12 @@ class Address < Orgasm::Address
 
 			if @base.last.respond_to? :to_i
 				super(@base.pop)
-			else
-				super()
 			end
 
 			@base.map! {|p|
 				X86::Register.new(p)
 			}
 		end
-
-		@size    = size
-		@options = options
 	end
 
 	alias bits size
@@ -63,7 +71,7 @@ class Address < Orgasm::Address
 
 	def inspect
 		if offset?
-			"#<Address: [#{@base.map(&:name).join '+'}#{'%+d' % to_i}], #{size} bits>"
+			"#<Address: [#{base.map(&:name).join '+'}#{'%+d' % to_i if to_i}], #{size} bits>"
 		elsif relative?
 			"#<Address: #{'%+d' % to_i}, #{size} bits>"
 		else

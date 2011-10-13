@@ -262,5 +262,9 @@ X86::Instructions[X86::DSL.new(16) {
 	LAHF [0x9F]
 
 	# Load Far Pointer
-#	LDS 
+	# TODO: understand what the fuck is m16:16
+	# LDS 
+
+	# Load Effective Address
+	LEA [r16, m16] => [0x8D, r]
 }]
