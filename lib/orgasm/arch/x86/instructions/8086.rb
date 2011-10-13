@@ -261,10 +261,31 @@ X86::Instructions[X86::DSL.new(16) {
 	# Load Status Flags into AH Register
 	LAHF [0x9F]
 
-	# Load Far Pointer
-	# TODO: understand what the fuck is m16:16
-	# LDS 
+	# Load pointer using DS
+	LDS [r16, m16] => [0xC5, r]
 
 	# Load Effective Address
 	LEA [r16, m16] => [0x8D, r]
+
+	# Load ES with pointer
+	LES [r16, m16] => [0xC4, r]
+
+	# Assert LOCK# Signal Prefix
+	LOCK [0xF0]
+
+	# Load String
+	LODSB [0xAC]
+
+	LODSW [ax].ignore => [0xAD]
+
+	# Loop According to ECX Counter
+	LOOP [rel8] => [0xE2, +cb]
+
+	LOOPE [rel8] => [0xE1, +cb]
+
+	LOOPZ [rel8] => [0xE1, +cb]
+
+	LOOPNE [rel8] => [0xE0, +cb]
+
+	LOOPNZ [rel8] => [0xE0, +cb]
 }]

@@ -1093,11 +1093,74 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 			end
 		end
 
+		describe 'LDS (# Load pointer using DS)' do
+			it 'disassembles LDS r16, m16' do
+				disasm.do(%w(c5 16 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LDS,
+						Orgasm::X86::Register.new(:dx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
 		describe 'LEA (Load Effective Address)' do
 			it 'disassembles LEA r16, m16' do
 				disasm.do(%w(8d 1e 00 20)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LEA,
 						Orgasm::X86::Register.new(:bx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'LES (Load ES with pointer)' do
+			it 'disassembles LES r16, m16' do
+				disasm.do(%w(c4 1e 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LES,
+						Orgasm::X86::Register.new(:bx), Orgasm::X86::Address.new(0x2000, 16))
+				}
+			end
+		end
+
+		describe 'LOCK (Assert LOCK# Signal Prefix)' do
+			it 'disassembles LOCK' do
+				disasm.do(%w(f0)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LOCK)
+				}
+			end
+		end
+
+		describe 'LODS (Load String)' do
+			it 'disassembles LODSB' do
+				disasm.do(%w(ac)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LODSB)
+				}
+			end
+
+			it 'disassembles LODSW' do
+				disasm.do(%w(ad)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LODSW)
+				}
+			end
+		end
+
+		describe 'LOOP* (Loop According to ECX Counter)' do
+			it 'disassembles LOOP rel8' do
+				disasm.do(%w(e2 fe)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LOOP,
+						Orgasm::X86::Address.new(-2, 8, relative: true))
+				}
+			end
+
+			it 'disassembles LOOPE/LOOPZ rel8' do
+				disasm.do(%w(e1 fe)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LOOPE,
+						Orgasm::X86::Address.new(-2, 8, relative: true))
+				}
+			end
+
+			it 'disassembles LOOPNE/LOOPNZ rel8' do
+				disasm.do(%w(e0 fe)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:LOOPNE,
+						Orgasm::X86::Address.new(-2, 8, relative: true))
 				}
 			end
 		end
