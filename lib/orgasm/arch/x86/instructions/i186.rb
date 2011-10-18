@@ -156,4 +156,12 @@ X86::Instructions[X86::DSL.new(32) {
 	# High Level Procedure Exit
 	LEAVE [ax].ignore  => [0xC9],
 	      [eax].ignore => [0xC9]
+
+	# Move
+	MOV [r32|m32, r32]     => [0x89, r],
+	    [r32,     r32|m32] => [0x8B, r],
+	    [eax,     moffs32] => [0xA1, cd],
+	    [moffs32, eax]     => [0xA3, cd],
+	    [r32,     imm32]   => [0xB8, rd],
+	    [r32|m32, imm32]   => [0xC7, ?0]
 }]

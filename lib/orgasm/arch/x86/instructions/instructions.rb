@@ -27,6 +27,8 @@ class Instructions < Hash
 		64 => %w(rax rcx rdx rbx rsp rbp rsi rdi).to_syms
 	}
 
+	SegmentRegisters = %w(es cs ss ds fs gs).to_syms
+
 	RegisterCodes = {
 		1 => :rb,
 		2 => :rw,
@@ -46,6 +48,10 @@ class Instructions < Hash
 		else
 			Registers[type][value]
 		end
+	end
+
+	def self.segment_register (value)
+		SegmentRegisters[value]
 	end
 
 	def self.register_code? (value)

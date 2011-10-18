@@ -75,5 +75,16 @@ X87::Instructions[X87::DSL.new {
 
 	# Load Streaming SIMD Extension Control/Status
 	LDMXCSR [m32] => [0x0F, 0xAE, ?2]
- 
+
+	# Packed Single-FP Maximum
+	MAXPS [xmm1, xmm2|m128] => [0x0F, 0x5F, r]
+
+	# Scalar Single-FP Maximum
+	MAXSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5F, r]
+
+	# Packed Single-FP Minimum
+	MINPS [xmm1, xmm2|m128] => [0x0F, 0x5D, r]
+
+	# Scalar Single-FP Minimum
+	MINSS [xmm1, xmm2|m32] => [0xF3, 0x0F, 0x5D, r]
 }]

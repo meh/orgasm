@@ -45,6 +45,12 @@ class DSL
 			:rw, # of the plus sign to form a single opcode byte.
 			:rd,
 
+			:moffs8,  # a simple memory variable (memory offset) of type byte,
+			:moffs16, # word, or doubleword used by some variants of the MOV instruction. The actual address is
+			          # given by a simple offset relative to the segment base. No ModR/M byte is used in the
+			          # instruction. The number shown with moffs indicates its size, which is determined by the
+			          # address-size attribute of the instruction.
+
 			:rel8, # a relative address in the range from 128 byes before the end of the instruction to
 			       # 127 bytes after the end of the instruction
 
@@ -84,7 +90,8 @@ class DSL
 
 			# r16|m16 # a word general-purpose register or memoy operand used for instructions whose operan-size attribute
 			          # is 16 bits. The word gneral-purpose regsters are: AX, bx, CX, DX, SP, BP, SI and DI.
-			          # The contents of memory are found at the address provided by the effective address computation.      
+
+			:Sreg, :sreg # a segment register
 		],
 
 		32 => [
@@ -98,6 +105,12 @@ class DSL
 			:id, # 4 bytes
 			     # immediate operand to the instruction that follows the opcode, ModR/M bytes or
 			     # scale-indexing bytes. The opcode determines if the operand is a signed value.
+
+			:moffs32, # a simple memory variable (memory offset) of type byte,
+			          # word, or doubleword used by some variants of the MOV instruction. The actual address is
+			          # given by a simple offset relative to the segment base. No ModR/M byte is used in the
+			          # instruction. The number shown with moffs indicates its size, which is determined by the
+			          # address-size attribute of the instruction.
 
 			:rel32, # a relative address withn the same code segment as the instruction assembled. Applies to
 			        # instructions with an operand-size attribute of 32 bits

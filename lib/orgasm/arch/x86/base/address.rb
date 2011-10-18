@@ -58,6 +58,10 @@ class Address < Orgasm::Address
 	end
 
 	def offset?
+		!!@options[:offset]
+	end
+
+	def base?
 		!!@base
 	end
 
@@ -70,10 +74,10 @@ class Address < Orgasm::Address
 	end
 
 	def inspect
-		if offset?
-			"#<Address: [#{base.map(&:name).join '+'}#{'%+d' % to_i if to_i}], #{size} bits>"
-		elsif relative?
+		if relative? || offset?
 			"#<Address: #{'%+d' % to_i}, #{size} bits>"
+		elsif base?
+			"#<Address: [#{base.map(&:name).join '+'}#{'%+d' % to_i if to_i}], #{size} bits>"
 		else
 			"#<Address: #{'0x%x' % to_i}, #{size} bits>"
 		end

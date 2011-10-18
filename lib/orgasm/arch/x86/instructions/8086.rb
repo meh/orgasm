@@ -288,4 +288,20 @@ X86::Instructions[X86::DSL.new(16) {
 	LOOPNE [rel8] => [0xE0, +cb]
 
 	LOOPNZ [rel8] => [0xE0, +cb]
+
+	# Move
+	MOV [r8|m8,   r8]      => [0x88, r],
+	    [r16|m16, r16]     => [0x89, r],
+	    [r8,      r8|m8]   => [0x8A, r],
+	    [r16,     r16|m16] => [0x8B, r],
+	    [r16|m16, sreg]    => [0x8C, r],
+	    [sreg,    r16|m16] => [0x8E, r],
+	    [al,      moffs8]  => [0xA0, cb],
+	    [ax,      moffs16] => [0xA1, cw],
+	    [moffs8,  al]      => [0xA2, cb],
+	    [moffs16, ax]      => [0xA3, cw],
+	    [r8,      imm8]    => [0xB0, rb, ib],
+	    [r16,     imm16]   => [0xB8, rw, iw],
+	    [r8|m8,   imm8]    => [0xC6, ?0, ib],
+	    [r16|m16, imm16]   => [0xC7, ?0, iw]
 }]

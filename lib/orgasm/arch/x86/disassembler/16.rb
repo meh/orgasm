@@ -82,13 +82,15 @@ instructions.each {|name, description|
 
 								i.send "#{type}=", if X86::Instructions.register?(obj)
 									X86::Register.new(obj)
-								elsif obj =~ :imm || obj =~ :rel
+								elsif obj =~ :imm || obj =~ :rel || obj =~ :moffs
 									immediate = immediates.shift
 
 									if obj =~ :imm
 										X86::Immediate.new(immediate.to_i, immediate.size)
-									else
+									elsif obj =~ :rel
 										X86::Address.new(immediate.to_i, immediate.size, relative: true)
+									elsif obj =~ :moffs
+										X86::Address.new(immediate.to_i, immediate.size, offset: true)
 									end
 								elsif modr && !modr.register? && obj =~ :m
 									X86::Address.new(modr.effective_address(16, displacement), obj.bits)

@@ -1164,5 +1164,35 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 				}
 			end
 		end
+
+		describe 'MOV (Move)' do
+			it 'disassebles MOV r8, r8' do
+				disasm.do(%w(88 ce)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:MOV,
+						Orgasm::X86::Register.new(:dh), Orgasm::X86::Register.new(:cl))
+				}
+			end
+
+			it 'disassebles MOV m8, r8' do
+				disasm.do(%w(88 36 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:MOV,
+						Orgasm::X86::Address.new(0x2000, 8), Orgasm::X86::Register.new(:dh))
+				}
+			end
+
+			it 'disassebles MOV r16, r16' do
+				disasm.do(%w(89 c1)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:MOV,
+						Orgasm::X86::Register.new(:cx), Orgasm::X86::Register.new(:ax))
+				}
+			end
+
+			it 'disassebles MOV m16, r16' do
+				disasm.do(%w(89 36 00 20)).tap {|i|
+					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:MOV,
+						Orgasm::X86::Address.new(0x2000, 16), Orgasm::X86::Register.new(:si))
+				}
+			end
+		end
 	end
 end
