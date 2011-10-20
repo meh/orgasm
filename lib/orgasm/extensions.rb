@@ -46,6 +46,12 @@ class Array
 		}
 	end
 
+	def to_opcodes
+		map {|b|
+			[b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil)
+		}.join ''
+	end
+
 	def ignore
 		@ignore = true
 		self

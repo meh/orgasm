@@ -23,15 +23,15 @@ instructions.registers.each {|register|
 	end
 }
 
-generator.for I386::Instruction do |name, &block|
+generator.for X86::Instruction do |name, &block|
 	I386::Instruction.new(name, &block)
 end
 
-generator.for I386::Register do |name|
+generator.for X86::Register do |name|
 	I386::Register.new(name)
 end
 
-generator.for I386::Address do |data|
+generator.for X86::Address do |data|
 	if data.is_a?(Array)
 		Address.new(data)
 	else
@@ -39,6 +39,6 @@ generator.for I386::Address do |data|
 	end
 end
 
-generator.for I386::Immediate do |data|
+generator.for X86::Immediate do |data|
 	I386::Immediate.new(data, 32)
 end

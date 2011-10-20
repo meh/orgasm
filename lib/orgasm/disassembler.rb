@@ -64,13 +64,8 @@ class Disassembler < Piece
 			end
 		}
 
-		if io.is_a?(Array)
-			io = io.map { |b| [b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil) }.join ''
-		end
-
-		if io.is_a?(String)
-			io = StringIO.new(io)
-		end
+		io = io.to_opcodes    if io.is_a?(Array)
+		io = StringIO.new(io) if io.is_a?(String)
 
 		options[:extensions].clone.each {|name|
 			unless arch.extensions.all? { |extension| extension.name == extension && extension.disassembler }
