@@ -28,12 +28,9 @@ class DSL < BasicObject
 		@generator    = generator
 		@instructions = []
 
-		@instructions.tap {
-			instance_eval &@block
+		instance_eval &@block
 
-			remove_instance_variable :@generator
-			remove_instance_variable :@instructions
-		}
+		@instructions
 	end
 
 	def method_missing (id, *args, &block)

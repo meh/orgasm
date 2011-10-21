@@ -17,12 +17,28 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-instructions.registers.each {|register|
-	symbols << register
+X86::Instructions::Registers.each {|bits, regs|
+	if bits <= 16
+		symbols.push(*regs)
+	else
+		regs.each {|reg|
+			define_singleton_method reg do
+				raise NoMethodError, "#{reg} register not supported on 16 bit"
+			end
+		}
+	end
 }
 
 instruction do |name, destination = nil, source = nil, source2 = nil|
-  raise ArgumentError, "#{name} instruction not found" unless arch.intructions[name.upcase]
+	raise NoMethodError, "#{name} instruction not found" unless instructions.has_key?(name.upcase)
 
-	X86::Instruction.new(name, destination, source, source2)
+	data = { destination: destination, source: source, source2: source2 }
+	
+	data.each {|type, obj|
+		if obj.is_a?(Symbol)
+			data[type] = X86::Register.new(obj)
+		end
+	}
+
+	X86::Instruction.new(name, data[:destination], data[:source], data[:source2])
 end

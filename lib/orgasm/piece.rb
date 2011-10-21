@@ -37,12 +37,13 @@ class Piece
 		}
 	end
 
+	def respond_to? (what)
+		@arch.respond_to?(what) || super
+	end
+
 	def method_missing (id, *args, &block)
-		if @arch.respond_to? id
-			@arch.__send__ id, *args, &block
-		else
-			super
-		end
+		return @arch.__send__ id, *args, &block if @arch.respond_to? id
+		super
 	end
 end
 
