@@ -18,27 +18,11 @@
 #++
 
 instructions.registers.each {|register|
-	define_singleton_method register do
-		register
-	end
+	symbols << register
 }
 
-generator.for X86::Instruction do |name, &block|
-	I386::Instruction.new(name, &block)
-end
+instruction do |name, destination = nil, source = nil, source2 = nil|
+  raise ArgumentError, "#{name} instruction not found" unless arch.intructions[name.upcase]
 
-generator.for X86::Register do |name|
-	I386::Register.new(name)
-end
-
-generator.for X86::Address do |data|
-	if data.is_a?(Array)
-		Address.new(data)
-	else
-		Address.new(data)
-	end
-end
-
-generator.for X86::Immediate do |data|
-	I386::Immediate.new(data, 32)
+	X86::Instruction.new(name, destination, source, source2)
 end

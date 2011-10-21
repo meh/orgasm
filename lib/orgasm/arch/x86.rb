@@ -26,7 +26,8 @@ Orgasm::Architecture.is 'x86' do
 		instructions 'orgasm/arch/x86/instructions/8086'
 
 		disassembler 'orgasm/arch/x86/disassembler/16'
-		generator 'orgasm/arch/x86/generator'
+
+		generator 'orgasm/arch/x86/generator/16'
 	end
 
 	family 'i186' do

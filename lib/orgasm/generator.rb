@@ -22,8 +22,10 @@ require 'orgasm/generator/dsl'
 module Orgasm
 
 class Generator < Piece
+	attr_reader :symbols
+
 	def initialize (*)
-		@for = {}
+		@symbols = []
 
 		super
 	end
@@ -32,13 +34,11 @@ class Generator < Piece
 		DSL.new(&block).execute(self)
 	end; alias do generate
 
-	def for (klass, &block)
+	def instruction (*args, &block)
 		if block
-			@for[klass] = block
+			@instruction = block
 		else
-			@for[klass] or @for.find {|(what, block)|
-				what.ancestors.member?(klass)
-			}.last
+			@instruction.(*args)
 		end
 	end
 end

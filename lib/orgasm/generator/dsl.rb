@@ -28,32 +28,22 @@ class DSL < BasicObject
 		@generator    = generator
 		@instructions = []
 
-		instance_eval &@block
+		@instructions.tap {
+			instance_eval &@block
 
-		@instructions
+			remove_instance_variable :@generator
+			remove_instance_variable :@instructions
+		}
 	end
 
 	def method_missing (id, *args, &block)
-		if @generator.respond_to? id
+		if @generator.symbols.member?(id)
+			return id
+		elsif @generator.respond_to?(id)
 			return @generator.__send__ id, *args, &block
 		end
 
-		@instructions << if @generator.respond_to? :callback
-			@generator.callback id, *args, &block
-		else
-			@generator.for(::Orgasm::Instruction).call(id) {|i|
-				args.each {|arg|
-					i.parameters << case arg
-						when ::Symbol  then @generator.for(::Orgasm::Register).call(arg)
-						when ::Array   then @generator.for(::Orgasm::Address).call(arg)
-						when ::Integer then
-							if arg.frozen? then @generator.for(::Orgasm::Constant).call(arg)
-							else                @generator.for(::Orgasm::Address).call(arg)
-							end
-					end
-				}
-			}
-		end
+		@instructions << @generator.instruction(id, *args)
 	end
 end
 
