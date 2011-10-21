@@ -58,7 +58,7 @@ Example:
 ```ruby
 >> require 'orgasm'; require 'orgasm/arch/x86'
 true
->>Orgasm::Architecture.x86[8086].generator.do { add al, ax }
+>> Orgasm::Architecture.x86[8086].generator.do { add al, ax }
 [
     [0] #<Instruction(add): #<Register: al, 8 bits>, #<Register: ax, 16 bits>>
 ]

@@ -17,8 +17,6 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/generator/dsl'
-
 module Orgasm
 
 class Generator < Piece
@@ -27,16 +25,27 @@ class Generator < Piece
 	end
 
 	def generate (&block)
-		DSL.new(&block).execute(self)
+		DSL.new(&block).execute(*to_a)
 	end; alias do generate
 
 	def instruction (*args, &block)
 		if block
 			@instruction = block
 		else
-			@instruction.(*args)
+			@instruction.(*args) if @instruction
 		end
+	end
+
+	def to_a
+		[self]
+	end
+
+	def | (value)
+		Pipeline.new(self, value)
 	end
 end
 
 end
+
+require 'orgasm/generator/dsl'
+require 'orgasm/generator/pipeline'

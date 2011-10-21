@@ -19,43 +19,18 @@
 
 module Orgasm; class Generator < Piece
 
-class DSL < BasicObject
-	def initialize (&block)
-		@block = block
+class Pipeline < Generator
+	attr_reader :first, :second
+
+	def initialize (first, second)
+		super(first.arch)
+
+		@first  = first
+		@second = second
 	end
 
-	def execute (*generators)
-		@generators   = generators.flatten.compact
-		@instructions = []
-
-		instance_eval &@block
-
-		@instructions
-	end
-
-	def method_missing (id, *args, &block)
-		exception = nil
-
-		@generators.each {|gen|
-			return gen.__send__ id, *args, &block if gen.respond_to?(id)
-
-			begin
-				gen.instruction(id, *args).tap {|i|
-					raise ::NoMethodError if i.nil?
-
-					@instructions << i
-					exception = nil
-				}
-
-				break
-			rescue ::NoMethodError => e
-				exception = e
-
-				next
-			end
-		}
-
-		::Kernel::raise exception if exception
+	def to_a
+		(@first.to_a + @second.to_a).flatten.compact
 	end
 end
 
