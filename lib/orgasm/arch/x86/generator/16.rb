@@ -19,7 +19,11 @@
 
 X86::Instructions::Registers.each {|bits, regs|
 	if bits <= 16
-		symbols.push(*regs)
+		regs.each {|reg|
+			define_singleton_method do
+				reg
+			end
+		}
 	else
 		regs.each {|reg|
 			define_singleton_method reg do

@@ -1,7 +1,18 @@
 Orgasm - a Ruby (dis)?assembler library (NOT a (dis)?assembler FOR Ruby, a (dis)?assembler IN Ruby)
 ===================================================================================================
+Orgasm aims to be a library to easily work with real and virtual architectures.
 
-Well, tonight I worked a bit on this and it's coming out pretty cool, here's a partial usage
+It's designed in three different parts that do different things.
+
+Disassembler
+------------
+The disassembler takes in a stream of opcodes (could be an array with hex values or simply a string extracted from
+a binary) and gives back an array of Instruction objects.
+
+A disassembler can be piped with another to get back a stream of instructions from both, for instance x86 and x87 are
+two different architectures and to get the stream of a normal x86 binary you have to pipe both families of architectures.
+
+Example:
 
 ```ruby
 >> require 'orgasm'; require 'orgasm/arch/x87'
@@ -34,9 +45,25 @@ true
 ]
 ```
 
-The disassembler returns Base objects that then are styled by various styles, so the data
-that goes around is always the same.
+Generator
+---------
+The generator implements a DSL to generate in a readable way the stream of Instruction objects.
 
-The assembler will create binary stuff directly from those objects, so if everything's right
-passing a shellcode in to the disassembler and passing the result to the assembler should give
-out the same string.
+It follows the Intel syntax as close as possible.
+
+The aim of the generator is to make easy the assembling part.
+
+Example:
+
+```ruby
+>> require 'orgasm'; require 'orgasm/arch/x86'
+true
+>>Orgasm::Architecture.x86[8086].generator.do { add al, ax }
+[
+    [0] #<Instruction(add): #<Register: al, 8 bits>, #<Register: ax, 16 bits>>
+]
+```
+
+Assembler
+---------
+The assembler takes in an array of Instruction objects and converts them to a stream of opcodes.

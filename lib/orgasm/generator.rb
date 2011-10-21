@@ -22,11 +22,7 @@ require 'orgasm/generator/dsl'
 module Orgasm
 
 class Generator < Piece
-	attr_reader :symbols
-
 	def initialize (*)
-		@symbols = []
-
 		super
 	end
 

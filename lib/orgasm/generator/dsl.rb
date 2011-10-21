@@ -34,11 +34,7 @@ class DSL < BasicObject
 	end
 
 	def method_missing (id, *args, &block)
-		if @generator.symbols.member?(id)
-			return id
-		elsif @generator.respond_to?(id)
-			return @generator.__send__ id, *args, &block
-		end
+		return @generator.__send__ id, *args, &block if @generator.respond_to?(id)
 
 		@instructions << @generator.instruction(id, *args)
 	end
