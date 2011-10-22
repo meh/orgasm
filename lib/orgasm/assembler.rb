@@ -71,16 +71,19 @@ class Assembler < Piece
 		instructions.each {|instruction|
 			original = result.length
 
-			([self] + @inherits).each {|asm|
-				asm.to_hash.each {|match, block|
-					if match.(instruction) && tmp = block.(instruction, self)
-						result << tmp
-						break
-					end
-				}
-			}
+			unless catch :skip do
+				([self] + @inherits).each {|asm|
+					asm.to_hash.each {|match, block|
+						if match.(instruction) && tmp = block.(instruction, self)
+							result << tmp
 
-			if original == result.length
+							break
+						end
+					}
+				}
+				
+				nil
+			end or original != result.length
 				raise NoMethodError, "#{instruction.inspect} couldn't be assembled"
 			end
 		}
@@ -90,6 +93,10 @@ class Assembler < Piece
 
 	def on (matcher, &block)
 		@on[matcher] = block
+	end
+
+	def skip
+		throw :skip, true
 	end
 
 	def to_hash
