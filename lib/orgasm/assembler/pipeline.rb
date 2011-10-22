@@ -29,8 +29,8 @@ class Pipeline < Assembler
 		@second = second
 	end
 
-	def to_hash
-		@second.to_hash.merge(@first)
+	def to_a
+		@first.to_a + @second.to_a
 	end
 end
 

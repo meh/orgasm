@@ -30,7 +30,7 @@ class String
 	end; alias to_byte to_bytes
 
 	def bin
-		to_i(2)
+		(self.start_with?('0y', '0Y') ? self[2 .. -1] : self).to_i(2)
 	end
 end
 

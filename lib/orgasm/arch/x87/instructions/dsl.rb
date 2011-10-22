@@ -23,7 +23,7 @@ module Orgasm; module X87
 
 class DSL
 	Specials = [
-		:ax,
+		:ah, :ax, :eax,
 		:xmm, :xmm0, :xmm1, :xmm2, :xmm3, :xmm4, :xmm5, :xmm6, :xmm7,
 
 		# ?n # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
@@ -86,14 +86,14 @@ class DSL
 
 	Specials.each {|special|
 		define_method special do
-		  Special.new(special)
+			Special.new(special)
 		end
 	}
 
 	def method_missing (id, *args)
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
 
-		@instructions[id.upcase].insert(-1, *args)
+		@instructions[id.to_sym.upcase].push(*args)
 	end
 
 	def to_hash

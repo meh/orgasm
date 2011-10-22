@@ -64,6 +64,10 @@ class Instructions < Hash
 		Registers[type][value]
 	end
 
+	def [] (name)
+		super(name.to_sym.upcase)
+	end
+
 	def merge! (other)
 		other.each {|name, value|
 			if has_key?(name)

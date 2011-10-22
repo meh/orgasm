@@ -158,7 +158,7 @@ class DSL
 	def method_missing (id, *args)
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
 
-		@instructions[id.upcase].insert(-1, *args)
+		@instructions[id.to_sym.upcase].insert(-1, *args)
 	end
 
 	def to_hash

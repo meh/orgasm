@@ -21,7 +21,7 @@ module Orgasm
 
 class Assembler < Piece
 	def initialize (*)
-		@on      = {}
+		@matchers = []
 		@inherits = []
 		@supports = []
 
@@ -72,9 +72,9 @@ class Assembler < Piece
 			original = result.length
 
 			unless catch :skip do
-				([self] + @inherits).each {|asm|
-					asm.to_hash.each {|match, block|
-						if match.(instruction) && tmp = block.(instruction, self)
+				([self] + @inherits).each {|assembler|
+					assembler.to_a.each {|matcher|
+						if matcher.match.(instruction) && (tmp = instance_exec(instruction, &matcher.block)).is_a?(String)
 							result << tmp
 
 							break
@@ -91,16 +91,28 @@ class Assembler < Piece
 		result
 	end; alias do assemble
 
-	def on (matcher, &block)
-		@on[matcher] = block
+	def instruction (&block)
+		on -> i { i.is_a?(Instruction) }, &block
+	end
+
+	def on (match, &block)
+		@matchers << Struct.new(:match, :block).new(match, block)
 	end
 
 	def skip
 		throw :skip, true
 	end
 
-	def to_hash
-		@on
+	def result? (&block)
+		catch :result, &block
+	end
+
+	def result! (what)
+		throw :result, what
+	end
+
+	def to_a
+		@matchers
 	end
 
 	def | (value)

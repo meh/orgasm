@@ -33,20 +33,35 @@ class ModR
 		}
 	}
 
-	def initialize (value)
-		@value = value.to_i
+	def initialize (value = 0)
+		@value = (value.is_a?(String) ? value.bin : value.to_i)
 	end
 
 	def mod
 		(to_i & '11000000'.bin) >> 6
 	end
 
+	def mod= (value)
+		@value &= '00111111'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i) << 6
+	end
+
 	def reg
 		(to_i & '00111000'.bin) >> 3
 	end; alias opcode reg
 
+	def reg= (value)
+		@value &= '11000111'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i) << 3
+	end; alias opcode= reg=
+
 	def rm
 		(to_i & '00000111'.bin)
+	end
+
+	def rm= (value)
+		@value &= '11111000'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i)
 	end
 
 	def register?
@@ -93,20 +108,35 @@ class ModR
 end
 
 class SIB
-	def initialize (value)
-		@value = value.to_i
+	def initialize (value = 0)
+		@value = (value.is_a?(String) ? value.bin : value.to_i)
 	end
 
 	def scale
 		(to_i & '11000000'.bin) >> 6
 	end
 
+	def scale= (value)
+		@value &= '00111111'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i) << 6
+	end
+
 	def index
 		(to_i & '00111000'.bin) >> 3
 	end
 
+	def index= (value)
+		@value &= '11000111'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i) << 3
+	end
+
 	def base
 		(to_i & '00000111'.bin)
+	end
+
+	def base= (value)
+		@value &= '11111000'.bin
+		@value |= (value.is_a?(String) ? value.bin : value.to_i)
 	end
 
 	def to_i

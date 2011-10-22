@@ -34,7 +34,7 @@ X86::Instructions::Registers.each {|bits, regs|
 }
 
 instruction do |name, destination = nil, source = nil, source2 = nil|
-	raise NoMethodError, "#{name} instruction not found" unless instructions.has_key?(name.upcase)
+	raise NoMethodError, "#{name} instruction not found" unless instructions[name]
 
 	data = { destination: destination, source: source, source2: source2 }
 	
