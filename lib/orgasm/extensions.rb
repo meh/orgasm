@@ -18,6 +18,7 @@
 #++
 
 require 'forwardable'
+require 'stringio'
 require 'refining'
 require 'memoized'
 require 'packable'

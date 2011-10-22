@@ -35,7 +35,7 @@ true
 >> (Orgasm::Architecture.x86[:i386].disassembler).do(%w(c1 66 83 00 36 d9 f0))
 [
     [0] #<Instruction(add): #<Register: ax, 16 bits>, #<Immediate: 0x36, 8 bits>>,
-    [1] #<Unknown(2): D9 F0> 
+    [1] #<Unknown(2): D9 F0>
 ]
 ]
 >> (Orgasm::Architecture.x87[8087].disassembler).do(%w(c1 66 83 00 36 d9 f0))

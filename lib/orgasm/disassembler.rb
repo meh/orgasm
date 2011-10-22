@@ -17,8 +17,6 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'stringio'
-
 module Orgasm
 
 class Disassembler < Piece
@@ -57,7 +55,7 @@ class Disassembler < Piece
 		}.merge(options)
 
 		options.each_key {|name|
-			next if [:extensions, :exceptions, :limit, :unknown, :inherited].member?(name)
+			next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
 
 			unless supports?(name)
 				raise ArgumentError, "#{name} is an unsupported option"

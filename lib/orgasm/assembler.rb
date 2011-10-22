@@ -21,12 +21,86 @@ module Orgasm
 
 class Assembler < Piece
 	def initialize (*)
+		@on      = {}
+		@inherits = []
+		@supports = []
+
 		super
 	end
 
-	def assemble (instructions)
+	def supports (name)
+		@supports << name
+		@supports.uniq!
+		@supports
+	end
 
+	def supports? (name)
+		@supports.member?(name)
+	end
+
+	def inherit (*args)
+		@inherits << args
+
+		@inherits.flatten!
+		@inherits.compact!
+
+		@inherits
+	end
+
+	def assemble (instructions, options={})
+		options = {
+			extensions: []
+		}.merge(options)
+
+		options.each_key {|name|
+			next if %w(extensions).to_syms.member?(name)
+
+			unless supports?(name)
+				raise ArgumentError, "#{name} is an unsupported option"
+			end
+		}
+
+		options[:extensions].clone.each {|name|
+			unless arch.extensions.all? { |extension| extension.name == extension && extension.assembler }
+				raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+			end
+		}
+
+		result = ''
+
+		instructions.each {|instruction|
+			original = result.length
+
+			([self] + @inherits).each {|asm|
+				asm.to_hash.each {|match, block|
+					if match.(instruction) && tmp = block.(instruction, self)
+						result << tmp
+						break
+					end
+				}
+			}
+
+			if original == result.length
+				raise NoMethodError, "#{instruction.inspect} couldn't be assembled"
+			end
+		}
+
+		result
 	end; alias do assemble
+
+	def on (matcher, &block)
+		@on[matcher] = block
+	end
+
+	def to_hash
+		@on
+	end
+
+	def | (value)
+		Pipeline.new(self, value)
+	end
 end
 
 end
+
+require 'orgasm/assembler/pipeline'
