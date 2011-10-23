@@ -20,15 +20,16 @@
 module Orgasm; class Generator < Piece
 
 class DSL < BasicObject
-	def initialize (&block)
+	def initialize (*args, &block)
 		@block = block
+		@args  = args
 	end
 
 	def execute (*generators)
 		@generators   = generators.flatten.compact
 		@instructions = []
 
-		instance_eval &@block
+		instance_exec *@args, &@block
 
 		@instructions
 	end
@@ -39,11 +40,13 @@ class DSL < BasicObject
 		@generators.each {|gen|
 			return gen.__send__ id, *args, &block if gen.respond_to?(id)
 
+			return @instructions.push(*gen.__generator_send__(id, *args)) if gen.generator_method?(id)
+
 			begin
 				gen.instruction(id, *args).tap {|i|
 					raise ::NoMethodError if i.nil?
 
-					@instructions << i
+					@instructions.push(*[i].flatten.compact)
 					exception = nil
 				}
 

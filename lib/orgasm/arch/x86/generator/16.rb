@@ -17,6 +17,56 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+@data   = {}
+@macros = {}
+
+define_singleton_method :data do |*args, &block|
+	Class.new(BasicObject) {
+		def initialize (data, *args, &block)
+			@data = data
+
+			instance_exec *args, &block
+		end
+
+		def find_size (what)
+			return what if what.is_a?(::Integer)
+
+			case what
+			when :byte         then 1.byte
+			when :short, :word then 2.bytes
+			end
+		end
+
+		def method_missing (id, size)
+			@data[id] = ::Orgasm::X86::Address.new(0, find_size(size))
+		end
+	}.new(@data, *args, &block)
+end
+
+define_singleton_method :macros do |*args, &block|
+	Class.new(BasicObject) {
+		def initialize (what, *args, &block)
+			@what = what
+
+			instance_exec *args, &block
+		end
+
+		def method_missing (id, *args, &block)
+			@what.define_generator_method id do |*args|
+				generate(*args, &block)
+			end
+		end
+	}.new(self, *args, &block)
+end
+
+define_singleton_method :m do |value, size = nil|
+  if value.is_a?(Integer)
+		X86::Address.new(value, size.bytes || 16)
+	else
+		@data[value]
+	end
+end
+
 X86::Instructions::Registers.each {|bits, regs|
 	if bits <= 16
 		regs.each {|reg|

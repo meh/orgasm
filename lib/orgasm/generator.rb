@@ -22,10 +22,24 @@ module Orgasm
 class Generator < Piece
 	def initialize (*)
 		super
+
+		@methods = {}
 	end
 
-	def generate (&block)
-		DSL.new(&block).execute(*to_a)
+	def define_generator_method (name, &block)
+		@methods[name] = block
+	end
+
+	def generator_method? (name)
+		!!@methods[name]
+	end
+
+	def generator_send (name, *args, &block)
+		instance_exec *args, &@methods[name]
+	end; alias __generator_send__ generator_send
+
+	def generate (*args, &block)
+		DSL.new(*args, &block).execute(*to_a)
 	end; alias do generate
 
 	def instruction (*args, &block)
