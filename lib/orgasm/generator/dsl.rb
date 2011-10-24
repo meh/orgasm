@@ -19,34 +19,34 @@
 
 module Orgasm; class Generator < Piece
 
-class DSL < BasicObject
+class DSL
+	attr_reader :generators, :result
+
 	def initialize (*args, &block)
 		@block = block
 		@args  = args
 	end
 
 	def execute (*generators)
-		@generators   = generators.flatten.compact
-		@instructions = []
+		@generators = generators.flatten.compact
+		@result     = []
 
 		instance_exec *@args, &@block
 
-		@instructions
+		@result
 	end
 
 	def method_missing (id, *args, &block)
 		exception = nil
 
-		@generators.each {|gen|
+		generators.each {|gen|
 			return gen.__send__ id, *args, &block if gen.respond_to?(id)
-
-			return @instructions.push(*gen.__generator_send__(id, *args)) if gen.generator_method?(id)
 
 			begin
 				gen.instruction(id, *args).tap {|i|
 					raise ::NoMethodError if i.nil?
 
-					@instructions.push(*[i].flatten.compact)
+					@result.push(*[i].flatten.compact)
 					exception = nil
 				}
 

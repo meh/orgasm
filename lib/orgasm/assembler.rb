@@ -66,29 +66,29 @@ class Assembler < Piece
 			end
 		}
 
-		result = ''
+		instructions = [instructions] unless instructions.is_a?(Array)
 
-		instructions.each {|instruction|
-			original = result.length
+		String.new.tap {|result|
+			instructions.each {|instruction|
+				original = result.length
 
-			unless catch :skip do
-				([self] + @inherits).each {|assembler|
-					assembler.to_a.each {|matcher|
-						if matcher.match.(instruction) && (tmp = instance_exec(instruction, &matcher.block)).is_a?(String)
-							result << tmp
+				unless catch :skip do
+					([self] + @inherits).each {|assembler|
+						assembler.to_a.each {|matcher|
+							if matcher.match.(instruction) && (tmp = instance_exec(instruction, &matcher.block)).is_a?(String)
+								result << tmp
 
-							break
-						end
+								break
+							end
+						}
 					}
-				}
-				
-				nil
-			end or original != result.length
-				raise NoMethodError, "#{instruction.inspect} couldn't be assembled"
-			end
+					
+					nil
+				end or original != result.length
+					raise NoMethodError, "#{instruction.inspect} couldn't be assembled"
+				end
+			}
 		}
-
-		result
 	end; alias do assemble
 
 	def instruction (&block)

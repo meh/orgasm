@@ -17,13 +17,13 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-@data   = {}
-@macros = {}
-
-define_singleton_method :data do |*args, &block|
+define_dsl_method :data do |*args, &block|
 	Class.new(BasicObject) {
-		def initialize (data, *args, &block)
-			@data = data
+		def initialize (dsl, *args, &block)
+			@dsl = dsl
+			@dsl.result.define_singleton_method :data do
+				@data ||= {}
+			end
 
 			instance_exec *args, &block
 		end
@@ -38,45 +38,47 @@ define_singleton_method :data do |*args, &block|
 		end
 
 		def method_missing (id, size)
-			@data[id] = ::Orgasm::X86::Address.new(0, find_size(size))
+			@dsl.result.data[id] = ::Orgasm::X86::Address.new(0, find_size(size))
 		end
-	}.new(@data, *args, &block)
+	}.new(self, *args, &block)
 end
 
-define_singleton_method :macros do |*args, &block|
+define_dsl_method :macros do |*args, &block|
 	Class.new(BasicObject) {
-		def initialize (what, *args, &block)
-			@what = what
+		def initialize (dsl, *args, &block)
+			@dsl = dsl
 
 			instance_exec *args, &block
 		end
 
 		def method_missing (id, *args, &block)
-			@what.define_generator_method id do |*args|
-				generate(*args, &block)
+			raise ArgumentError, "#{id} is already a method" if @dsl.respond_to?(id)
+
+			@dsl.define_singleton_method id do |*args|
+				instance_exec *args, &block
 			end
 		end
 	}.new(self, *args, &block)
 end
 
-define_singleton_method :m do |value, size = nil|
+define_dsl_method :m do |value, size = nil|
   if value.is_a?(Integer)
 		X86::Address.new(value, size.bytes || 16)
 	else
-		@data[value]
+		result.data[value]
 	end
 end
 
 X86::Instructions::Registers.each {|bits, regs|
 	if bits <= 16
 		regs.each {|reg|
-			define_singleton_method reg do
+			define_dsl_method reg do
 				reg
 			end
 		}
 	else
 		regs.each {|reg|
-			define_singleton_method reg do
+			define_dsl_method reg do
 				raise NoMethodError, "#{reg} register not supported on 16 bit"
 			end
 		}
