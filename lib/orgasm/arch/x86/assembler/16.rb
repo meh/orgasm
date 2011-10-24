@@ -60,3 +60,7 @@ instruction do |i|
 		}
 	end
 end
+
+label do |l|
+	skip
+end

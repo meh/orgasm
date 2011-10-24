@@ -23,7 +23,7 @@ define_dsl_method :data do |*args, &block|
 			@dsl = dsl
 			@dsl.result.define_singleton_method :data do
 				@data ||= {}
-			end
+			end unless @dsl.result.respond_to? :data
 
 			instance_exec *args, &block
 		end
@@ -61,12 +61,22 @@ define_dsl_method :macros do |*args, &block|
 	}.new(self, *args, &block)
 end
 
-define_dsl_method :m do |value, size = nil|
+define_dsl_method :memory, :m do |value, size = nil|
   if value.is_a?(Integer)
 		X86::Address.new(value, size.bytes || 16)
 	else
 		result.data[value]
 	end
+end
+
+define_dsl_method :label, :l do |name|
+	result.define_singleton_method :labels do
+		@labels ||= {}
+	end unless result.respond_to? :labels
+
+	return result.labels[name] if result.labels[name]
+
+	result.push(result.labels[name] = Label.new(name))
 end
 
 X86::Instructions::Registers.each {|bits, regs|

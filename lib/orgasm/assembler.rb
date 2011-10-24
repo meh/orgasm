@@ -91,6 +91,10 @@ class Assembler < Piece
 		}
 	end; alias do assemble
 
+	def label (&block)
+		on -> l { l.is_a?(Label) }, &block
+	end
+
 	def instruction (&block)
 		on -> i { i.is_a?(Instruction) }, &block
 	end

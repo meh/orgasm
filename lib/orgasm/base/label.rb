@@ -19,43 +19,34 @@
 
 module Orgasm
 
-class Generator < Piece
-	def initialize (*)
-		@methods = {}
+class Label < Base
+	attr_reader :name
 
-		super
+	def initialize (name=nil)
+		self.name = name if name
+
+		super()
 	end
 
-	def define_dsl_method (*names, &block)
-		names.each { |name| @methods[name] = block }
+	def name= (value)
+		@name = value.to_sym
 	end
 
-	def generate (*args, &block)
-		DSL.new(*args, &block).tap {|dsl|
-			@methods.each {|name, block|
-				dsl.define_singleton_method name, &block
-			}
-		}.execute(*to_a)
-	end; alias do generate
+	def == (other)
+		to_sym == other.to_sym
+	end; alias === ==
 
-	def instruction (*args, &block)
-		if block
-			@instruction = block
-		else
-			@instruction.(*args) if @instruction
-		end
+	def to_s
+		to_sym.to_s
 	end
 
-	def to_a
-		[self]
+	def to_sym
+		@name
 	end
 
-	def | (value)
-		Pipeline.new(self, value)
+	def inspect
+		"#<Label: #{name}>"
 	end
 end
 
 end
-
-require 'orgasm/generator/dsl'
-require 'orgasm/generator/pipeline'
