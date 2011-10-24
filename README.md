@@ -58,10 +58,26 @@ Example:
 ```ruby
 >> require 'orgasm'; require 'orgasm/arch/x86'
 true
->> Orgasm::Architecture.x86[8086].generator.do { add al, ax }
+>> r = Orgasm::Architecture.x86[8086].generator.do {
+     data {
+       lol :word
+     }
+
+     macros {
+       troll {|what|
+         inc m(what)
+       }
+     }
+
+     troll(:lol)
+   }
 [
-    [0] #<Instruction(add): #<Register: al, 8 bits>, #<Register: ax, 16 bits>>
+    [0] #<Instruction(inc): #<Address: 0x0, 16 bits>>
 ]
+>> r.data
+{
+    :lol => #<Address: 0x0, 16 bits>
+}
 ```
 
 Assembler
