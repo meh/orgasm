@@ -68,6 +68,8 @@ instructions.each {|name, description|
 						# return when the /n is wrong
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
+						# TODO: add register check for specific register opcodes
+
 						displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
 						immediates = 0.upto(1).map {

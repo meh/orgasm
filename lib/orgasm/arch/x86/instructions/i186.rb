@@ -163,5 +163,83 @@ X86::Instructions[X86::DSL.new(32) {
 	    [eax,     moffs32] => [0xA1, cd],
 	    [moffs32, eax]     => [0xA3, cd],
 	    [r32,     imm32]   => [0xB8, rd],
-	    [r32|m32, imm32]   => [0xC7, ?0]
+	    [r32|m32, imm32]   => [0xC7, ?0],
+
+	# Move to/from Control Registers
+	    [cr0, r32] => [0x0F, 0x22, r],
+	    [cr2, r32] => [0x0F, 0x22, r],
+	    [cr3, r32] => [0x0F, 0x22, r],
+	    [cr4, r32] => [0x0F, 0x22, r],
+	    [r32, cr0] => [0x0F, 0x20, r],
+	    [r32, cr2] => [0x0F, 0x20, r],
+	    [r32, cr3] => [0x0F, 0x20, r],
+	    [r32, cr4] => [0x0F, 0x20, r],
+
+	# Move to/from Debug Registers
+	    [r32, dr]  => [0x0F, 0x21, r],
+	    [dr,  r32] => [0x0F, 0x23, r]
+
+	# Unsigned Multiply
+	MUL [r32|m32] => [0xF7, ?4]
+
+	# Two's Complement Negation
+	NEG [r32|m32] => [0xF7, ?3]
+
+	# One's Complement Negation
+	NOT [r32|m32] => [0xF7, ?2]
+
+	# Logical Inclusive OR
+	OR [eax,     imm32]   => [0x0D, id],
+	   [r32|m32, imm32]   => [0x81, ?1, id],
+	   [r32|m32, imm8]    => [0x83, ?1, ib],
+	   [r32|m32, r32]     => [0x09, r],
+	   [r32,     r32|m32] => [0x0B, r]
+
+	# Output to Port
+	OUT [imm8, eax] => [0xE7, ib],
+	    [dx,   eax] => [0xEF]
+
+	# Output String to Port
+	OUTS [dx, m8]  => [0x6E],
+	     [dx, m16] => [0x6F],
+	     [dx, m32] => [0x6F]
+
+	OUTSB [al].ignore => [0x6E]
+
+	OUTSW [ax].ignore => [0x6F]
+
+	OUTSD [eax].ignore => [0x6F]
+
+	# Pop a Value from the Stack
+	POP [m32] => [0x8F, ?0],
+	    [r32] => [0x58, +rd]
+
+	# Pop All General-Purpose Registers
+	POPA [ax].ignore => [0x61]
+
+	# Pop Stack into EFLAGS Register
+	POPFD [eax].ignore => [0x9D]
+
+	# Push all General-Purpose Registers
+	PUSHA [ax].ignore => [0x60]
+
+	# Push EFLAGS Register onto the Stack
+	PUSHFD [eax].ignore => [0x9C]
+
+	# Rotate
+	RCL [r32|m32,   1]    => [0xD1, ?2],
+	    [r32|m32,   cl]   => [0xD3, ?2],
+	    [r32|m32,   imm8] => [0xC1, ?2, ib]
+
+	RCR [r32|m32,   1]    => [0xD1, ?3],
+	    [r32|m32,   cl]   => [0xD3, ?3],
+	    [r32|m32,   imm8] => [0xC1, ?3, ib]
+
+	ROL [r32|m32,   1]    => [0xD1, ?0],
+	    [r32|m32,   cl]   => [0xD3, ?0],
+	    [r32|m32,   imm8] => [0xC1, ?0, ib]
+
+	ROR [r32|m32,   1]    => [0xD1, ?1],
+	    [r32|m32,   cl]   => [0xD3, ?1],
+	    [r32|m32,   imm8] => [0xC1, ?1, ib]
 }]

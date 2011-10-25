@@ -21,7 +21,7 @@ instructions.to_hash.each {|name, description|
 	description.each {|description|
 		if description.is_a?(Hash)
 			description.each {|params, definition|
-				destination, *sources = params
+				destination, source = params
 
 				if definition.member?(:i)
 					opcodes = definition.clone
@@ -62,21 +62,6 @@ instructions.to_hash.each {|name, description|
 						end
 
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
-
-						return if modr && destination.is?(:m) && modr.mod == '11'.bin
-
-						displacement = modr && read(
-							if    modr.mod == '00'.bin && modr.rm == '101'.bin then 32.bit
-							elsif modr.mod == '01'.bin                         then 8.bit
-							elsif modr.mod == '10'.bin                         then 32.bit
-							end
-						).to_bytes rescue nil
-
-						immediate = if X86::Data.valid?(opcodes.first)
-							X86::Data.new(self, opcodes.first).tap {|o|
-								return if o.size == 2 && !prefixes.small?
-							}
-						end
 
 						X87::Instruction.new(name) {|i|
 							next if params.ignore?

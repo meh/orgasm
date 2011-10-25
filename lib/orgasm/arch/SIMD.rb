@@ -17,22 +17,16 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module X87
+require 'orgasm/arch/SIMD/extensions'
+require 'orgasm/arch/SIMD/base'
+require 'orgasm/arch/SIMD/instructions'
 
-class Register < Orgasm::Register
-	def initialize (name=nil)
-		self.name = name if name
-	end
+Orgasm::Architecture.is 'SIMD' do
+	family 'x86' do
+		disassembler 'orgasm/arch/SIMD/disassembler/x86'
 
-	def name= (value)
-		value = value.to_s.downcase.to_sym
-
-		unless X87::Instructions.register?(value)
-			raise ArgumentError, "#{value} isn't a valid x87 register"
+		extension 'MMX' do
+			disassembler 'orgasm/arch/SIMD/disassembler/x86'
 		end
-
-		@name = value
 	end
 end
-
-end; end

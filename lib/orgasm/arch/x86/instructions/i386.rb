@@ -79,4 +79,20 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# Load Full Pointer
 	# LSS
+	
+	# Move Data from String to String
+	MOVS [m32, m32] => [0xA5]
+
+	MOVSD [eax].ignore => [0xA5]
+
+	# Move with Zero-Extended
+	MOVZX [r16, r8|m8]   => [0x0F, 0xB6, r],
+	      [r32, r8|m8]   => [0x0F, 0xB6, r],
+	      [r32, r16|m16] => [0x0F, 0xB7, r]
+
+	# Pop All General-Purpose Registers
+	POPAD [eax].ignore => [0x61]
+
+	# Push all General-Purpose Registers
+	PUSHAD [eax].ignore => [0x60]
 }.to_hash]

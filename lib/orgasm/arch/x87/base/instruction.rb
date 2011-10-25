@@ -20,26 +20,19 @@
 module Orgasm; module X87
 
 class Instruction < Orgasm::Instruction
-	extend Forwardable
-
-	def_delegator :@parameters, :first, :destination
-
-	def initialize (name=nil, destination=nil, *sources)
-		super(name, destination, *sources)
+	def initialize (name=nil, destination=nil, source=nil, source2=nil)
+		super(name, destination, source, source2)
 	end
 
-	def destination= (value)
-		parameters[0] = value
-	end
+	[:destination, :source, :source2].each_with_index {|name, index|
+		define_method name do
+			parameters[index]
+		end
 
-	def sources
-		parameters[1 .. -1]
-	end
-
-	def sources= (*values)
-		parameters.slice! 1 .. -1
-		parameters.insert(-1, *values.flatten.compact)
-	end
+		define_method "#{name}=" do |value|
+			parameters[index] = value
+		end
+	}
 end
 
 end; end

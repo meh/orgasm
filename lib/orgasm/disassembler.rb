@@ -97,7 +97,7 @@ class Disassembler < Piece
 
 				if !added
 					io.seek where unless (@inherits + options[:extensions].map {|name|
-						arch.extensions.select {|extension|
+						extensions.select {|extension|
 							extension.name == name
 						}
 					}).flatten.compact.any? {|arch|

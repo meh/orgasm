@@ -21,4 +21,12 @@ X86::Instructions[X86::DSL.new(32) {
 	# Byte Mask Write
 	# MASKMOVQ [mm1, mm2] => [0x0F, 0xF7, r]
 	# FIXME: needs MMX™
+	
+	PREFETCHT0 [m8] => [0x0F, 0x18, ?1]
+
+	PREFETCHT1 [m8] => [0x0F, 0x18, ?2]
+
+	PREFETCHT2 [m8] => [0x0F, 0x18, ?3]
+
+	PREFETCHNTA [m8] => [0x0F, 0x18, ?0]
 }]

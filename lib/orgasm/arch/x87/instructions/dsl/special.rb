@@ -20,69 +20,58 @@
 module Orgasm; module X87; class DSL
 
 class Special
-	class Operator
-		attr_reader :first, :second
-
-		def initialize (first, second)
-			@first  = first
-			@second = second
-		end
-
-		def is? (value)
-			first.is?(value) || (second.is_a?(Symbol) && second.is?(value))
-		end
-	end
-
-	class Or < Operator
-		def to_s
-			"#{first}|#{second}"
-		end
-	end
-
-	class And < Operator
-		def to_s
-			"#{first}&#{second}"
-		end
-	end
-
-	class Offset < Operator
-		def to_s
-			"#{first}:#{second}"
-		end
-	end
-
 	def initialize (value)
 		@value = value.to_sym
 	end
 
-	def | (value)
-		Or.new(self, value)
+	def == (value)
+		if value.is_a?(Symbol)
+			to_sym == value
+		else
+			super
+		end
 	end
 
-	def & (value)
-		And.new(self, value)
-	end
-
-	def ^ (value)
-		Offset.new(self, value)
-	end
-
-	def is? (value)
+	def =~ (value)
 		if value.is_a?(Integer)
-			to_s[/\d+$/].to_i == value or Instructions.register?(to_s) == value
+			bits == value
 		else
 			to_s.start_with?(value.to_s)
 		end
 	end
 
-	suppress_warnings {
-		Symbol.instance_methods.each {|name|
-			undef_method name rescue nil
-		}
-	}
+	def bits
+		to_s[/\d+/].to_i
+	rescue
+		nil
+	end
 
-	def method_missing (*args, &block)
-		@value.__send__ *args, &block
+	def real?
+		to_s.end_with? 'real'
+	end
+
+	def integer?
+		to_s.end_with? 'int'
+	end
+
+	def byte?
+		to_s.end_with? 'byte'
+	end
+
+	def decimal?
+		to_s.end_with? 'dec'
+	end
+
+	def bcd?
+		to_s.end_with? 'bcd'
+	end
+
+	def to_s
+		to_sym.to_s
+	end
+
+	def to_sym
+		@value
 	end
 end
 

@@ -112,8 +112,6 @@ describe 'Orgasm::Architecture(x86, 8086)' do
 				}
 			end
 
-
-
 			it 'disassembles ADC r8, r8' do
 				disasm.do(%w(10 d9)).tap {|i|
 					i.length.should == 1 && i.first.should == Orgasm::X86::Instruction.new(:ADC,

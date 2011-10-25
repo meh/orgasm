@@ -96,6 +96,8 @@ class DSL
 
 		32 => [
 			:eax, :ecx, :edx, :ebx, :esp, :ebp, :esi, :edi,
+			:cr0, :cr1, :cr2, :cr3, :cr4, :cr5, :cr6, :cr7,
+			:dr0, :dr1, :dr2, :dr3, :dr4, :dr5, :dr6, :dr7,
 
 			:cd, # 4 bytes
 			:cp, # 6 bytes
@@ -117,6 +119,10 @@ class DSL
 
 			:r32, # one of the double-word general purpose registers: EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI
 
+			:cr, # one of the double-word control registers CR0, CR1, CR2, CR3, CR4, CR5, CR6, CR7
+
+			:dr, # one of the double-word control registers DR0, DR1, DR2, DR3, DR4, DR5, DR6, DR7
+
 			:imm32, # an immediate doubleword value used for instructions whose operand-size attribute is 32 bits.
 			        # It allows the use of a number between +2147483647 and -2147483648 inclusive.   
 
@@ -133,7 +139,9 @@ class DSL
 			          # address computation
 		],
 
-		64 => []
+		64 => [
+			:rax, :rcx, :rdx, :rbx, :rsp, :rbp, :rsi, :rdi
+		]
 	}
 
 	attr_reader :bits

@@ -24,4 +24,7 @@ X86::Instructions[X86::DSL.new(32) {
 	
 	# CPU Identification
 	CPUID [0x0F, 0xA2]
+
+	# Read from Model Specific Register
+	RDMSR [0x0F, 0x32]
 }]

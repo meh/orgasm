@@ -34,7 +34,7 @@ X87::Instructions[X87::DSL.new {
 	      [sti, st0] => [0xDE, 0xC0, i]
 
 	FIADD [m32int] => [0xDA, ?0],
-	      [m64int] => [0xDE, ?0]
+	      [m16int] => [0xDE, ?0]
 
 	# Load binary Coded Decimal
 	FBLD [m80dec] => [0xDF, ?4]
@@ -144,9 +144,6 @@ X87::Instructions[X87::DSL.new {
 	# Load Control Word
 	FLDCW [m2byte] => [0xD9, ?5]
 
-	# Load FPU Environment
-	FLDENV [m14byte|m28byte] => [0xD9, ?4]
-
 	# Multiply
 	FMUL [m32real]  => [0xD8, ?1],
 	     [m64real]  => [0xDC, ?1],
@@ -243,8 +240,7 @@ X87::Instructions[X87::DSL.new {
 	FTST [0xD9, 0xE4]
 	
 	# Wait
-	# FWAIT 
-	# FIXME: refer to WAIT
+	FWAIT [0x9B]
 
 	# Examine
 	FXAM [0xD9, 0xE5]

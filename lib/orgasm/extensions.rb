@@ -71,6 +71,14 @@ class Integer
 	def bytes
 		self * 8
 	end; alias byte bytes
+
+	def hex
+		to_s(16)
+	end
+
+	def bin
+		to_s(2)
+	end
 end
 
 module Kernel

@@ -18,4 +18,29 @@
 #++
 
 X87::Instructions[X87::DSL.new {
+	# Floating-Point Conditional Move
+	FCMOVB [st0, sti] => [0xDA, 0xC0, i]
+
+	FCMOVE [st0, sti] => [0xDA, 0xC8, i]
+
+	FCMOVBE [st0, sti] => [0xDA, 0xD0, i]
+
+	FCMOVU [st0, sti] => [0xDA, 0xD8, i]
+
+	FCMOVNB [st0, sti] => [0xDB, 0xC0, i]
+
+	FCMOVNE [st0, sti] => [0xDB, 0xC8, i]
+
+	FCMOVNBE [st0, sti] => [0xDB, 0xD0, i]
+
+	FCMOVNU [st0, sti] => [0xDB, 0xD8, i]
+
+	# Compare Real and Set EFLAGS
+	FCOMI [st0, sti] => [0xDB, 0xF0, i]
+
+	FCOMIP [st0, sti] => [0xDF, 0xF0, i]
+
+	FUCOMI [st0, sti] => [0xDB, 0xE8, i]
+
+	FUCOMIP [st0, sti] => [0xDF, 0xE8, i]
 }]

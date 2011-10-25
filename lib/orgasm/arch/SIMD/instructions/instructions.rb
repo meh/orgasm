@@ -17,7 +17,32 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x87/base/instruction'
-require 'orgasm/arch/x87/base/address'
-require 'orgasm/arch/x87/base/stack'
-require 'orgasm/arch/x87/base/immediate'
+module Orgasm; module X87
+
+class Instructions < Hash
+	Registers = [:xmm0, :xmm1, :xmm2, :xmm3, :xmm4, :xmm5, :xmm6, :xmm7]
+
+	def self.register? (value)
+		Registers.member?((value.to_sym.downcase rescue nil))
+	end
+
+	def self.register (value)
+		Registers[value]
+	end
+
+	def [] (name)
+		super(name.to_sym.upcase)
+	end
+
+	def merge! (other)
+		other.each {|name, value|
+			if has_key?(name)
+				self[name].push(*value)
+			else
+				self[name] = value
+			end
+		}
+	end
+end
+
+end; end

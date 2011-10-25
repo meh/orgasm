@@ -304,4 +304,100 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16,     imm16]   => [0xB8, rw, iw],
 	    [r8|m8,   imm8]    => [0xC6, ?0, ib],
 	    [r16|m16, imm16]   => [0xC7, ?0, iw]
+
+	# Move Data from String to String
+	MOVS [m8, m8]   => [0xA4],
+	     [m16, m16] => [0xA5]
+
+	MOVSB [al].ignore => [0xA4]
+
+	MOVSW [ax].ignore => [0xA5]
+
+	# Unsigned Multiply
+	MUL [r8|m8]   => [0xF6, ?4],
+	    [r16|m16] => [0xF7, ?4]
+
+	# Two's Complement Negation
+	NEG [r8|m8]   => [0xF6, ?3],
+	    [r16|m16] => [0xF7, ?3]
+
+	# No Operation
+	NOP [0x90]
+
+	# One's Complement Negation
+	NOT [r8|m8]   => [0xF6, ?2],
+	    [r16|m16] => [0xF7, ?2]
+
+	# Logical Inclusive OR
+	OR [al,      imm8]    => [0x0C, ib],
+	   [ax,      imm16]   => [0x0D, iw],
+	   [r8|m8,   imm8]    => [0x80, ?1, ib],
+	   [r16|m16, imm16]   => [0x81, ?1, iw],
+	   [r16|m16, imm8]    => [0x83, ?1, ib],
+	   [r8|m8,   r8]      => [0x08, r],
+	   [r16|m16, r16]     => [0x09, r],
+	   [r8,      r8|m8]   => [0x0A, r],
+	   [r16,     r16|m16] => [0x0B, r]
+
+	# Output to Port
+	OUT [imm8, al] => [0xE6, ib],
+	    [imm8, ax] => [0xE7, ib],
+	    [dx,   al] => [0xEE],
+	    [dx,   ax] => [0xEF]
+
+	# Pop a Value from the Stack
+	POP [m16] => [0x8F, ?0],
+	    [r16] => [0x58, rw],
+	    [ds]  => [0x1F],
+	    [es]  => [0x07],
+	    [ss]  => [0x17],
+	    [fs]  => [0x0F, 0xA1],
+	    [gs]  => [0x0F, 0xA9]
+
+	# Pop Stack into EFLAGS Register
+	POPF [ax].ignore => [0x9D]
+
+	# Push Word or Doubleword Onto the Stack
+	PUSH [r16|m16] => [0xFF, ?6],
+	     [r16]     => [0x50, rw],
+	     [imm8]    => [0x6A, ib],
+	     [imm16]   => [0x68, iw],
+	     [cs]      => [0x0E],
+	     [ss]      => [0x16],
+	     [ds]      => [0x1E],
+	     [es]      => [0x06],
+	     [fs]      => [0x0F, 0xA0],
+	     [gs]      => [0x0F, 0xA8]
+
+	# Push EFLAGS Register onto the Stack
+	PUSHF [ax].ignore => [0x9C]
+
+	# Rotate
+	RCL [r8|m8,   1]    => [0xD0, ?2],
+	    [r8|m8,   cl]   => [0xD2, ?2],
+	    [r8|m8,   imm8] => [0xC0, ?2, ib],
+	    [r16|m16, 1]    => [0xD1, ?2],
+	    [r16|m16, cl]   => [0xD3, ?2],
+	    [r16|m16, imm8] => [0xC1, ?2, ib]
+
+	RCR [r8|m8,   1]    => [0xD0, ?3],
+	    [r8|m8,   cl]   => [0xD2, ?3],
+	    [r8|m8,   imm8] => [0xC0, ?3, ib],
+	    [r16|m16, 1]    => [0xD1, ?3],
+	    [r16|m16, cl]   => [0xD3, ?3],
+	    [r16|m16, imm8] => [0xC1, ?3, ib]
+
+	ROL [r8|m8,   1]    => [0xD0, ?0],
+	    [r8|m8,   cl]   => [0xD2, ?0],
+	    [r8|m8,   imm8] => [0xC0, ?0, ib],
+	    [r16|m16, 1]    => [0xD1, ?0],
+	    [r16|m16, cl]   => [0xD3, ?0],
+	    [r16|m16, imm8] => [0xC1, ?0, ib]
+
+	ROR [r8|m8,   1]    => [0xD0, ?1],
+	    [r8|m8,   cl]   => [0xD2, ?1],
+	    [r8|m8,   imm8] => [0xC0, ?1, ib],
+	    [r16|m16, 1]    => [0xD1, ?1],
+	    [r16|m16, cl]   => [0xD3, ?1],
+	    [r16|m16, imm8] => [0xC1, ?1, ib]
 }]
