@@ -24,6 +24,7 @@ class DSL
 		16 => [
 			:al, :cl, :dl, :bl, :ah, :ch, :dh, :bh,
 			:ax, :cx, :dx, :bx, :sp, :bp, :si, :di,
+			:cs, :ss, :ds, :es, :fs, :gs,
 
 			# ?n # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
 			     # uses only the r/m (register or memory) operand.
