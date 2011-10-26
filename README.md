@@ -64,15 +64,27 @@ true
      }
 
      macros {
-       troll {|what|
+       inc_and_check {|what|
          inc m(what)
+         cmp m(what), 23
        }
      }
 
-     troll(:lol)
+     mov m(:lol), 0
+
+     label :again
+     inc_and_check(:lol)
+     jnl l(:again)
+
+     call e(:exit)
    }
 [
-    [0] #<Instruction(inc): #<Address: 0x0, 16 bits>>
+    [0] #<Instruction(mov): #<Address: 0x0, 16 bits>, 0>,
+    [1] #<Label: again>,
+    [2] #<Instruction(inc): #<Address: 0x0, 16 bits>>,
+    [3] #<Instruction(cmp): #<Address: 0x0, 16 bits>, 23>,
+    [4] #<Instruction(jnl): #<Label: again>>,
+    [5] #<Instruction(call): #<Extern: puts>>
 ]
 >> r.data
 {
