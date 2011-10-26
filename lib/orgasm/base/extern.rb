@@ -17,14 +17,36 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x87/extensions'
-require 'orgasm/arch/x87/base'
-require 'orgasm/arch/x87/instructions'
+module Orgasm
 
-Orgasm::Architecture.is 'x87' do
-	family '8087' do
-		instructions 'orgasm/arch/x87/instructions/8087'
+class Extern < Base
+	attr_reader :name
 
-		disassembler 'orgasm/arch/x87/disassembler'
+	def initialize (name=nil)
+		self.name = name if name
+
+		super()
 	end
+
+	def name= (value)
+		@name = value.to_sym
+	end
+
+	def == (other)
+		to_sym == other.to_sym
+	end; alias === ==
+
+	def to_s
+		to_sym.to_s
+	end
+
+	def to_sym
+		@name
+	end
+
+	def inspect
+		"#<Extern: #{name}>"
+	end
+end
+
 end

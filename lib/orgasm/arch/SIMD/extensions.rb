@@ -17,14 +17,64 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x87/extensions'
-require 'orgasm/arch/x87/base'
-require 'orgasm/arch/x87/instructions'
+require 'orgasm/arch/x86/extensions'
 
-Orgasm::Architecture.is 'x87' do
-	family '8087' do
-		instructions 'orgasm/arch/x87/instructions/8087'
+module Orgasm; module SIMD
 
-		disassembler 'orgasm/arch/x87/disassembler'
+class X86::Symbol
+	def initialize (value)
+		@value = value.to_sym
+	end
+
+	def == (value)
+		if value.is_a?(::Symbol)
+			to_sym == value
+		else
+			super
+		end
+	end
+
+	def =~ (value)
+		if value.is_a?(Integer)
+			bits == value
+		else
+			to_s.start_with?(value.to_s)
+		end
+	end
+
+	def bits
+		to_s[/\d+/].to_i
+	rescue
+		nil
+	end
+
+	def real?
+		to_s.end_with? 'real'
+	end
+
+	def integer?
+		to_s.end_with? 'int'
+	end
+
+	def byte?
+		to_s.end_with? 'byte'
+	end
+
+	def decimal?
+		to_s.end_with? 'dec'
+	end
+
+	def bcd?
+		to_s.end_with? 'bcd'
+	end
+
+	def to_s
+		to_sym.to_s
+	end
+
+	def to_sym
+		@value
 	end
 end
+
+end; end

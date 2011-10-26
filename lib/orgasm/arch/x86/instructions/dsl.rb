@@ -17,12 +17,10 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86/instructions/dsl/special'
-
 module Orgasm; module X86
 
 class DSL
-	Bits = {
+	Symbols = {
 		16 => [
 			:al, :cl, :dl, :bl, :ah, :ch, :dh, :bh,
 			:ax, :cx, :dx, :bx, :sp, :bp, :si, :di,
@@ -153,12 +151,12 @@ class DSL
 		instance_eval &block
 	end
 
-	Bits.each {|bit, specials|
+	Symbols.each {|bit, specials|
 		specials.each {|special|
 			define_method special do
 				raise ArgumentError, "#{special} isn't supported at #{bits} bits." if bits < bit
 
-				Special.new(special)
+				Symbol.new(special)
 			end
 		}
 	}

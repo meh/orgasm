@@ -79,6 +79,10 @@ define_dsl_method :label, :l do |name|
 	result.push(result.labels[name] = Label.new(name))
 end
 
+define_dsl_method :extern, :e do |name|
+	Extern.new(name)
+end
+
 X86::Instructions::Registers.each {|bits, regs|
 	if bits <= 16
 		regs.each {|reg|
@@ -101,7 +105,7 @@ instruction do |name, destination = nil, source = nil, source2 = nil|
 	data = { destination: destination, source: source, source2: source2 }
 	
 	data.each {|type, obj|
-		if obj.is_a?(Symbol)
+		if obj.is_a?(::Symbol)
 			data[type] = X86::Register.new(obj)
 		end
 	}

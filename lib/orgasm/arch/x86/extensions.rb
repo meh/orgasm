@@ -19,6 +19,121 @@
 
 module Orgasm; module X86
 
+class Symbol
+	class Operator
+		attr_reader :first, :second
+
+		def initialize (first, second)
+			@first  = first
+			@second = second
+		end
+
+		def =~ (value)
+			first =~ value || second =~ value
+		end
+
+		def method_missing (id, *args, &block)
+			return first.__send__(id, *args, &block)  if first.respond_to?(id)
+			return second.__send__(id, *args, &block) if second.respond_to?(id)
+
+			super
+		end
+	end
+
+	class Or < Operator
+		def or?; true; end
+			
+		def to_s
+			"#{first}|#{second}"
+		end
+	end
+
+	class And < Operator
+		def and?; true; end
+
+		def to_s
+			"#{first}&#{second}"
+		end
+	end
+
+	class Offset < Operator
+		def offset?; true; end
+
+		def to_s
+			"#{first}:#{second}"
+		end
+	end
+
+	def initialize (value)
+		@value = value.to_sym
+	end
+
+	%w(or and offset).each {|name|
+		define_method "#{name}?" do
+			false
+		end
+	}
+
+	def +@
+		@signed = true
+
+		self
+	end
+
+	def -@
+		@signed = false
+
+		self
+	end
+
+	def signed?
+		!!@signed
+	end
+
+	def | (value)
+		Or.new(self, value)
+	end
+
+	def & (value)
+		And.new(self, value)
+	end
+
+	def ^ (value)
+		Offset.new(self, value)
+	end
+
+	def == (value)
+		if value.is_a?(::Symbol)
+			to_sym == value
+		else
+			super
+		end
+	end
+
+	def =~ (value)
+		if value.is_a?(Integer)
+			bits == value or Instructions.register?(to_s) == value
+		else
+			to_s.start_with?(value.to_s)
+		end
+	end
+
+	def bits
+		{ b: 8, w: 16, d: 32, q: 64 }[to_s[-1].to_sym] || to_s[/\d+$/].to_i
+	rescue
+		nil
+	end
+
+	def to_s
+		to_sym.to_s
+	end
+
+	def to_sym
+		@value
+	end
+end
+
+
 class ModR
 	EffectiveAddress = {
 		16 => {

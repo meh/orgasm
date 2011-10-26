@@ -17,12 +17,10 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x87/instructions/dsl/special'
-
 module Orgasm; module X87
 
 class DSL
-	Specials = [
+	Symbols = [
 		# ?n # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
 		     # uses only the r/m (register or memory) operand.
 		     # The reg field contains the digit that provides an extension to the instruction's
@@ -61,9 +59,9 @@ class DSL
 		instance_eval &block
 	end
 
-	Specials.each {|special|
+	Symbols.each {|special|
 		define_method special do
-			Special.new(special)
+			Symbol.new(special)
 		end
 	}
 
