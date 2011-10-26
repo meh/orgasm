@@ -51,5 +51,17 @@ Orgasm::Architecture.is 'x86' do
 		disassembler.supports :mode
 	end
 
+	family 'i586' do
+		instructions arch[:i486].instructions.deep_clone, 'orgasm/arch/x86/instructions/i586'
+		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler.supports :mode
+	end
+
+	family 'i686' do
+		instructions arch[:i586].instructions.deep_clone, 'orgasm/arch/x86/instructions/i686'
+		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler.supports :mode
+	end
+
 	styles 'orgasm/arch/x86/styles'
 end

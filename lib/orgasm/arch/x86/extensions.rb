@@ -145,6 +145,17 @@ class ModR
 			'101'.bin => [:di],
 			'110'.bin => [:bp],
 			'111'.bin => [:bx]
+		},
+
+		32 => {
+			'000'.bin => [:eax],
+			'001'.bin => [:ecx],
+			'010'.bin => [:edx],
+			'011'.bin => [:ebx],
+			'100'.bin => [],
+			'101'.bin => [:ebp],
+			'110'.bin => [:esi],
+			'111'.bin => [:edi]
 		}
 	}
 
@@ -308,7 +319,7 @@ class Prefixes < Array
 	end
 
 	def size
-		prefixes.address? || (options[:mode] == :real && !prefixes.address?) ? 16 : 32
+		(address? || (options[:mode] == :real && !address?)) ? 16 : 32
 	end
 
 	def operand?

@@ -26,6 +26,7 @@ class Disassembler < Piece
 		@inherits = []
 		@decoders = []
 		@supports = []
+		@options  = {}
 
 		super
 	end
@@ -49,10 +50,18 @@ class Disassembler < Piece
 		self
 	end
 
+	def with (options)
+		clone.tap {|disasm|
+			disasm.instance_eval {
+				@options = options
+			}
+		}
+	end
+
 	def disassemble (io, options={})
-		options = {
+		options = @options.merge(
 			extensions: []
-		}.merge(options)
+		).merge(options)
 
 		options.each_key {|name|
 			next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
