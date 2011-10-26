@@ -17,11 +17,20 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-instructions.to_hash.each {|name, description|
+# undocumented opcode holes
+on 0x66, 0x67, 0xC1 do
+	seek +1 and done
+end
+
+instructions.each {|name, description|
 	description.each {|description|
 		if description.is_a?(Hash)
 			description.each {|params, definition|
 				destination, source = params
+
+				known = definition.reverse.drop_while {|x|
+					!x.is_a?(Integer)
+				}.reverse
 
 				if definition.member?(:i)
 					opcodes = definition.clone
@@ -33,11 +42,11 @@ instructions.to_hash.each {|name, description|
 
 							stack = X87::Stack.new(data[:code])
 
-							X86::Instruction.new(name) {|i|
+							X87::Instruction.new(name) {|i|
 								if source.nil?
 									i.destination = stack
 								else
-									i.parameters.push *if destination.is?(:r)
+									i.destination, i.source = if destination.is?(:r)
 										[stack, X87::Stack.new(sources.first.downcase)]
 									else
 										[X87::Stack.new(destination.downcase), stack]
@@ -52,7 +61,7 @@ instructions.to_hash.each {|name, description|
 					next
 				end
 
-				on definition.reverse.drop_while {|x| !x.is_a?(Integer) }.reverse do |whole, which|
+				on known do |whole, which|
 					opcodes = definition.clone
 					opcodes.slice! 0 ... which.length
 
@@ -67,11 +76,7 @@ instructions.to_hash.each {|name, description|
 						displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
 						X87::Instruction.new(name) {|i|
-							next if params.ignore?
-
-							i.destination = if destination.real?
-
-							end
+							i.destination = X87::Address.new(modr.effective_address(16, displacement), destination.bits, destination.type)
 						}
 					end
 				end

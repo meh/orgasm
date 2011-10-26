@@ -17,22 +17,5 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; module X87
-
-class Instruction < Orgasm::Instruction
-	def initialize (name=nil, destination=nil, source=nil)
-		super(name, destination, source)
-	end
-
-	%w(destination source).each_with_index {|name, index|
-		define_method name do
-			parameters[index]
-		end
-
-		define_method "#{name}=" do |value|
-			parameters[index] = value
-		end
-	}
-end
-
-end; end
+X87::Instructions[X87::DSL.new {
+}]

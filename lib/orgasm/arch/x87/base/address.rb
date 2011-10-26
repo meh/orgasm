@@ -20,18 +20,43 @@
 module Orgasm; module X87
 
 class Address < Orgasm::Address
-	attr_accessor :size
+	attr_reader :size, :type, :base, :options
 
-	def initialize (value=nil, size=32, options={})
+	def initialize (value=nil, size=32, type=:real, options={})
+		self.value = value if value
+		self.size  = size  if size
+		self.type  = type  if type
+
+		@options = options
+
+		super()
+	end
+
+	def size= (value)
+		@size = value.to_i
+	end
+
+	def type= (value)
+		@type = value.to_sym.downcase
+	end
+
+	def value= (value)
 		if value.respond_to? :to_i
 			super(value)
 		else
-			super()
-		end
+			@base = value
 
-		@size    = size
-		@options = options
+			if @base.last.respond_to? :to_i
+				super(@base.pop)
+			end
+
+			@base.map! {|p|
+				X86::Register.new(p)
+			}
+		end
 	end
+
+	alias bits size
 
 	def relative?
 		!!@options[:relative]
@@ -41,8 +66,26 @@ class Address < Orgasm::Address
 		!!@options[:offset]
 	end
 
+	def base?
+		!!@base
+	end
+
+	def == (other)
+		to_i == other.to_i && relative? == other.relative? && type == other.type
+	end
+
+	def === (other)
+		self == other && size == other.size && type == other.type
+	end
+
 	def inspect
-		"#<Address: #{'0x%X' % to_i}, #{size} bits>"
+		if relative? || offset?
+			"#<Address: #{'%+d' % to_i}, #{size} bits, #{type}>"
+		elsif base?
+			"#<Address: [#{base.map(&:name).join '+'}#{'%+d' % to_i if to_i}], #{size} bits, #{type}>"
+		else
+			"#<Address: #{'0x%x' % to_i}, #{size} bits, #{type}>"
+		end
 	end
 end
 

@@ -84,24 +84,28 @@ class Symbol
 		nil
 	end
 
+	def type
+		to_s[/\d[a-z]+$/][1 .. -1].to_sym
+	end
+
 	def real?
-		to_s.end_with? 'real'
+		type == :real
 	end
 
 	def integer?
-		to_s.end_with? 'int'
+		type == :int
 	end
 
 	def byte?
-		to_s.end_with? 'byte'
+		type == :byte
 	end
 
 	def decimal?
-		to_s.end_with? 'dec'
+		type == :dec
 	end
 
 	def bcd?
-		to_s.end_with? 'bcd'
+		type == :bcd
 	end
 
 	def to_s

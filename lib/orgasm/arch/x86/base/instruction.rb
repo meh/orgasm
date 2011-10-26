@@ -24,7 +24,7 @@ class Instruction < Orgasm::Instruction
 		super(name, destination, source, source2)
 	end
 
-	[:destination, :source, :source2].each_with_index {|name, index|
+	%w(destination source source2).each_with_index {|name, index|
 		define_method name do
 			parameters[index]
 		end
