@@ -25,6 +25,6 @@ Orgasm::Architecture.is 'x87' do
 	family '8087' do
 		instructions 'orgasm/arch/x87/instructions/8087'
 
-		disassembler 'orgasm/arch/x87/disassembler'
+		disassembler 'orgasm/arch/x87/disassembler/16'
 	end
 end

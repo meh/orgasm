@@ -48,26 +48,6 @@ class X86::Symbol
 		nil
 	end
 
-	def real?
-		to_s.end_with? 'real'
-	end
-
-	def integer?
-		to_s.end_with? 'int'
-	end
-
-	def byte?
-		to_s.end_with? 'byte'
-	end
-
-	def decimal?
-		to_s.end_with? 'dec'
-	end
-
-	def bcd?
-		to_s.end_with? 'bcd'
-	end
-
 	def to_s
 		to_sym.to_s
 	end

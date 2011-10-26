@@ -22,6 +22,42 @@ require 'orgasm/arch/x86/extensions'
 module Orgasm; module X87
 
 class Symbol
+	class Operator
+		attr_reader :first, :second
+
+		def initialize (first, second)
+			@first  = first
+			@second = second
+		end
+
+		def =~ (value)
+			first =~ value || second =~ value
+		end
+
+		def method_missing (id, *args, &block)
+			return first.__send__(id, *args, &block)  if first.respond_to?(id)
+			return second.__send__(id, *args, &block) if second.respond_to?(id)
+
+			super
+		end
+	end
+
+	class Or < Operator
+		def or?; true; end
+			
+		def to_s
+			"#{first}|#{second}"
+		end
+	end
+
+	def or?
+		false
+	end
+
+	def | (value)
+		Or.new(self, value)
+	end
+
 	def initialize (value)
 		@value = value.to_sym
 	end

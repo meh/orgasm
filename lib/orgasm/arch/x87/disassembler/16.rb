@@ -34,14 +34,14 @@ instructions.to_hash.each {|name, description|
 							stack = X87::Stack.new(data[:code])
 
 							X86::Instruction.new(name) {|i|
-								if sources.empty?
+								if source.nil?
 									i.destination = stack
 								else
-									i.parameters.insert -1, *(if destination.is?(:r)
+									i.parameters.push *if destination.is?(:r)
 										[stack, X87::Stack.new(sources.first.downcase)]
 									else
 										[X87::Stack.new(destination.downcase), stack]
-									end)
+									end
 								end
 							}
 						end
@@ -57,14 +57,21 @@ instructions.to_hash.each {|name, description|
 					opcodes.slice! 0 ... which.length
 
 					seek which.length do
-						modr = if opcodes.first.is_a?(String) || opcodes.first == :r
-							X86::ModR.new(read(1).to_byte)
-						end
+						modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
 
+						# return when the /n is wrong
 						return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
+
+						# TODO: add register check for specific register opcodes
+
+						displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
 						X87::Instruction.new(name) {|i|
 							next if params.ignore?
+
+							i.destination = if destination.real?
+
+							end
 						}
 					end
 				end
