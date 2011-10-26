@@ -84,7 +84,7 @@ true
     [2] #<Instruction(inc): #<Address: 0x0, 16 bits>>,
     [3] #<Instruction(cmp): #<Address: 0x0, 16 bits>, 23>,
     [4] #<Instruction(jnl): #<Label: again>>,
-    [5] #<Instruction(call): #<Extern: puts>>
+    [5] #<Instruction(call): #<Extern: exit>>
 ]
 >> r.data
 {
