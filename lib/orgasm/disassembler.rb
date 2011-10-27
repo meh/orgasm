@@ -107,32 +107,38 @@ class Disassembler < Piece
 		until io.eof?
 			where = io.tell
 
-			begin
-				added = @decoders.any? {|decoder|
-					decoded = decoder.for(io, options).decode rescue nil
+			added = @decoders.any? {|decoder|
+				decoded = begin
+					decoder.for(io, options).decode
+				rescue
+					raise unless options[:exceptions] == false
+				end
 
-					if Orgasm.object?(decoded) || decoded.is_a?(Orgasm::True)
-						instance_eval &@after if @after
-						
+				if Orgasm.object?(decoded) || decoded.is_a?(Orgasm::True)
+					instance_eval &@after if @after
+					
+					result << unknown(junk) and junk = nil if junk
+					result << decoded                      unless decoded.is_a?(Orgasm::True)
+
+					true
+				end
+			}
+
+			if !added
+				io.seek where unless (@inherits + extensions).any? {|arch|
+					io.seek where
+					
+					decoded = begin
+						arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
+					rescue
+						raise unless options[:exceptions] == false
+					end
+
+					if decoded
 						result << unknown(junk) and junk = nil if junk
-						result << decoded                      unless decoded.is_a?(Orgasm::True)
-
-						true
+						result << decoded
 					end
 				}
-
-				if !added
-					io.seek where unless (@inherits + extensions).any? {|arch|
-						io.seek where
-
-						if tmp = (arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first rescue nil)
-							result << unknown(junk) and junk = nil if junk
-							result << tmp
-						end
-					}
-				end
-			rescue NeedMoreData
-				(junk ||= '') << io.read
 			end
 
 			break if options[:limit] && result.flatten.compact.length >= options[:limit]
