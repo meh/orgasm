@@ -17,58 +17,30 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86/extensions'
+module Orgasm; module SIMD; module X86
 
-module Orgasm; module SIMD
+class Register < Orgasm::Register
+	attr_reader :type
 
-module X86
-	class Symbol
-		def initialize (value)
-			@value = value.to_sym
+	def initialize (name=nil)
+		super(name, SIMD::X86::Instructions.register?(name) == :int ? 64 : 128)
+
+		self.type = SIMD::X86::Instructions.register?(name)
+	end
+
+	def type= (value)
+		@type = value.to_sym.downcase
+	end
+
+	def name= (value)
+		value = value.to_s.downcase.to_sym
+
+		unless SIMD::X86::Instructions.register?(value)
+			raise ArgumentError, "#{value} isn't a valid SIMD register"
 		end
 
-		def == (value)
-			if value.is_a?(::Symbol)
-				to_sym == value
-			else
-				super
-			end
-		end
-
-		def =~ (value)
-			if value.is_a?(Integer)
-				bits == value
-			else
-				to_s.start_with?(value.to_s)
-			end
-		end
-
-		def bits
-			to_s[/\d+/].to_i
-		rescue
-			nil
-		end
-
-		def integer?
-			to_s.start_with? 'mm'
-		end
-
-		def float?
-			!integer?
-		end
-
-		def type
-			integer? ? :int : :float
-		end
-
-		def to_s
-			to_sym.to_s
-		end
-
-		def to_sym
-			@value
-		end
+		@name = value
 	end
 end
 
-end; end
+end; end; end

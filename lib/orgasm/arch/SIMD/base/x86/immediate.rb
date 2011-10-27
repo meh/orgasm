@@ -17,58 +17,16 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86/extensions'
+module Orgasm; module SIMD; module X86
 
-module Orgasm; module SIMD
-
-module X86
-	class Symbol
-		def initialize (value)
-			@value = value.to_sym
-		end
-
-		def == (value)
-			if value.is_a?(::Symbol)
-				to_sym == value
-			else
-				super
-			end
-		end
-
-		def =~ (value)
-			if value.is_a?(Integer)
-				bits == value
-			else
-				to_s.start_with?(value.to_s)
-			end
-		end
-
-		def bits
-			to_s[/\d+/].to_i
-		rescue
-			nil
-		end
-
-		def integer?
-			to_s.start_with? 'mm'
-		end
-
-		def float?
-			!integer?
-		end
-
-		def type
-			integer? ? :int : :float
-		end
-
-		def to_s
-			to_sym.to_s
-		end
-
-		def to_sym
-			@value
+class Immediate < Orgasm::Constant
+	def inspect
+		if @value.nil?
+			'#<Immediate: NULL>'
+		else
+			"#<Immediate: #{"0x%0#{size.bit * 2}X" % to_i}#{", #{size} bits" if size}>"
 		end
 	end
 end
 
-end; end
+end; end; end

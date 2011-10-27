@@ -17,58 +17,37 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86/extensions'
+module Orgasm; module SIMD; module X86
 
-module Orgasm; module SIMD
+class Instructions < Hash
+	Registers = {
+		int:   %w(mm0  mm1  mm2  mm3  mm4  mm5  mm6  mm7).to_syms,
+		float: %w(xmm0 xmm1 xmm2 xmm3 xmm4 xmm5 xmm6 xmm7).to_syms
+	}
 
-module X86
-	class Symbol
-		def initialize (value)
-			@value = value.to_sym
-		end
+	def self.register? (value)
+		Registers.find {|type, registers|
+			registers.member?(value.to_sym.downcase)
+		}.first rescue nil
+	end
 
-		def == (value)
-			if value.is_a?(::Symbol)
-				to_sym == value
+	def self.register (value, type)
+		Registers[type][value]
+	end
+
+	def [] (name)
+		super(name.to_sym.upcase)
+	end
+
+	def merge! (other)
+		other.each {|name, value|
+			if has_key?(name)
+				self[name].push(*value)
 			else
-				super
+				self[name] = value
 			end
-		end
-
-		def =~ (value)
-			if value.is_a?(Integer)
-				bits == value
-			else
-				to_s.start_with?(value.to_s)
-			end
-		end
-
-		def bits
-			to_s[/\d+/].to_i
-		rescue
-			nil
-		end
-
-		def integer?
-			to_s.start_with? 'mm'
-		end
-
-		def float?
-			!integer?
-		end
-
-		def type
-			integer? ? :int : :float
-		end
-
-		def to_s
-			to_sym.to_s
-		end
-
-		def to_sym
-			@value
-		end
+		}
 	end
 end
 
-end; end
+end; end; end

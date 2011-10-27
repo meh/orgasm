@@ -39,7 +39,7 @@ always do
 		description.each {|description|
 			if description.is_a?(Hash)
 				description.each {|params, definition|
-					destination, source = params
+					destination, source, source2 = params
 
 					known = definition.reverse.drop_while {|x|
 						!x.is_a?(Integer)
@@ -51,16 +51,40 @@ always do
 
 						seek which.length do
 							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
+							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] != :real && prefixes.size?)
 
 							# return when the /n is wrong
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
 
 							# TODO: add register check for specific register opcodes
+							# TODO: add SIB memory thing
 
 							displacement = read(modr.displacement_size(prefixes.size)).to_bytes(signed: true) if modr
 
+							immediates = 0.upto(1).map {
+								X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
+							}.compact.reverse
+
 							SIMD::X86::Instruction.new(name) {|i|
-								i.destination = SIMD::X86::Address.new(modr.effective_address(prefixes.size, displacement), destination.bits, destination.type)
+								next if params.ignore?
+
+								{ destination: destination, source: source, source2: source2 }.each {|type, obj|
+									next unless obj
+
+									i.send "#{type}=", if SIMD::X86::Instructions.register?(obj)
+										SIMD::X86::Register.new(obj)
+									elsif obj =~ :imm
+										immediate = immediates.shift
+
+										SIMD::X86::Immediate.new(immediate.to_i, immediate.size)
+									elsif obj =~ :r && opcodes.first == :r
+										SIMD::X86::Register.new(SIMD::X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.type))
+									elsif obj =~ :r
+										SIMD::X86::Register.new(SIMD::X86::Instructions.register(modr.rm, obj.type))
+									else
+										raise ArgumentError, "dont know what to do with #{obj} as #{type}"
+									end
+								}
 							}
 						end
 					end

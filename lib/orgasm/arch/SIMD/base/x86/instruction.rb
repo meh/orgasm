@@ -17,58 +17,22 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86/extensions'
+module Orgasm; module SIMD; module X86
 
-module Orgasm; module SIMD
-
-module X86
-	class Symbol
-		def initialize (value)
-			@value = value.to_sym
-		end
-
-		def == (value)
-			if value.is_a?(::Symbol)
-				to_sym == value
-			else
-				super
-			end
-		end
-
-		def =~ (value)
-			if value.is_a?(Integer)
-				bits == value
-			else
-				to_s.start_with?(value.to_s)
-			end
-		end
-
-		def bits
-			to_s[/\d+/].to_i
-		rescue
-			nil
-		end
-
-		def integer?
-			to_s.start_with? 'mm'
-		end
-
-		def float?
-			!integer?
-		end
-
-		def type
-			integer? ? :int : :float
-		end
-
-		def to_s
-			to_sym.to_s
-		end
-
-		def to_sym
-			@value
-		end
+class Instruction < Orgasm::Instruction
+	def initialize (name=nil, destination=nil, source=nil, source2=nil)
+		super(name, destination, source, source2)
 	end
+
+	%w(destination source source2).each_with_index {|name, index|
+		define_method name do
+			parameters[index]
+		end
+
+		define_method "#{name}=" do |value|
+			parameters[index] = value
+		end
+	}
 end
 
-end; end
+end; end; end

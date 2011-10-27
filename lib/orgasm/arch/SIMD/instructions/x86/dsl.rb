@@ -19,7 +19,7 @@
 
 require 'orgasm/arch/x87/instructions/dsl/special'
 
-module Orgasm; module X87
+module Orgasm; module SIMD; module X86
 
 class DSL
 	Specials = [
@@ -38,10 +38,6 @@ class DSL
 
 		:ib, # 1 byte
 
-		:i, # a number used in floating-point instructions when one of the operands is ST(i) from the FPU
-		    # register stack. The number i (which can range from 0 to 7) is added to the hexadecimal
-		    # byte given at the left of the plus sign to form a single opcode byte.
-
 		:imm8, # an immediate byte value. The imm8 symbol is a signed number between -128 and +127 inclusive.
 		       # For instructins in which imm8 is combind with a word or doublewod operand, the immediate
 		       # value is sign-extended to for a word or doubleword. The upper byte of the word is filled
@@ -54,28 +50,6 @@ class DSL
 		:m64, # a memory quadword operand in memory. This nomenclaure is used only with the CMPXCHG8B instruction.
 
 		:m128, # a memory double quadwrd operand in memory.
-
-		:m32real, # a single-,double-, anextended-real (respectively) floating-point operand in memory
-		:m64real,
-		:m80real,
-
-		:m16int, # a word-, short-, and long-integer (respectively) floating-point operand in memory
-		:m32int,
-		:m64int,
-
-		:m80dec, # dunno
-		:m80bcd,
-
-		:m2byte,  # dunno
-		:m14byte,
-		:m28byte,
-		:m94byte,
-		:m108byte,
-
-		:ST,  :st,  # the top element of the FPU register stack
-		:ST0, :st0,
-
-		:STi, :sti # the i^th element from the top of the FPU register stack. (i = 0 through 7)
 	]
 
 	def initialize (&block)
@@ -101,4 +75,4 @@ class DSL
 	end
 end
 
-end; end
+end; end; end
