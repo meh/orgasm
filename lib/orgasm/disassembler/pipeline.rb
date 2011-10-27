@@ -20,10 +20,12 @@
 module Orgasm; class Disassembler < Piece
 
 class Pipeline < Disassembler
+	Architecture = Orgasm::Architecture.new('|')
+
 	attr_reader :first, :second
 
 	def initialize (first, second)
-		super(nil)
+		super(Architecture)
 
 		@options = { exceptions: false }
 
@@ -31,10 +33,6 @@ class Pipeline < Disassembler
 		@second = second
 
 		inherit first, second
-	end
-
-	def extensions
-		[]
 	end
 end
 

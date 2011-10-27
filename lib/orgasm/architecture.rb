@@ -20,13 +20,6 @@
 require 'orgasm/extensions'
 require 'orgasm/exceptions'
 
-require 'orgasm/base'
-require 'orgasm/piece'
-require 'orgasm/styles'
-require 'orgasm/disassembler'
-require 'orgasm/generator'
-require 'orgasm/assembler'
-
 module Orgasm
 
 class Architecture
@@ -145,3 +138,10 @@ end
 
 require 'orgasm/architecture/family'
 require 'orgasm/architecture/extension'
+
+require 'orgasm/base'
+require 'orgasm/piece'
+require 'orgasm/styles'
+require 'orgasm/disassembler'
+require 'orgasm/generator'
+require 'orgasm/assembler'

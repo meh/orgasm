@@ -76,21 +76,23 @@ class Disassembler < Piece
 		io = io.to_opcodes    if io.is_a?(Array)
 		io = StringIO.new(io) if io.is_a?(String)
 
-		(options[:extensions] ||= []).clone.each {|name|
-			unless extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
+		extensions = (options[:extensions] || []).dup
+		
+		extensions.dup.each {|name|
+			unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
 				if options[:exceptions] == false
-					options[:extensions].delete(name)
+					extensions.delete(name)
 				else
 					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
 				end
 			end
 		}
 
-		options[:extensions].tap {|exts|
+		extensions.tap {|exts|
 			next unless exts.is_a?(Array)
 
 			exts.map! {|name|
-				extensions.select {|extension|
+				arch.extensions.select {|extension|
 					extension.name.to_s.downcase == name.to_s.downcase
 				}
 			}
@@ -107,7 +109,7 @@ class Disassembler < Piece
 
 			begin
 				added = @decoders.any? {|decoder|
-					decoded = decoder.for(io, options).decode
+					decoded = decoder.for(io, options).decode rescue nil
 
 					if Orgasm.object?(decoded) || decoded.is_a?(Orgasm::True)
 						instance_eval &@after if @after
@@ -120,18 +122,16 @@ class Disassembler < Piece
 				}
 
 				if !added
-					io.seek where unless (@inherits + options[:extensions]).any? {|arch|
+					io.seek where unless (@inherits + extensions).any? {|arch|
 						io.seek where
 
-						if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
+						if tmp = (arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first rescue nil)
 							result << unknown(junk) and junk = nil if junk
 							result << tmp
 						end
 					}
 				end
 			rescue NeedMoreData
-				io.seek where
-
 				(junk ||= '') << io.read
 			end
 
@@ -139,7 +139,7 @@ class Disassembler < Piece
 
 			if where == io.tell
 				break if options[:unknown] == false
-					
+
 				(junk ||= '') << io.read(1)
 			end
 		end
