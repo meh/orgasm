@@ -59,14 +59,16 @@ class Disassembler < Piece
 	end
 
 	def disassemble (io, options={})
-		options = @options.merge(
-			extensions: []
-		).merge(options)
+		if options[:extensions] && @options[:extensions]
+			options[:extensions].unshift(*@options[:extensions])
+		end
+
+		options = @options.merge(options)
 
 		options.each_key {|name|
 			next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
 
-			unless supports?(name)
+			unless supports?(name) || options[:exceptions] == false
 				raise ArgumentError, "#{name} is an unsupported option"
 			end
 		}
@@ -74,8 +76,8 @@ class Disassembler < Piece
 		io = io.to_opcodes    if io.is_a?(Array)
 		io = StringIO.new(io) if io.is_a?(String)
 
-		options[:extensions].clone.each {|name|
-			unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
+		(options[:extensions] ||= []).clone.each {|name|
+			unless extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
 				if options[:exceptions] == false
 					options[:extensions].delete(name)
 				else
@@ -85,6 +87,8 @@ class Disassembler < Piece
 		}
 
 		options[:extensions].tap {|exts|
+			next unless exts.is_a?(Array)
+
 			exts.map! {|name|
 				extensions.select {|extension|
 					extension.name.to_s.downcase == name.to_s.downcase

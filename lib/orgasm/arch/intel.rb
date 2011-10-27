@@ -17,25 +17,15 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module Orgasm; class Disassembler < Piece
+require 'orgasm'
+require 'orgasm/arch/x86'
+require 'orgasm/arch/x87'
+require 'orgasm/arch/SIMD'
 
-class Pipeline < Disassembler
-	attr_reader :first, :second
-
-	def initialize (first, second)
-		super(nil)
-
-		@options = { exceptions: false }
-
-		@first  = first
-		@second = second
-
-		inherit first, second
-	end
-
-	def extensions
-		[]
+module Orgasm::Architecture::Intel
+	def self.disassembler
+		Orgasm::Architecture.x86.i686.disassembler |
+		Orgasm::Architecture.x87.i687.disassembler |
+		Orgasm::Architecture.SIMD.x86.disassembler
 	end
 end
-
-end; end
