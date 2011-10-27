@@ -77,10 +77,16 @@ always do
 										immediate = immediates.shift
 
 										SIMD::X86::Immediate.new(immediate.to_i, immediate.size)
-									elsif obj =~ :r && opcodes.first == :r
-										SIMD::X86::Register.new(SIMD::X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.type))
-									elsif obj =~ :r
+									elsif (obj =~ :mm || obj =~ :xmm) && opcodes.first == :r
+										SIMD::X86::Register.new(SIMD::X86::Instructions.register((obj =~ :m && obj !~ :mm) ? modr.rm : modr.reg, obj.type))
+									elsif obj =~ :mm || obj =~ :xmm
 										SIMD::X86::Register.new(SIMD::X86::Instructions.register(modr.rm, obj.type))
+									elsif modr && !modr.register? && obj =~ :m
+										X86::Address.new(modr.effective_address(prefixes.size, displacement), obj.bits)
+									elsif obj =~ :r && opcodes.first == :r
+										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
+									elsif obj =~ :r
+										X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
 									else
 										raise ArgumentError, "dont know what to do with #{obj} as #{type}"
 									end

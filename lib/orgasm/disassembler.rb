@@ -75,13 +75,24 @@ class Disassembler < Piece
 		io = StringIO.new(io) if io.is_a?(String)
 
 		options[:extensions].clone.each {|name|
-			unless arch.extensions.all? { |extension| extension.name == extension && extension.disassembler }
+			unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
 				if options[:exceptions] == false
 					options[:extensions].delete(name)
 				else
 					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
 				end
 			end
+		}
+
+		options[:extensions].tap {|exts|
+			exts.map! {|name|
+				extensions.select {|extension|
+					extension.name.to_s.downcase == name.to_s.downcase
+				}
+			}
+
+			exts.flatten!
+			exts.compact!
 		}
 
 		result = []
@@ -105,11 +116,7 @@ class Disassembler < Piece
 				}
 
 				if !added
-					io.seek where unless (@inherits + options[:extensions].map {|name|
-						extensions.select {|extension|
-							extension.name == name
-						}
-					}).flatten.compact.any? {|arch|
+					io.seek where unless (@inherits + options[:extensions]).any? {|arch|
 						io.seek where
 
 						if tmp = arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first

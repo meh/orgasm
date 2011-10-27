@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-X87::Instructions[X87::DSL.new {
+SIMD::X86::Instructions[SIMD::X86::DSL.new {
 	# Empty MMX™ State
 	EMMS [0x0F, 0x77]
 

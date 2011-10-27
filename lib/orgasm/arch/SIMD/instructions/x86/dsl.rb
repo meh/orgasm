@@ -17,12 +17,10 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x87/instructions/dsl/special'
-
 module Orgasm; module SIMD; module X86
 
 class DSL
-	Specials = [
+	Symbols = [
 		:mm,  :mm0,  :mm1,  :mm2,  :mm3,  :mm4,  :mm5,  :mm6,  :mm7,
 		:xmm, :xmm0, :xmm1, :xmm2, :xmm3, :xmm4, :xmm5, :xmm6, :xmm7,
 
@@ -58,9 +56,9 @@ class DSL
 		instance_eval &block
 	end
 
-	Specials.each {|special|
+	Symbols.each {|special|
 		define_method special do
-			Special.new(special)
+			Symbol.new(special)
 		end
 	}
 
