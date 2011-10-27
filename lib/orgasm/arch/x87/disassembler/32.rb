@@ -80,6 +80,7 @@ always do
 
 						seek which.length do
 							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
+							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] != :real && prefixes.size?)
 
 							# return when the /n is wrong
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i

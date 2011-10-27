@@ -21,39 +21,41 @@ require 'orgasm/arch/x86/extensions'
 
 module Orgasm; module SIMD
 
-class X86::Symbol
-	def initialize (value)
-		@value = value.to_sym
-	end
-
-	def == (value)
-		if value.is_a?(::Symbol)
-			to_sym == value
-		else
-			super
+module X86
+	class Symbol
+		def initialize (value)
+			@value = value.to_sym
 		end
-	end
 
-	def =~ (value)
-		if value.is_a?(Integer)
-			bits == value
-		else
-			to_s.start_with?(value.to_s)
+		def == (value)
+			if value.is_a?(::Symbol)
+				to_sym == value
+			else
+				super
+			end
 		end
-	end
 
-	def bits
-		to_s[/\d+/].to_i
-	rescue
-		nil
-	end
+		def =~ (value)
+			if value.is_a?(Integer)
+				bits == value
+			else
+				to_s.start_with?(value.to_s)
+			end
+		end
 
-	def to_s
-		to_sym.to_s
-	end
+		def bits
+			to_s[/\d+/].to_i
+		rescue
+			nil
+		end
 
-	def to_sym
-		@value
+		def to_s
+			to_sym.to_s
+		end
+
+		def to_sym
+			@value
+		end
 	end
 end
 

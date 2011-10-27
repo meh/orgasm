@@ -26,6 +26,7 @@ Orgasm::Architecture.is 'SIMD' do
 		disassembler 'orgasm/arch/SIMD/disassembler/x86'
 
 		extension 'MMX' do
+			instructions 'orgasm/arch/SIMD/instructions/mmx'
 			disassembler 'orgasm/arch/SIMD/disassembler/x86'
 		end
 	end

@@ -23,7 +23,7 @@ module Orgasm; module X87
 
 class DSL
 	Specials = [
-		:ah, :ax, :eax,
+		:mm,  :mm0,  :mm1,  :mm2,  :mm3,  :mm4,  :mm5,  :mm6,  :mm7,
 		:xmm, :xmm0, :xmm1, :xmm2, :xmm3, :xmm4, :xmm5, :xmm6, :xmm7,
 
 		# ?n # a digit between 0 ad 7 indicate that the ModR/M byte of the instruction
