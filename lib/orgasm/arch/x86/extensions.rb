@@ -295,8 +295,6 @@ class Data
 end
 
 class Prefixes < Array
-	Lock = [0xF0, 0xF2, 0xF3]
-
 	module Override
 		Segment = [0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65]
 		
@@ -307,7 +305,7 @@ class Prefixes < Array
 	end
 
 	def self.valid? (value)
-		[Lock, Override::Segment, Override::Size::Operand, Override::Size::Address].any? {|check|
+		[Override::Segment, Override::Size::Operand, Override::Size::Address].any? {|check|
 			check.member?(value)
 		} && value
 	end

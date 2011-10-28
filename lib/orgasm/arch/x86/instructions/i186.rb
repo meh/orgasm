@@ -294,4 +294,12 @@ X86::Instructions[X86::DSL.new(32) {
 	TEST [eax,     imm32] => [0xA9, id],
 	     [r32|m32, imm32] => [0xF7, ?0, id],
 	     [r32|m32, r32]   => [0x85, r]
+
+	# Logical Exclusive OR
+	XOR [eax,     imm32]   => [0x35, id],
+	    [r32|m32, imm32]   => [0x81, ?6, id],
+	    [r32|m32, imm8]    => [0x83, ?6, +ib],
+	    [r32|m32, r32]     => [0x31, r],
+	    [r32,     r32|m32] => [0x33, r]
+
 }]

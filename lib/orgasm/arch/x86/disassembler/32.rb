@@ -128,12 +128,7 @@ always do
 				}
 			else
 				description = description.clone
-
-				ahead = if description.last.is_a?(Array)
-					description.pop
-				else
-					[]
-				end
+				ahead       = description.last.is_a?(Array) ? description.pop : []
 
 				on description + ahead, ahead: ahead do |whole, which, data|
 					seek which.length - data[:ahead].length

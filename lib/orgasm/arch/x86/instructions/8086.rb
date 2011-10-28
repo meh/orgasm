@@ -529,4 +529,13 @@ X86::Instructions[X86::DSL.new(16) {
 	XLATB [0xD7]
 
 	# Logical Exclusive OR
+	XOR [al,      imm8]    => [0x34, ib],
+	    [ax,      imm16]   => [0x35, iw],
+	    [r8|m8,   imm8]    => [0x80, ?6, ib],
+	    [r16|m16, imm16]   => [0x81, ?6, iw],
+	    [r16|m16, imm8]    => [0x83, ?6, +ib],
+	    [r8|m8,   r8]      => [0x30, r],
+	    [r16|m16, r16]     => [0x31, r],
+	    [r8,      r8|m8]   => [0x32, r],
+	    [r16,     r16|m16] => [0x33, r]
 }]
