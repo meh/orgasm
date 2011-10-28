@@ -81,7 +81,7 @@ X86::Instructions[X86::DSL.new(32) {
 	# LSS
 	
 	# Move Data from String to String
-	MOVS [m32, m32] => [0xA5]
+	MOVS [m32, m32].ignore => [0xA5]
 
 	MOVSD [eax].ignore => [0xA5]
 
@@ -95,4 +95,77 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# Push all General-Purpose Registers
 	PUSHAD [eax].ignore => [0x60]
+
+	# Set Byte on Condition
+	SETA [r8|m8] => [0x0F, 0x97]
+
+	SETAE [r8|m8] => [0x0F, 0x93]
+
+	SETB [r8|m8] => [0x0F, 0x92]
+
+	SETBE [r8|m8] => [0x0F, 0x96]
+
+	SETC [r8|m8] => [0x0F, 0x92]
+
+	SETE [r8|m8] => [0x0F, 0x94]
+
+	SETG [r8|m8] => [0x0F, 0x9F]
+
+	SETGE [r8|m8] => [0x0F, 0x9D]
+
+	SETL [r8|m8] => [0x0F, 0x9C]
+
+	SETLE [r8|m8] => [0x0F, 0x9E]
+
+	SETNA [r8|m8] => [0x0F, 0x96]
+
+	SETNAE [r8|m8] => [0x0F, 0x92]
+
+	SETNB [r8|m8] => [0x0F, 0x93]
+
+	SETNBE [r8|m8] => [0x0F, 0x97]
+
+	SETNC [r8|m8] => [0x0F, 0x93]
+
+	SETNE [r8|m8] => [0x0F, 0x95]
+
+	SETNG [r8|m8] => [0x0F, 0x9E]
+
+	SETNGE [r8|m8] => [0x0F, 0x9C]
+
+	SETNL [r8|m8] => [0x0F, 0x9D]
+
+	SETNLE [r8|m8] => [0x0F, 0x9F]
+
+	SETNO [r8|m8] => [0x0F, 0x91]
+
+	SETNP [r8|m8] => [0x0F, 0x9B]
+
+	SETNS [r8|m8] => [0x0F, 0x99]
+
+	SETNZ [r8|m8] => [0x0F, 0x95]
+
+	SETO [r8|m8] => [0x0F, 0x90]
+
+	SETP [r8|m8] => [0x0F, 0x9A]
+
+	SETPE [r8|m8] => [0x0F, 0x9A]
+
+	SETPO [r8|m8] => [0x0F, 0x9B]
+
+	SETS [r8|m8] => [0x0F, 0x98]
+
+	SETZ [r8|m8] => [0x0F, 0x94]
+
+	# Double Precision Shift Left
+	SHLD [r16|m16, r16, imm8] => [0x0F, 0xA4, ib],
+	     [r16|m16, r16, cl]   => [0x0F, 0xA5],
+	     [r32|m32, r32, imm8] => [0x0F, 0xA4, ib],
+	     [r32|m32, r32, cl]   => [0x0F, 0xA5]
+
+	# Double Precision Shift Right
+	SHRD [r16|m16, r16, imm8] => [0x0F, 0xAC, ib],
+	     [r16|m16, r16, cl]   => [0x0F, 0xAD],
+	     [r32|m32, r32, imm8] => [0x0F, 0xAC, ib],
+	     [r32|m32, r32, cl]   => [0x0F, 0xAD]
 }.to_hash]

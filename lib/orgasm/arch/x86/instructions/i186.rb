@@ -21,21 +21,21 @@ X86::Instructions[X86::DSL.new(32) {
 	# Add with Carry
 	ADC [eax,     imm32]   => [0x15, id],
 	    [r32|m32, imm32]   => [0x81, ?2, id],
-	    [r32|m32, imm8]    => [0x83, ?2, ib],
+	    [r32|m32, imm8]    => [0x83, ?2, +ib],
 	    [r32|m32, r32]     => [0x11, r],
 	    [r32,     r32|m32] => [0x13, r]
 
 	# Add
 	ADD [eax,     imm32]   => [0x05, id],
 	    [r32|m32, imm32]   => [0x81, ?0, id],
-	    [r32|m32, imm8]    => [0x83, ?0, ib],
+	    [r32|m32, imm8]    => [0x83, ?0, +ib],
 	    [r32|m32, r32]     => [0x01, r],
 	    [r32,     r32|m32] => [0x03, r]
 
 	# Logical AND
 	AND [eax,     imm32]   => [0x25, id],
 	    [r32|m32, imm32]   => [0x81, ?4, id],
-	    [r32|m32, imm8]    => [0x83, ?4, ib],
+	    [r32|m32, imm8]    => [0x83, ?4, +ib],
 	    [r32|m32, r32]     => [0x21, r],
 	    [r32,     r32|m32] => [0x23, r]
 
@@ -67,9 +67,9 @@ X86::Instructions[X86::DSL.new(32) {
 	# Signed Multiply
 	IMUL [r32|m32]             => [0xF7, ?5],
 	     [r32, r32|m32]        => [0x0F, 0xAF, r],
-	     [r32, r32|m32, imm8]  => [0x6B, r, ib],
-	     [r32, imm8]           => [0x6B, r, ib],
-	     [r32, r32|m32, imm16] => [0x69, r, id]
+	     [r32, r32|m32, imm8]  => [0x6B, r, +ib],
+	     [r32, imm8]           => [0x6B, r, +ib],
+	     [r32, r32|m32, imm16] => [0x69, r, +id]
 
 	# Input from Port
 	IN [eax, imm8] => [0xE5, ib],
@@ -191,7 +191,7 @@ X86::Instructions[X86::DSL.new(32) {
 	# Logical Inclusive OR
 	OR [eax,     imm32]   => [0x0D, id],
 	   [r32|m32, imm32]   => [0x81, ?1, id],
-	   [r32|m32, imm8]    => [0x83, ?1, ib],
+	   [r32|m32, imm8]    => [0x83, ?1, +ib],
 	   [r32|m32, r32]     => [0x09, r],
 	   [r32,     r32|m32] => [0x0B, r]
 
@@ -226,6 +226,12 @@ X86::Instructions[X86::DSL.new(32) {
 	# Push EFLAGS Register onto the Stack
 	PUSHFD [eax].ignore => [0x9C]
 
+	# Repeat String Operation Prefix
+	REP [0xF3, [0x6C]],
+	    [0xF3, [0x6D]],
+	    [0xF3, [0x6E]],
+	    [0xF3, [0x6F]]
+
 	# Rotate
 	RCL [r32|m32,   1]    => [0xD1, ?2],
 	    [r32|m32,   cl]   => [0xD3, ?2],
@@ -242,4 +248,50 @@ X86::Instructions[X86::DSL.new(32) {
 	ROR [r32|m32,   1]    => [0xD1, ?1],
 	    [r32|m32,   cl]   => [0xD3, ?1],
 	    [r32|m32,   imm8] => [0xC1, ?1, ib]
+
+	# Shift
+	SAL [r32|m32, 1]    => [0xD1, ?4],
+	    [r32|m32, cl]   => [0xD3, ?4],
+	    [r32|m32, imm8] => [0xC1, ?4, ib]
+
+	SAR [r32|m32, 1]    => [0xD1, ?7],
+	    [r32|m32, cl]   => [0xD3, ?7],
+	    [r32|m32, imm8] => [0xC1, ?7, ib]
+
+	SHL [r32|m32, 1]    => [0xD1, ?4],
+	    [r32|m32, cl]   => [0xD3, ?4],
+	    [r32|m32, imm8] => [0xC1, ?4, ib]
+
+	SHR [r32|m32, 1]    => [0xD1, ?5],
+	    [r32|m32, cl]   => [0xD3, ?5],
+	    [r32|m32, imm8] => [0xC1, ?5, ib]
+
+	# Integer Substraction with Borrow
+	SBB [eax,     imm32]   => [0x1D, id],
+	    [r32|m32, imm32]   => [0x81, ?3, id],
+	    [r32|m32, imm8]    => [0x83, ?3, +ib],
+	    [r32|m32, r32]     => [0x19, r],
+	    [r32,     r32|m32] => [0x1B, r]
+
+	# Scan String
+	SCAS [m32] => [0xAF]
+
+	SCASD [0xAF]
+
+	# Store String
+	STOS [m32] => [0xAB]
+
+	STOSD [0xAB]
+
+	# Substract
+	SUB [eax,     imm32]   => [0x2D, id],
+	    [r32|m32, imm32]   => [0x81, ?5, id],
+	    [r32|m32, imm8]    => [0x83, ?5, +ib],
+	    [r32|m32, r32]     => [0x29, r],
+	    [r32,     r32|m32] => [0x2B, r]
+
+	# Logical Compare
+	TEST [eax,     imm32] => [0xA9, id],
+	     [r32|m32, imm32] => [0xF7, ?0, id],
+	     [r32|m32, r32]   => [0x85, r]
 }]

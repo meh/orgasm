@@ -43,4 +43,24 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# Load Task Register
 	LTR [r16|m16] => [0x0F, 0x00, ?3]
+
+	# Store Global/Interrupt Descriptor Table Register
+	SGDT [m] => [0x0F, 0x01, ?0]
+
+	SIDT [m] => [0x0F, 0x01, ?1]
+
+	# Store Local Descriptor Table Register
+	SLDT [r16|m16] => [0x0F, 0x00, ?0],
+	     [r32|m32] => [0x0F, 0x00, ?0]
+
+	SMSW [r16|m16] => [0x0F, 0x01, ?4],
+	     [r32|m16] => [0x0F, 0x01, ?4]
+
+	# Store Task Register
+	STR [r16|m16] => [0x0F, 0x00, ?1]
+
+	# Verify a Segment for Reading or Writing
+	VERR [r16|m16] => [0x0F, 0x00, ?4]
+
+	VERW [r16|m16] => [0x0F, 0x00, ?5]
 }]

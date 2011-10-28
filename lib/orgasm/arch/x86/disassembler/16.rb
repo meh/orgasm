@@ -79,6 +79,8 @@ instructions.each {|name, description|
 						X86::Instruction.new(name) {|i|
 							next if params.ignore?
 
+							ap [name, params]
+
 							{ destination: destination, source: source, source2: source2 }.each {|type, obj|
 								next unless obj
 
@@ -109,8 +111,16 @@ instructions.each {|name, description|
 				end
 			}
 		else
-			on description do |whole, which|
-				seek which.length
+			description = description.clone
+
+			ahead = if description.last.is_a?(Array)
+				description.pop
+			else
+				[]
+			end
+
+			on description + ahead, ahead: ahead do |whole, which, data|
+				seek which.length - data[:ahead].length
 
 				X86::Instruction.new(name)
 			end

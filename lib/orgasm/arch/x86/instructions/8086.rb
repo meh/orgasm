@@ -38,7 +38,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [ax,      imm16]   => [0x15, iw],
 	    [r8|m8,   imm8]    => [0x80, ?2, ib],
 	    [r16|m16, imm16]   => [0x81, ?2, iw],
-	    [r16|m16, imm8]    => [0x83, ?2, ib],
+	    [r16|m16, imm8]    => [0x83, ?2, +ib],
 	    [r8|m8,   r8]      => [0x10, r],
 	    [r16|m16, r16]     => [0x11, r],
 	    [r8,      r8|m8]   => [0x12, r],
@@ -49,7 +49,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [ax,      imm16]   => [0x05, iw],
 	    [r8|m8,   imm8]    => [0x80, ?0, ib],
 	    [r16|m16, imm16]   => [0x81, ?0, iw],
-	    [r16|m16, imm8]    => [0x83, ?0, ib],
+	    [r16|m16, imm8]    => [0x83, ?0, +ib],
 	    [r8|m8,   r8]      => [0x00, r],
 	    [r16|m16, r16]     => [0x01, r],
 	    [r8,      r8|m8]   => [0x02, r],
@@ -60,7 +60,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [ax,      imm16]   => [0x25, iw],
 	    [r8|m8,   imm8]    => [0x80, ?4, ib],
 	    [r16|m16, imm16]   => [0x81, ?4, iw],
-	    [r16|m16, imm8]    => [0x83, ?4, ib],
+	    [r16|m16, imm8]    => [0x83, ?4, +ib],
 	    [r8|m8,   r8]      => [0x20, r],
 	    [r16|m16, r16]     => [0x21, r],
 	    [r8,      r8|m8]   => [0x22, r],
@@ -93,7 +93,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [ax,      imm16]   => [0x3D, iw],
 	    [r8|m8,   imm8]    => [0x80, ?7, ib],
 	    [r16|m16, imm16]   => [0x81, ?7, iw],
-	    [r16|m16, imm8]    => [0x83, ?7, ib],
+	    [r16|m16, imm8]    => [0x83, ?7, +ib],
 	    [r8|m8,   r8]      => [0x38, r],
 	    [r16|m16, r16]     => [0x39, r],
 	    [r8,      r8|m8]   => [0x3A, r],
@@ -306,8 +306,8 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16|m16, imm16]   => [0xC7, ?0, iw]
 
 	# Move Data from String to String
-	MOVS [m8, m8]   => [0xA4],
-	     [m16, m16] => [0xA5]
+	MOVS [m8, m8].ignore   => [0xA4],
+	     [m16, m16].ignore => [0xA5]
 
 	MOVSB [al].ignore => [0xA4]
 
@@ -333,7 +333,7 @@ X86::Instructions[X86::DSL.new(16) {
 	   [ax,      imm16]   => [0x0D, iw],
 	   [r8|m8,   imm8]    => [0x80, ?1, ib],
 	   [r16|m16, imm16]   => [0x81, ?1, iw],
-	   [r16|m16, imm8]    => [0x83, ?1, ib],
+	   [r16|m16, imm8]    => [0x83, ?1, +ib],
 	   [r8|m8,   r8]      => [0x08, r],
 	   [r16|m16, r16]     => [0x09, r],
 	   [r8,      r8|m8]   => [0x0A, r],
@@ -400,4 +400,133 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16|m16, 1]    => [0xD1, ?1],
 	    [r16|m16, cl]   => [0xD3, ?1],
 	    [r16|m16, imm8] => [0xC1, ?1, ib]
+
+	# Repeat String Operation Prefix
+	REP [0xF3, [0xA4]],
+	    [0xF3, [0xA5]],
+	    [0xF3, [0xAC]],
+	    [0xF3, [0xAA]],
+	    [0xF3, [0xAB]]
+
+	REPE [0xF3, [0xA6]],
+	     [0xF3, [0xA7]],
+	     [0xF3, [0xAE]],
+	     [0xF3, [0xAF]]
+
+	REPNE [0xF2, [0xA6]],
+	      [0xF2, [0xA7]],
+	      [0xF2, [0xAE]],
+	      [0xF2, [0xAF]]
+	
+	# Return From Procedure
+	RET [0xC3],
+	    [imm16] => [0xC2, iw]
+
+	RETF [0xCB],
+	     [imm16] => [0xCA, iw]
+
+	# Store AH into Flags
+	SAHF [0x9E]
+
+	# Shift
+	SAL [r8|m8,   1]    => [0xD0, ?4],
+	    [r8|m8,   cl]   => [0xD2, ?4],
+	    [r8|m8,   imm8] => [0xC0, ?4, ib],
+	    [r16|m16, 1]    => [0xD1, ?4],
+	    [r16|m16, cl]   => [0xD3, ?4],
+	    [r16|m16, imm8] => [0xC1, ?4, ib]
+
+	SAR [r8|m8, 1]      => [0xD0, ?7],
+	    [r8|m8, cl]     => [0xD2, ?7],
+	    [r8|m8, imm8]   => [0xC0, ?7, ib],
+	    [r16|m16, 1]    => [0xD1, ?7],
+	    [r16|m16, cl]   => [0xD3, ?7],
+	    [r16|m16, imm8] => [0xC1, ?7, ib]
+
+	SHL [r8|m8, 1]      => [0xD0, ?4],
+	    [r8|m8, cl]     => [0xD2, ?4],
+	    [r8|m8, imm8]   => [0xC0, ?4, ib],
+	    [r16|m16, 1]    => [0xD1, ?4],
+	    [r16|m16, cl]   => [0xD3, ?4],
+	    [r16|m16, imm8] => [0xC1, ?4, ib]
+
+	SHR [r8|m8, 1]      => [0xD0, ?5],
+	    [r8|m8, cl]     => [0xD2, ?5],
+	    [r8|m8, imm8]   => [0xC0, ?5, ib],
+	    [r16|m16, 1]    => [0xD1, ?5],
+	    [r16|m16, cl]   => [0xD3, ?5],
+	    [r16|m16, imm8] => [0xC1, ?5, ib]
+
+	# Integer Substraction with Borrow
+	SBB [al,      imm8]    => [0x1C, ib],
+	    [ax,      imm16]   => [0x1D, iw],
+	    [r8|m8,   imm8]    => [0x80, ?3, ib],
+	    [r16|m16, imm16]   => [0x81, ?3, iw],
+	    [r16|m16, imm8]    => [0x83, ?3, +ib],
+	    [r8|m8,   r8]      => [0x18, r],
+	    [r16|m16, r16]     => [0x19, r],
+	    [r8,      r8|m8]   => [0x1A, r],
+	    [r16,     r16|m16] => [0x1B, r]
+
+	# Scan String
+	SCAS [m8]  => [0xAE],
+	     [m16] => [0xAF]
+
+	SCASB [0xAE]
+
+	SCASW [0xAF]
+
+	# Set Carry Flag
+	STC [0xF9]
+
+	# Set Direction Flag
+	STD [0xFD]
+
+	# Set Interrupt Flag
+	STI [0xFB]
+
+	# Store String
+	STOS [m8]  => [0xAA],
+	     [m16] => [0xAB]
+
+	STOSB [0xAA]
+
+	STOSW [0xAB]
+
+	# Substract
+	SUB [al,      imm8]    => [0x2C, ib],
+	    [ax,      imm16]   => [0x2D, iw],
+	    [r8|m8,   imm8]    => [0x80, ?5, ib],
+	    [r16|m16, imm16]   => [0x81, ?5, iw],
+	    [r16|m16, imm8]    => [0x83, ?5, +ib],
+	    [r8|m8,   r8]      => [0x28, r],
+	    [r16|m16, r16]     => [0x29, r],
+	    [r8,      r8|m8]   => [0x2A, r],
+	    [r16,     r16|m16] => [0x2B, r]
+
+	# Logical Compare
+	TEST [al,      imm8]  => [0xA8, ib],
+	     [ax,      imm8]  => [0xA9, iw],
+	     [r8|m8,   imm8]  => [0xF6, ?0, ib],
+	     [r16|m16, imm16] => [0xF7, ?0, iw],
+	     [r8|m8,   r8]    => [0x84, r],
+	     [r16|m16, r16]   => [0x85, r]
+
+	# Wait
+	WAIT [0x9B]
+
+	# Exchange Register/Memory with Register
+	XCHG [ax,      r16]     => [0x90, +rw],
+	     [r16,     ax]      => [0x90, +rw],
+	     [r8|m8,   r8]      => [0x86, r],
+	     [r8,      r8|m8]   => [0x86, r],
+	     [r16|m16, r16]     => [0x87, r],
+	     [r16,     r16|m16] => [0x87, r]
+
+	# Table Look-up Translation
+	XLAT [m8] => [0xD7]
+
+	XLATB [0xD7]
+
+	# Logical Exclusive OR
 }]

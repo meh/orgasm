@@ -27,4 +27,16 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# Read from Model Specific Register
 	RDMSR [0x0F, 0x32]
+
+	# Read Performance-Monitoring Counters
+	RDPMC [0x0F, 0x33]
+
+	# Read Time-Stamp Counter
+	RDTSC [0x0F, 0x31]
+
+	# Resume from System Management Mode
+	RSM [0x0F, 0xAA]
+
+	# Write to Model Specific Register
+	WRMSR [0x0F, 0x30]
 }]

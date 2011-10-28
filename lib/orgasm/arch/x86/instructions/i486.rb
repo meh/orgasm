@@ -32,4 +32,16 @@ X86::Instructions[X86::DSL.new(32) {
 	# Invalidate TLB Entry
 	INVLPG [m16] => [0x0F, 0x01, ?7],
 	       [m32] => [0x0F, 0x01, ?7]
+
+	# Write Back and Invalidate Cache
+	WBINVD [0x0F, 0x09]
+
+	# Exchange and Add
+	XADD [r8|m8,   r8]  => [0x0F, 0xC0, r],
+	     [r16|m16, r16] => [0x0F, 0xC1, r],
+	     [r32|m32, r32] => [0x0F, 0xC1, r]
+
+	# Exchange Register/Memory with Register
+	XCHG [r32|m32, r32]     => [0x87, r],
+	     [r32,     r32|m32] => [0x87, r]
 }]

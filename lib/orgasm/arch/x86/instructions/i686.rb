@@ -108,4 +108,13 @@ X86::Instructions[X86::DSL.new(32) {
 
 	CMOVZ [r16, r16|m16] => [0x0F, 0x44, r],
 	      [r32, r32|m32] => [0x0F, 0x44, r]
+
+	# Fast Transition to System Call Entry Point
+	SYSENTER [0x0F, 0x34]
+
+	# Fast Transition from System Call Entry Point
+	SYSEXIT [0x0F, 0x35]
+
+	# Undefined Instruction
+	UD2 [0x0F, 0x0B]
 }]
