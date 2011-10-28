@@ -41,8 +41,13 @@ always do
 				description.each {|params, definition|
 					destination, source, source2 = params
 
-					next if (options[:mode] == :real && destination.bits == 16 && prefixes.operand?) ||
-					        (options[:mode] != :real && destination.bits == 32 && prefixes.operand?)
+					if destination.bits == 16
+						next if options[:mode] == :real && prefixes.operand?
+						next if options[:mode] != :real && !prefixes.operand?
+					elsif destination.bits == 32
+						next if options[:mode] == :real && !prefixes.operand?
+						next if options[:mode] != :real && prefixes.operand?
+					end
 
 					known = definition.reverse.drop_while {|x|
 						!x.is_a?(Integer)
