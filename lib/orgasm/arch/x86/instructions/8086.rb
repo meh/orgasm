@@ -254,6 +254,7 @@ X86::Instructions[X86::DSL.new(16) {
 	   [rel16] => [0x0F, 0x84, +cw]
 
 	# Jump
+	# TODO: the various *:(16|32), still don't know how to proceed with those
 	JMP [rel8]    => [0xEB, +cb],
 	    [rel16]   => [0xE9, +cw],
 	    [r16|m16] => [0xFF, ?4]
@@ -361,13 +362,7 @@ X86::Instructions[X86::DSL.new(16) {
 	PUSH [r16|m16] => [0xFF, ?6],
 	     [r16]     => [0x50, rw],
 	     [imm8]    => [0x6A, ib],
-	     [imm16]   => [0x68, iw],
-	     [cs]      => [0x0E],
-	     [ss]      => [0x16],
-	     [ds]      => [0x1E],
-	     [es]      => [0x06],
-	     [fs]      => [0x0F, 0xA0],
-	     [gs]      => [0x0F, 0xA8]
+	     [imm16]   => [0x68, iw]
 
 	# Push EFLAGS Register onto the Stack
 	PUSHF [ax].ignore => [0x9C]

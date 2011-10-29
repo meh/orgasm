@@ -31,12 +31,12 @@ Orgasm::Architecture.is 'x86' do
 
 	family 'i186' do
 		instructions arch[8086].instructions.deep_clone, 'orgasm/arch/x86/instructions/i186'
-		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler 'orgasm/arch/x86/disassembler/16'
 	end
 
 	family 'i286' do
 		instructions arch[:i186].instructions.deep_clone, 'orgasm/arch/x86/instructions/i286'
-		disassembler 'orgasm/arch/x86/disassembler/32'
+		disassembler 'orgasm/arch/x86/disassembler/16'
 	end
 
 	family 'i386' do

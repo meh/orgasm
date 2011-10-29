@@ -22,8 +22,7 @@ X86::Instructions[X86::DSL.new(32) {
 	ARPL [r16|m16, r16] => [0x63, r]
 
 	# Load Access Rights Byte
-	LAR [r16, r16|m16] => [0x0F, 0x02, r],
-	    [r32, r32|m32] => [0x0F, 0x02, r]
+	LAR [r16, r16|m16] => [0x0F, 0x02, r]
 
 	# Load Global Descriptor Table Register
 	LGDT [m16&32] => [0x0F, 0x01, ?2]
@@ -38,11 +37,25 @@ X86::Instructions[X86::DSL.new(32) {
 	LMSW [r16|m16] => [0x0F, 0x01, ?6]
 
 	# Load Segment Limit
-	LSL [r16, r16|m16] => [0x0F, 0x03, r],
-	    [r32, r32|m32] => [0x0F, 0x03, r]
+	LSL [r16, r16|m16] => [0x0F, 0x03, r]
 
 	# Load Task Register
 	LTR [r16|m16] => [0x0F, 0x00, ?3]
+
+	# Pop a Value from the Stack
+	POP [ds] => [0x1F],
+	    [es] => [0x07],
+	    [ss] => [0x17],
+	    [fs] => [0x0F, 0xA1],
+	    [gs] => [0x0F, 0xA9]
+
+	# Push Word or Doubleword Onto the Stack
+	PUSH [cs] => [0x0E],
+	     [ss] => [0x16],
+	     [ds] => [0x1E],
+	     [es] => [0x06],
+	     [fs] => [0x0F, 0xA0],
+	     [gs] => [0x0F, 0xA8]
 
 	# Store Global/Interrupt Descriptor Table Register
 	SGDT [m] => [0x0F, 0x01, ?0]
@@ -50,11 +63,9 @@ X86::Instructions[X86::DSL.new(32) {
 	SIDT [m] => [0x0F, 0x01, ?1]
 
 	# Store Local Descriptor Table Register
-	SLDT [r16|m16] => [0x0F, 0x00, ?0],
-	     [r32|m32] => [0x0F, 0x00, ?0]
+	SLDT [r16|m16] => [0x0F, 0x00, ?0]
 
-	SMSW [r16|m16] => [0x0F, 0x01, ?4],
-	     [r32|m16] => [0x0F, 0x01, ?4]
+	SMSW [r16|m16] => [0x0F, 0x01, ?4]
 
 	# Store Task Register
 	STR [r16|m16] => [0x0F, 0x00, ?1]
