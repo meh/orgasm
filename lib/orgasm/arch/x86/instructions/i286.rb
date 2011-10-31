@@ -42,21 +42,6 @@ X86::Instructions[X86::DSL.new(32) {
 	# Load Task Register
 	LTR [r16|m16] => [0x0F, 0x00, ?3]
 
-	# Pop a Value from the Stack
-	POP [ds] => [0x1F],
-	    [es] => [0x07],
-	    [ss] => [0x17],
-	    [fs] => [0x0F, 0xA1],
-	    [gs] => [0x0F, 0xA9]
-
-	# Push Word or Doubleword Onto the Stack
-	PUSH [cs] => [0x0E],
-	     [ss] => [0x16],
-	     [ds] => [0x1E],
-	     [es] => [0x06],
-	     [fs] => [0x0F, 0xA0],
-	     [gs] => [0x0F, 0xA8]
-
 	# Store Global/Interrupt Descriptor Table Register
 	SGDT [m] => [0x0F, 0x01, ?0]
 
