@@ -348,12 +348,7 @@ X86::Instructions[X86::DSL.new(16) {
 
 	# Pop a Value from the Stack
 	POP [m16] => [0x8F, ?0],
-	    [r16] => [0x58, rw],
-	    [ds]  => [0x1F],
-	    [es]  => [0x07],
-	    [ss]  => [0x17],
-	    [fs]  => [0x0F, 0xA1],
-	    [gs]  => [0x0F, 0xA9]
+	    [r16] => [0x58, rw]
 
 	# Pop Stack into EFLAGS Register
 	POPF [ax].ignore => [0x9D]
