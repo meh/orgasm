@@ -191,7 +191,7 @@ class DSL
 			return false unless @invalid_if
 
 			@invalid_if.any? {|check|
-				what.instance_eval &check
+				what.instance_exec &check
 			}
 		end
 
