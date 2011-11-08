@@ -274,6 +274,72 @@ class SIB
 	end
 end
 
+class REX
+	def initialize (value = 0x40)
+		@value = (value.is_a?(String) ? value.bin : value.to_i)
+
+		unless @value >= 0x40 && @value <= 0x4F
+			@value = (@value & '00001111'.bin) | '01000000'.bin
+		end
+	end
+
+	def w?
+		(to_i & '00001000'.bin) >> 3 == 1
+	end
+
+	def w!
+		@value |= '00001000'.bin
+	end
+
+	def no_w!
+		@value &= '11110111'.bin
+	end
+
+	def r?
+		(to_i & '00000100'.bin) >> 2 == 1
+	end
+
+	def r!
+		@value |= '00000100'.bin
+	end
+
+	def no_r!
+		@value &= '11111011'.bin
+	end
+
+	def x?
+		(to_i & '00000010'.bin) >> 1 == 1
+	end
+
+	def x!
+		@value |= '00000010'.bin
+	end
+
+	def no_x!
+		@value &= '11111101'.bin
+	end
+
+	def b?
+		(to_i & '00000001'.bin) == 1
+	end
+
+	def b!
+		@value |= '00000001'.bin
+	end
+
+	def no_b!
+		@value &= '11111110'.bind
+	end
+
+	def to_i
+		@value
+	end
+
+	def inspect
+		"#<REX#{?. if w? or r? or x? or b?}#{?W if w?}#{?R if r?}#{?X if x?}#{?B if b?}>"
+	end
+end
+
 class Data
 	Sizes = { ib: 1, iw: 2, id: 4, io: 8, cb: 1, cw: 2, cd: 4, cp: 6, co: 8, ct: 10 }
 
@@ -304,36 +370,78 @@ class Prefixes < Array
 		end
 	end
 
-	def self.valid? (value)
-		[Override::Segment, Override::Size::Operand, Override::Size::Address].any? {|check|
-			check.member?(value)
-		} && value
-	end
-	
-	attr_reader :options
+	REX = (0x40 .. 0x4F).to_a
 
-	def initialize (options={})
+	For = {
+		32 => [Override::Segment, Override::Size::Operand, Override::Size::Address],
+		64 => [Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
+	}
+
+	attr_reader :bits, :options
+
+	def initialize (bits, options={})
+		@bits    = bits
 		@options = options
 	end
 
-	def size
-		(address? || (options[:mode] == :real && !address?)) ? 16 : 32
+	def valid? (value)
+		For[bits].any? {|check|
+			check.member?(value)
+		} && value
 	end
 
-	def operand?
-		any? {|value|
-			Override::Size::Operand.member?(value)
-		}
+	def size (check = nil)
+		(address?(check) || (options[:mode] == :real && !address?(check))) ? 16 : 32
 	end
 
-	def address?
-		any? {|value|
-			Override::Size::Address.member?(value)
-		}
+	def operand? (check = nil)
+		if check
+			Override::Size::Operand.member?(check)
+		else
+			any? {|value|
+				Override::Size::Operand.member?(value)
+			}
+		end
 	end
 
-	def size?
-		operand? or address?
+	def operand!
+		push Override::Size::Operand.first
+	end
+
+	def no_operand!
+		Override::Size::Operand.each { |n| delete n }
+	end
+
+	def address? (check = nil)
+		if check
+			Override::Size::Address.member?(check)
+		else
+			any? {|value|
+				Override::Size::Address.member?(value)
+			}
+		end
+	end
+
+	def address!
+		push Override::Size::Address.first
+	end
+
+	def no_address!
+		Override::Size::Address.each { |n| delete n }
+	end
+
+	def size? (check = nil)
+		operand?(check) or address?(check)
+	end
+
+	def rex? (check = nil)
+		if check
+			X86::REX.new(check) if REX.member?(check)
+		else
+			any? {|value|
+				return X86::REX.new(value) if REX.member?(value)
+			}
+		end
 	end
 
 	def inspect

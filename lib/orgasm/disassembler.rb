@@ -20,7 +20,7 @@
 module Orgasm
 
 class Disassembler < Piece
-	attr_reader :inherits, :supports
+	attr_reader :inherits, :supports, :options
 
 	def initialize (*)
 		@inherits = []

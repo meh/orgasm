@@ -42,24 +42,13 @@ end
 
 class Array
 	def to_syms
-		map {|x|
-			x.to_sym
-		}
+		map &:to_sym
 	end
 
 	def to_opcodes
 		map {|b|
 			[b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil)
-		}.join ''
-	end
-
-	def ignore
-		@ignore = true
-		self
-	end
-
-	def ignore?
-		!!@ignore
+		}.join
 	end
 end
 

@@ -18,6 +18,8 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
+	inherit 'orgasm/arch/x86/instructions/8086'
+
 	# Check Array Index Against Bounds
 	BOUND [r16, m16&16] => [0x62, r]
 
@@ -36,7 +38,7 @@ X86::Instructions[X86::DSL.new(32) {
 	    [m16, dx] => [0x6D]
 
 	# High Level Procedure Exit
-	LEAVE [ax].ignore  => [0xC9]
+	LEAVE hint(ax)  => [0xC9]
 
 	# Output to Port
 	OUT [imm8, eax] => [0xE7, ib],
@@ -46,15 +48,15 @@ X86::Instructions[X86::DSL.new(32) {
 	OUTS [dx, m8]  => [0x6E],
 	     [dx, m16] => [0x6F]
 
-	OUTSB [al].ignore => [0x6E]
+	OUTSB hint(al) => [0x6E]
 
-	OUTSW [ax].ignore => [0x6F]
+	OUTSW hint(ax) => [0x6F]
 
 	# Pop All General-Purpose Registers
-	POPA [ax].ignore => [0x61]
+	POPA hint(ax) => [0x61]
 
 	# Push all General-Purpose Registers
-	PUSHA [ax].ignore => [0x60]
+	PUSHA hint(ax) => [0x60]
 
 	# Repeat String Operation Prefix
 	REP [0xF3, [0x6C]],

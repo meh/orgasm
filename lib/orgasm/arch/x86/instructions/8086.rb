@@ -71,7 +71,7 @@ X86::Instructions[X86::DSL.new(16) {
 	     [r16|m16]  => [0xFF, ?2]
 
 	# Convert Byte to Word
-	CBW [ax].ignore => [0x98]
+	CBW hint(ax) => [0x98]
 
 	# Clear Carry Flag
 	CLC [0xF8]
@@ -102,10 +102,10 @@ X86::Instructions[X86::DSL.new(16) {
 	# Compare String Operands
 	CMPSB [0xA6]
 
-	CMPSW [ax].ignore => [0xA7]
+	CMPSW hint(ax) => [0xA7]
 
 	# Convert Word to Doubleword
-	CWD [ax].ignore => [0x99]
+	CWD hint(ax) => [0x99]
 
 	# Decimal Adjust AL after Addition
 	DAA [0x27]
@@ -156,7 +156,7 @@ X86::Instructions[X86::DSL.new(16) {
 	INTO [0xCE]
 
 	# Interrupt Return
-	IRET [ax].ignore => [0xCF]
+	IRET hint(ax) => [0xCF]
 
 	# Jump if Condition Is Met
 	JA [rel8]  => [0x77, +cb],
@@ -277,7 +277,7 @@ X86::Instructions[X86::DSL.new(16) {
 	# Load String
 	LODSB [0xAC]
 
-	LODSW [ax].ignore => [0xAD]
+	LODSW hint(ax) => [0xAD]
 
 	# Loop According to ECX Counter
 	LOOP [rel8] => [0xE2, +cb]
@@ -307,12 +307,12 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16|m16, imm16]   => [0xC7, ?0, iw]
 
 	# Move Data from String to String
-	MOVS [m8, m8].ignore   => [0xA4],
-	     [m16, m16].ignore => [0xA5]
+	MOVS hint(m8, m8)   => [0xA4],
+	     hint(m16, m16) => [0xA5]
 
-	MOVSB [al].ignore => [0xA4]
+	MOVSB hint(al) => [0xA4]
 
-	MOVSW [ax].ignore => [0xA5]
+	MOVSW hint(ax) => [0xA5]
 
 	# Unsigned Multiply
 	MUL [r8|m8]   => [0xF6, ?4],
@@ -356,7 +356,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [gs]  => [0x0F, 0xA9]
 
 	# Pop Stack into EFLAGS Register
-	POPF [ax].ignore => [0x9D]
+	POPF hint(ax) => [0x9D]
 
 	# Push Word or Doubleword Onto the Stack
 	PUSH [r16|m16] => [0xFF, ?6],
@@ -372,7 +372,7 @@ X86::Instructions[X86::DSL.new(16) {
 
 
 	# Push EFLAGS Register onto the Stack
-	PUSHF [ax].ignore => [0x9C]
+	PUSHF hint(ax) => [0x9C]
 
 	# Rotate
 	RCL [r8|m8,   1]    => [0xD0, ?2],
@@ -491,9 +491,9 @@ X86::Instructions[X86::DSL.new(16) {
 	STOS [m8]  => [0xAA],
 	     [m16] => [0xAB]
 
-	STOSB [0xAA]
+	STOSB hint(al) => [0xAA]
 
-	STOSW [0xAB]
+	STOSW hint(ax) => [0xAB]
 
 	# Substract
 	SUB [al,      imm8]    => [0x2C, ib],

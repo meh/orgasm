@@ -30,38 +30,43 @@ Orgasm::Architecture.is 'x86' do
 	end
 
 	family 'i186' do
-		instructions arch[8086].instructions.deep_clone, 'orgasm/arch/x86/instructions/i186'
+		instructions 'orgasm/arch/x86/instructions/i186'
 		disassembler 'orgasm/arch/x86/disassembler/16'
 	end
 
 	family 'i286' do
-		instructions arch[:i186].instructions.deep_clone, 'orgasm/arch/x86/instructions/i286'
+		instructions 'orgasm/arch/x86/instructions/i286'
 		disassembler 'orgasm/arch/x86/disassembler/16'
+		disassembler.supports :mode
 	end
 
 	family 'i386' do
-		instructions arch[:i286].instructions.deep_clone, 'orgasm/arch/x86/instructions/i386'
+		instructions 'orgasm/arch/x86/instructions/i386'
 		disassembler 'orgasm/arch/x86/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i486' do
-		instructions arch[:i386].instructions.deep_clone, 'orgasm/arch/x86/instructions/i486'
+		instructions 'orgasm/arch/x86/instructions/i486'
 		disassembler 'orgasm/arch/x86/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i586' do
-		instructions arch[:i486].instructions.deep_clone, 'orgasm/arch/x86/instructions/i586'
+		instructions 'orgasm/arch/x86/instructions/i586'
 		disassembler 'orgasm/arch/x86/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i686' do
-		instructions arch[:i586].instructions.deep_clone, 'orgasm/arch/x86/instructions/i686'
+		instructions 'orgasm/arch/x86/instructions/i686'
 		disassembler 'orgasm/arch/x86/disassembler/32'
 		disassembler.supports :mode
 	end
 
-	styles 'orgasm/arch/x86/styles'
+	family 'x64' do
+		instructions 'orgasm/arch/x86/instructions/x64'
+		disassembler 'orgasm/arch/x86/disassembler/64'
+		disassembler.supports :mode
+	end
 end

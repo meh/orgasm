@@ -18,6 +18,8 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
+	inherit 'orgasm/arch/x86/instructions/i586'
+
 	# Conditional Move
 	CMOVA [r16, r16|m16] => [0x0F, 0x47, r],
 	      [r32, r32|m32] => [0x0F, 0x47, r]

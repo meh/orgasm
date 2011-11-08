@@ -55,6 +55,8 @@ class DSL
 		:STi, :sti # the i^th element from the top of the FPU register stack. (i = 0 through 7)
 	]
 
+	attr_reader :instructions
+
 	def initialize (&block)
 		@instructions = Hash.new {|hash, key| hash[key] = []}
 

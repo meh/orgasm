@@ -18,6 +18,8 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
+	inherit 'orgasm/arch/x86/instructions/i286'
+
 	# Add with Carry
 	ADC [eax,     imm32]   => [0x15, id],
 	    [r32|m32, imm32]   => [0x81, ?2, id],
@@ -70,7 +72,7 @@ X86::Instructions[X86::DSL.new(32) {
 	    [r32|m32, imm8] => [0x0F, 0xBA, ?6, ib]
 
 	# Conver Doubleword to Quadword
-	CDQ [eax].ignore => [0x99]
+	CDQ hint(eax) => [0x99]
 
 	# Compare Two Operands
 	CMP [eax,     imm32]   => [0x3D, id],
@@ -84,10 +86,10 @@ X86::Instructions[X86::DSL.new(32) {
 	     [m16, m16] => [0xA7],
 	     [m32, m32] => [0xA7]
 
-	CMPSD [eax].ignore => [0xA7]
+	CMPSD hint(eax)=> [0xA7]
 
 	# Convert Word to Doubleword
-	CWDE [eax].ignore => [0x98]
+	CWDE hint(eax) => [0x98]
 
 	# Decrement by 1
 	DEC [r32|m32] => [0xFF, ?1],
@@ -120,12 +122,12 @@ X86::Instructions[X86::DSL.new(32) {
 	# Input from Port to String
 	INSB [0x6C]
 
-	INSW [ax].ignore => [0x6D]
+	INSW hint(ax) => [0x6D]
 
-	INSD [eax].ignore => [0x6D]
+	INSD hint(eax) => [0x6D]
 
 	# Interrupt Return
-	IRETD [eax].ignore => [0xCF]
+	IRETD hint(eax) => [0xCF]
 
 	# Jump if Condition Is Met
 	JA [rel32] => [0x0F, 0x87, +cd]
@@ -200,10 +202,10 @@ X86::Instructions[X86::DSL.new(32) {
 	LEA [r32, m] => [0x8D, r]
 
 	# High Level Procedure Exit
-	LEAVE [eax].ignore => [0xC9]
+	LEAVE hint(eax) => [0xC9]
 
 	# Load String
-	LODSD [eax].ignore => [0xAD]
+	LODSD hint(eax) => [0xAD]
 
 	# Load Segment Limit
 	LSL [r32, r32|m32] => [0x0F, 0x03, r]
@@ -234,9 +236,9 @@ X86::Instructions[X86::DSL.new(32) {
 	    [dr,  r32] => [0x0F, 0x23, r]
 
 	# Move Data from String to String
-	MOVS [m32, m32].ignore => [0xA5]
+	MOVS hint(m32, m32) => [0xA5]
 
-	MOVSD [eax].ignore => [0xA5]
+	MOVSD hint(eax) => [0xA5]
 
 	# Move with Zero-Extended
 	MOVZX [r16, r8|m8]   => [0x0F, 0xB6, r],
@@ -262,23 +264,23 @@ X86::Instructions[X86::DSL.new(32) {
 	# Output String to Port
 	OUTS [dx, m32] => [0x6F]
 
-	OUTSD [eax].ignore => [0x6F]
+	OUTSD hint(eax) => [0x6F]
 
 	# Pop a Value from the Stack
 	POP [m32] => [0x8F, ?0],
 	    [r32] => [0x58, +rd]
 
 	# Pop All General-Purpose Registers
-	POPAD [eax].ignore => [0x61]
+	POPAD hint(eax) => [0x61]
 
 	# Pop Stack into EFLAGS Register
-	POPFD [eax].ignore => [0x9D]
+	POPFD hint(eax) => [0x9D]
 
 	# Push all General-Purpose Registers
-	PUSHAD [eax].ignore => [0x60]
+	PUSHAD hint(eax) => [0x60]
 
 	# Push EFLAGS Register onto the Stack
-	PUSHFD [eax].ignore => [0x9C]
+	PUSHFD hint(eax) => [0x9C]
 
 	# Rotate
 	RCL [r32|m32,   1]    => [0xD1, ?2],

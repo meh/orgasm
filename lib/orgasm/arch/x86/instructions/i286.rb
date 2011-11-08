@@ -18,6 +18,8 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
+	inherit 'orgasm/arch/x86/instructions/i186'
+
 	# Adjust RPL Field of Segment Selector
 	ARPL [r16|m16, r16] => [0x63, r]
 

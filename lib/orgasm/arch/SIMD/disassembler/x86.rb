@@ -66,7 +66,7 @@ always do
 							}.compact.reverse
 
 							SIMD::X86::Instruction.new(name) {|i|
-								next if params.ignore?
+								next if params.hint?
 
 								{ destination: destination, source: source, source2: source2 }.each {|type, obj|
 									next unless obj

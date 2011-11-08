@@ -25,7 +25,7 @@ on -> i { i.parameters.length == 0 } do |i|
 			result! opcodes.map(&:chr).join if opcodes.is_a?(Array)
 
 			opcodes.each {|description, opcodes|
-				result! opcodes.map(&:chr).join if description.ignore?
+				result! opcodes.map(&:chr).join if description.hint?
 			}
 		}
 	end
@@ -39,7 +39,7 @@ instruction do |i|
 			next unless opcodes.is_a?(Hash)
 
 			opcodes.each {|description, opcodes|
-				next unless !description.ignore? && description.length == i.parameters.length
+				next unless !description.hint? && description.length == i.parameters.length
 
 				bytecode = opcodes.reverse.drop_while {|x|
 					!x.is_a?(Integer)

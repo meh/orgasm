@@ -18,6 +18,8 @@
 #++
 
 X86::Instructions[X86::DSL.new(32) {
+	inherit 'orgasm/arch/x86/instructions/i386'
+
 	# Byte Swap
 	BSWAP [r32] => [0x0F, 0xC8, rd]
 

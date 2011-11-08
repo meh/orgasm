@@ -69,39 +69,29 @@ class Architecture
 		} or super
 	end
 
-	def instructions (*what, &block)
-		return @instructions unless !what.empty? or block
+	def instructions (path = nil)
+		return @instructions unless path or block_given?
 
-		what.each {|path|
-			data = if path
-				if path.is_a?(String)
-					path = $:.each {|dir|
-						dir = File.join(dir, "#{path}.rb")
+		@instructions = if path
+			if path.is_a?(String)
+				path = $:.each {|dir|
+					dir = File.join(dir, "#{path}.rb")
 
-						break dir if File.readable?(dir)
-					}.tap {|o|
-						raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-					}
+					break dir if File.readable?(dir)
+				}.tap {|o|
+					raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+				}
 
-					instance_eval File.read(path), path, 1
-				else
-					path
-				end
+				eval File.read(path), path, 1
 			else
-				instance_eval &block
+				path
 			end
-
-			if !@instructions
-				@instructions = data
-			else
-				if @instructions.respond_to?(:merge!)
-					@instructions.merge!(data)
-				end
-			end
-		}
+		else
+			yield
+		end
 	end
 
-	[:disassembler, :assembler, :generator, :styles].each {|name|
+	%w(disassembler assembler generator).each {|name|
 		define_method name do |path=nil, &block|
 			return instance_variable_get("@#{name}") unless path or block
 
@@ -121,8 +111,10 @@ class Architecture
 		end
 	}
 
-	def family (name, &block)
-		@families << Family.new(self, name, &block)
+	def family (*names, &block)
+		names.each {|name|
+			@families << Family.new(self, name, &block)
+		}
 	end
 
 	def extension (name, &block)
@@ -141,7 +133,6 @@ require 'orgasm/architecture/extension'
 
 require 'orgasm/base'
 require 'orgasm/piece'
-require 'orgasm/styles'
 require 'orgasm/disassembler'
 require 'orgasm/generator'
 require 'orgasm/assembler'

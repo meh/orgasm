@@ -17,15 +17,17 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+options[:mode] = :protected
+
 # undocumented opcode holes, excluding the size prefixes
 on 0xC1 do
 	seek +1 and done
 end
 
 always do
-	prefixes ||= X86::Prefixes.new(options)
+	prefixes ||= X86::Prefixes.new(32, options)
 
-	while prefix = X86::Prefixes.valid?(lookahead(1).to_byte)
+	while prefix = prefixes.valid?(lookahead(1).to_byte)
 		prefixes << prefix
 
 		seek +1
@@ -42,11 +44,11 @@ always do
 					destination, source, source2 = params
 
 					if destination.bits == 16
-						next if options[:mode] == :real && prefixes.operand?
-						next if options[:mode] != :real && !prefixes.operand?
+						next if options[:mode] == :real      && prefixes.operand?
+						next if options[:mode] == :protected && !prefixes.operand?
 					elsif destination.bits == 32
-						next if options[:mode] == :real && !prefixes.operand?
-						next if options[:mode] != :real && prefixes.operand?
+						next if options[:mode] == :real      && !prefixes.operand?
+						next if options[:mode] == :protected && prefixes.operand?
 					end
 
 					known = definition.reverse.drop_while {|x|
@@ -83,7 +85,7 @@ always do
 
 						seek which.length do
 							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
-							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] != :real && prefixes.size?)
+							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] == :protected && prefixes.size?)
 
 							# return when the /n is wrong
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
@@ -98,7 +100,7 @@ always do
 							}.compact.reverse
 
 							X86::Instruction.new(name) {|i|
-								next if params.ignore?
+								next if params.hint?
 
 								{ destination: destination, source: source, source2: source2 }.each {|type, obj|
 									next unless obj

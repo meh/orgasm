@@ -31,16 +31,6 @@ class Base
 	def initialize
 		yield self if block_given?
 	end
-
-	def to_s
-		begin
-			raise LoadError unless respond_to? :arch
-
-			Architecture[arch].style.apply(self)
-		rescue LoadError
-			super
-		end
-	end
 end
 
 end

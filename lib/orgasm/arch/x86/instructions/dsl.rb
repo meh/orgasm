@@ -123,7 +123,7 @@ class DSL
 			:dr, # one of the double-word control registers DR0, DR1, DR2, DR3, DR4, DR5, DR6, DR7
 
 			:imm32, # an immediate doubleword value used for instructions whose operand-size attribute is 32 bits.
-			        # It allows the use of a number between +2147483647 and -2147483648 inclusive.   
+			        # It allows the use of a number between +2147483647 and -2147483648 inclusive.
 
 			:m32, # a doubleword operand in memory, usually expressed as a variable or array name, but pointed
 			      # to by the DS:(E)SI or ES:(E)DI registers. This nomenclature is ued only with the string
@@ -139,11 +139,13 @@ class DSL
 		],
 
 		64 => [
-			:rax, :rcx, :rdx, :rbx, :rsp, :rbp, :rsi, :rdi
+			:rax, :rcx, :rdx, :rbx, :rsp, :rbp, :rsi, :rdi,
+
+			:r64
 		]
 	}
 
-	attr_reader :bits
+	attr_reader :bits, :instructions
 
 	def initialize (bits, &block)
 		@bits         = bits
@@ -151,6 +153,40 @@ class DSL
 
 		instance_eval &block
 	end
+
+	def to_hash
+		@instructions
+	end
+
+	module Piece
+		def hint?
+			!!@hint
+		end
+
+		def hint!
+			@hint = true
+		end
+
+		def not_hint!
+			@hint = false
+		end
+
+		def invalid? (what)
+			(@invalid_if ||= []).any? {|check|
+				what.instance_eval &check
+			}
+		end
+
+		def invalid_if (check)
+			(@invalid_if ||= []) << check
+		end
+	end
+
+	def hint (*args)
+		args.extend Piece
+		args.hint!
+		args
+	end; alias i hint
 
 	Symbols.each {|bit, specials|
 		specials.each {|special|
@@ -165,11 +201,45 @@ class DSL
 	def method_missing (id, *args)
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
 
-		@instructions[id.to_sym.upcase].insert(-1, *args)
+		args.each {|arg|
+			if arg.is_a?(Hash)
+				arg.each_key { |key| key.extend Piece }
+			else
+				arg.extend Piece
+			end
+		}
+
+		@instructions[id.to_sym.upcase].push(*args)
 	end
 
-	def to_hash
-		@instructions
+	class Invalid < self
+		def initialize (check, dsl, &block)
+			@check        = check
+			@bits         = dsl.bits
+			@instructions = dsl.instructions
+
+			instance_eval &block
+		end
+
+		def method_missing (id, *args)
+			raise ArgumentError, "#{id} isn't supported" if args.empty?
+
+			args.each {|arg|
+				@instructions[id.to_sym.upcase].each {|description|
+					if description.is_a?(Hash)
+						description.each_key {|key|
+							key.invalid_if(@check) if key == arg
+						}
+					else
+						description.invalid_if(@check) if description == arg
+					end
+				}
+			}
+		end
+	end
+
+	def invalid_if (check, &block)
+		Invalid.new(check, self, &block)
 	end
 end
 

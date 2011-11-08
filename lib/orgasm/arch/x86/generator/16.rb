@@ -84,6 +84,8 @@ define_dsl_method :extern, :e do |name|
 end
 
 X86::Instructions::Registers.each {|bits, regs|
+	next unless bits.is_a?(Integer)
+
 	if bits <= 16
 		regs.each {|reg|
 			define_dsl_method reg do

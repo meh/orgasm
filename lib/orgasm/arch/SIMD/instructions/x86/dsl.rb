@@ -50,10 +50,16 @@ class DSL
 		:m128, # a memory double quadwrd operand in memory.
 	]
 
+	attr_reader :instructions
+
 	def initialize (&block)
 		@instructions = Hash.new {|hash, key| hash[key] = []}
 
 		instance_eval &block
+	end
+
+	def to_hash
+		@instructions
 	end
 
 	Symbols.each {|special|
@@ -66,10 +72,6 @@ class DSL
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
 
 		@instructions[id.to_sym.upcase].push(*args)
-	end
-
-	def to_hash
-		@instructions
 	end
 end
 
