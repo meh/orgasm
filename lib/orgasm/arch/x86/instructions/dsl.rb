@@ -149,9 +149,25 @@ class DSL
 
 	def initialize (bits, &block)
 		@bits         = bits
-		@instructions = Hash.new {|hash, key| hash[key] = []}
+		@instructions = Hash.new { |hash, key| hash[key] = [] }
 
 		instance_eval &block
+	end
+
+	def inherit (path = nil)
+		@instructions.merge!(if path
+			path = $:.each {|dir|
+				dir = File.join(dir, "#{path}.rb")
+
+				break dir if File.readable?(dir)
+			}.tap {|o|
+				raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+			}
+
+			eval File.read(path), nil, path, 1
+		else
+			yield
+		end)
 	end
 
 	def to_hash
@@ -172,7 +188,9 @@ class DSL
 		end
 
 		def invalid? (what)
-			(@invalid_if ||= []).any? {|check|
+			return false unless @invalid_if
+
+			@invalid_if.any? {|check|
 				what.instance_eval &check
 			}
 		end

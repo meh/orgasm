@@ -73,19 +73,15 @@ class Architecture
 		return @instructions unless path or block_given?
 
 		@instructions = if path
-			if path.is_a?(String)
-				path = $:.each {|dir|
-					dir = File.join(dir, "#{path}.rb")
+			path = $:.each {|dir|
+				dir = File.join(dir, "#{path}.rb")
 
-					break dir if File.readable?(dir)
-				}.tap {|o|
-					raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
-				}
+				break dir if File.readable?(dir)
+			}.tap {|o|
+				raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+			}
 
-				eval File.read(path), path, 1
-			else
-				path
-			end
+			eval File.read(path), nil, path, 1
 		else
 			yield
 		end
