@@ -141,7 +141,15 @@ class DSL
 		64 => [
 			:rax, :rcx, :rdx, :rbx, :rsp, :rbp, :rsi, :rdi,
 
-			:r64
+			:r64,
+
+			:ro,
+
+			:io,
+
+			:moffs64,
+
+			:imm64
 		]
 	}
 
@@ -175,17 +183,14 @@ class DSL
 	end
 
 	module Piece
-		def hint?
-			!!@hint
-		end
+		def hint?;   !!@hint;         end
+		def hint!;     @hint = true;  end
+		def not_hint!; @hint = false; end
 
-		def hint!
-			@hint = true
-		end
+		def no_prefix?; !@prefix;        end
+		def prerfix!;   @prefix = true;  end
+		def no_prefix!; @prefix = false; end
 
-		def not_hint!
-			@hint = false
-		end
 
 		def invalid? (what)
 			return false unless @invalid_if
@@ -204,7 +209,13 @@ class DSL
 		args.extend Piece
 		args.hint!
 		args
-	end; alias i hint
+	end; alias h hint
+
+	def no_prefix (*args)
+		args.extend Piece
+		args.no_prefix!
+		args
+	end; alias n no_prefix
 
 	Symbols.each {|bit, specials|
 		specials.each {|special|
@@ -221,7 +232,10 @@ class DSL
 
 		args.each {|arg|
 			if arg.is_a?(Hash)
-				arg.each_key { |key| key.extend Piece }
+				arg.each {|key, value|
+					key.extend Piece
+					value.extend Piece
+				}
 			else
 				arg.extend Piece
 			end
@@ -245,8 +259,8 @@ class DSL
 			args.each {|arg|
 				@instructions[id.to_sym.upcase].each {|description|
 					if description.is_a?(Hash)
-						description.each_key {|key|
-							key.invalid_if(@check) if key == arg
+						description.each {|key, value|
+							value.invalid_if(@check) if key == arg || value == arg
 						}
 					else
 						description.invalid_if(@check) if description == arg

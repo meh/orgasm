@@ -60,7 +60,7 @@ always do
 							on known do |whole, which|
 								seek which.length
 
-								reg = X86::Register.new(X86::Instructions.register_code(n, bits))
+								reg = X86::Register.new(X86::Instructions.register(n, bits))
 
 								X86::Instruction.new(name) {|i|
 									if !source

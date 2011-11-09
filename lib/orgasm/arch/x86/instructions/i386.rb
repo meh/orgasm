@@ -218,8 +218,8 @@ X86::Instructions[X86::DSL.new(32) {
 	    [r32,     r32|m32] => [0x8B, r],
 	    [eax,     moffs32] => [0xA1, cd],
 	    [moffs32, eax]     => [0xA3, cd],
-	    [r32,     imm32]   => [0xB8, rd],
-	    [r32|m32, imm32]   => [0xC7, ?0],
+	    [r32,     imm32]   => [0xB8, +rd, id],
+	    [r32|m32, imm32]   => [0xC7, ?0, id],
 
 	# Move to/from Control Registers
 	    [cr0, r32] => [0x0F, 0x22, r],

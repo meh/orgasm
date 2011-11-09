@@ -37,7 +37,7 @@ instructions.each {|name, description|
 						on known.clone, code: n do |whole, which, data|
 							seek which.length
 
-							reg = X86::Register.new(X86::Instructions.register_code(data[:code], bits))
+							reg = X86::Register.new(X86::Instructions.register(data[:code], bits))
 
 							X86::Instruction.new(name) {|i|
 								if !source

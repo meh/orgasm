@@ -20,14 +20,16 @@
 module Orgasm; module X86
 
 class Register < Orgasm::Register
-	def initialize (name=nil)
-		super(name, X86::Instructions.register?(name))
+	def initialize (name)
+		super(name, X86::Instructions.bits(name))
 	end
 
 	def name= (value)
 		value = value.to_s.downcase.to_sym
 
-		unless X86::Instructions.register?(value)
+    if tmp = X86::Instructions.bits(value)
+			self.size = tmp
+		else
 			raise ArgumentError, "#{value} isn't a valid x86 register"
 		end
 

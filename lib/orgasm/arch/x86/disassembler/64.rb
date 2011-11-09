@@ -35,7 +35,7 @@ always do
 		seek +1
 	end
 
-	if options[:mode] == :long && prefixes.operand? && prefixes.rex? && prefixes.rex?.w?
+	if options[:mode] == :long && prefixes.operand? && prefixes.rex? && prefixes.rex.w?
 		prefixes.no_operand!
 	end
 
@@ -47,7 +47,7 @@ always do
 		description.each {|description|
 			if description.is_a?(Hash)
 				description.each {|params, definition|
-					next if params.invalid?(self)
+					next if definition.invalid?(self)
 
 					destination, source, source2 = params
 
@@ -55,12 +55,16 @@ always do
 						next if options[:mode] == :real          && prefixes.operand?
 						next if options[:mode] == :protected     && !prefixes.operand?
 						next if options[:mode] == :compatibility && !prefixes.operand?
+						next if options[:mode] == :long          && !prefixes.operand?
+						next if options[:mode] == :long          && prefixes.rex? && prefixes.rex.w?
 					elsif destination.bits == 32
 						next if options[:mode] == :real          && !prefixes.operand?
 						next if options[:mode] == :protected     && prefixes.operand?
 						next if options[:mode] == :compatibility && prefixes.operand?
+						next if options[:mode] == :long          && !prefixes.operand?
+						next if options[:mode] == :long          && prefixes.rex? && prefixes.rex.w?
 					elsif destination.bits == 64
-						next unless options[:mode] == :long
+						next if options[:mode] == :long && (!prefixes.rex? || !prefixes.rex.w?) && !params.no_prefix?
 					end
 
 					known = definition.reverse.drop_while {|x|
@@ -72,7 +76,7 @@ always do
 							on known do |whole, which|
 								seek which.length
 
-								reg = X86::Register.new(X86::Instructions.register_code(n, bits))
+								reg = X86::Register.new(X86::Instructions.register(n, bits, prefixes.rex? ? prefixes.rex.r? : false))
 
 								X86::Instruction.new(name) {|i|
 									if !source
@@ -97,7 +101,7 @@ always do
 
 						seek which.length do
 							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
-							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] == :protected && prefixes.size?)
+							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] != :real && prefixes.size?)
 
 							# return when the /n is wrong
 							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
@@ -132,9 +136,9 @@ always do
 									elsif modr && !modr.register? && obj =~ :m
 										X86::Address.new(modr.effective_address(prefixes.size, displacement), obj.bits)
 									elsif obj =~ :r && opcodes.first == :r
-										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
+										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits, prefixes.rex? ? prefixes.rex.r? : false))
 									elsif obj =~ :r
-										X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
+										X86::Register.new(X86::Instructions.register(modr.rm, obj.bits, prefixes.rex? ? prefixes.rex.r? : false))
 									else
 										raise ArgumentError, "dont know what to do with #{obj} as #{type}"
 									end

@@ -103,11 +103,7 @@ class Symbol
 	end
 
 	def == (value)
-		if value.is_a?(::Symbol)
-			to_sym == value
-		else
-			super
-		end
+		to_sym == value.to_sym rescue super
 	end
 
 	def =~ (value)
@@ -385,6 +381,8 @@ class Prefixes < Array
 	end
 
 	def valid? (value)
+		return false if bits == 64 && rex?
+
 		For[bits].any? {|check|
 			check.member?(value)
 		} && value
@@ -436,13 +434,20 @@ class Prefixes < Array
 
 	def rex? (check = nil)
 		if check
-			X86::REX.new(check) if REX.member?(check)
+			REX.member?(check)
 		else
 			any? {|value|
-				return X86::REX.new(value) if REX.member?(value)
+				REX.member?(value)
 			}
 		end
 	end
+
+	def rex
+		X86::REX.new(reverse.find {|value|
+			REX.member?(value)
+		})
+	end
+
 
 	def inspect
 		"#<Prefixes(#{' address' if address?}#{' operand' if operand?})>"

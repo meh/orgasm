@@ -40,21 +40,21 @@ class Instructions < Hash
 		1 => :rb,
 		2 => :rw,
 		4 => :rd,
-		8 => :rq,
+		8 => :ro
 	}
 
-	def self.register? (value)
-		Registers.find {|bits, registers|
+	def self.bits (value)
+		register?(value) || register?(value, true)
+	end
+
+	def self.register? (value, extended = false)
+		(extended ? Registers[:extended] : Registers).find {|bits, registers|
 			registers.member?(value.to_sym.downcase)
 		}.first rescue nil
 	end
 
 	def self.register (value, type, extended = false)
-		if extended
-			Registers[:extended][type][value]
-		else
-			Registers[type][value]
-		end
+		(extended ? Registers[:extended] : Registers)[type][value]
 	end
 
 	def self.segment_register (value)
@@ -65,10 +65,6 @@ class Instructions < Hash
 		RegisterCodes.key(value.to_s.to_sym) * 8
 	rescue
 		nil
-	end
-
-	def self.register_code (value, type)
-		Registers[type][value]
 	end
 
 	def [] (name)
