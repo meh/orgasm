@@ -187,9 +187,9 @@ class DSL
 		def hint!;     @hint = true;  end
 		def not_hint!; @hint = false; end
 
-		def no_prefix?; !@prefix;        end
-		def prerfix!;   @prefix = true;  end
-		def no_prefix!; @prefix = false; end
+		def no_rex?; !@rex;         end
+		def rex!;     @rex = true;  end
+		def no_rex!;  @rex = false; end
 
 
 		def invalid? (what)
@@ -211,11 +211,11 @@ class DSL
 		args
 	end; alias h hint
 
-	def no_prefix (*args)
+	def no_rex (*args)
 		args.extend Piece
-		args.no_prefix!
+		args.no_rex!
 		args
-	end; alias n no_prefix
+	end; alias n no_rex
 
 	Symbols.each {|bit, specials|
 		specials.each {|special|

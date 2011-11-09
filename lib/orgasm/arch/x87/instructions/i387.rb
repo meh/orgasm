@@ -18,6 +18,8 @@
 #++
 
 X87::Instructions[X87::DSL.new {
+	inherit 'orgasm/arch/x87/instructions/i287'
+
 	# Cosine
 	FCOS [0xD9, 0xFF]
 

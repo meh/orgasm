@@ -18,6 +18,8 @@
 #++
 
 X87::Instructions[X87::DSL.new {
+	inherit 'orgasm/arch/x87/instructions/i587'
+
 	# Floating-Point Conditional Move
 	FCMOVB [st0, sti] => [0xDA, 0xC0, i]
 

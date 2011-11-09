@@ -23,9 +23,31 @@ require 'orgasm/arch/x87'
 require 'orgasm/arch/SIMD'
 
 module Orgasm::Architecture::Intel
-	def self.disassembler
-		Orgasm::Architecture.x86.i686.disassembler |
-		Orgasm::Architecture.x87.i687.disassembler |
-		Orgasm::Architecture.SIMD.x86.disassembler
+	@bits = {
+		32 => Class.new {
+			def self.disassembler
+				@disassembler ||=
+					Orgasm::Architecture.x86.i686.disassembler |
+					Orgasm::Architecture.x87.i687.disassembler |
+					Orgasm::Architecture.SIMD.x86.disassembler
+			end
+		},
+
+		64 => Class.new {
+			def self.disassembler
+				@disassembler ||=
+					Orgasm::Architecture.x86.x64.disassembler |
+					Orgasm::Architecture.x87.i687.disassembler |
+					Orgasm::Architecture.SIMD.x86.disassembler
+			end
+		}
+	}
+
+	def self.[] (bits)
+		@bits[bits]
+	end
+
+	def self.method_missing (id, *args, &block)
+		self[32].__send__ id, *args, &block
 	end
 end

@@ -64,7 +64,7 @@ always do
 						next if options[:mode] == :long          && !prefixes.operand?
 						next if options[:mode] == :long          && prefixes.rex? && prefixes.rex.w?
 					elsif destination.bits == 64
-						next if options[:mode] == :long && (!prefixes.rex? || !prefixes.rex.w?) && !params.no_prefix?
+						next if options[:mode] == :long && (!prefixes.rex? || !prefixes.rex.w?) && !params.no_rex?
 					end
 
 					known = definition.reverse.drop_while {|x|

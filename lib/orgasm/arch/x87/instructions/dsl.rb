@@ -63,6 +63,26 @@ class DSL
 		instance_eval &block
 	end
 
+	def inherit (path = nil)
+		@instructions.merge!(if path
+			path = $:.each {|dir|
+				dir = File.join(dir, "#{path}.rb")
+
+				break dir if File.readable?(dir)
+			}.tap {|o|
+				raise LoadError, "no such file to load -- #{path}" unless o.is_a?(String)
+			}
+
+			eval File.read(path), nil, path, 1
+		else
+			yield
+		end)
+	end
+
+	def to_hash
+		@instructions
+	end
+
 	Symbols.each {|special|
 		define_method special do
 			Symbol.new(special)
@@ -73,10 +93,6 @@ class DSL
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
 
 		@instructions[id.to_sym.upcase].push(*args)
-	end
-
-	def to_hash
-		@instructions
 	end
 end
 

@@ -25,7 +25,6 @@ require 'orgasm/arch/SIMD/instructions'
 
 Orgasm::Architecture.is 'SIMD' do
 	family 'x86' do
-		instructions Orgasm::SIMD::X86::Instructions.new
 		disassembler 'orgasm/arch/SIMD/disassembler/x86'
 
 		extension 'MMX' do

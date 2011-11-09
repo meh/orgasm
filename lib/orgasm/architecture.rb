@@ -70,7 +70,7 @@ class Architecture
 	end
 
 	def instructions (path = nil)
-		return @instructions unless path or block_given?
+		return @instructions || {} unless path or block_given?
 
 		@instructions = if path
 			path = $:.each {|dir|

@@ -28,35 +28,35 @@ Orgasm::Architecture.is 'x87' do
 	end
 
 	family 'i187' do
-		instructions arch[8087].instructions.deep_clone, 'orgasm/arch/x87/instructions/i187'
+		instructions 'orgasm/arch/x87/instructions/i187'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 	end
 
 	family 'i287' do
-		instructions arch[:i187].instructions.deep_clone, 'orgasm/arch/x87/instructions/i287'
+		instructions 'orgasm/arch/x87/instructions/i287'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 	end
 
 	family 'i387' do
-		instructions arch[:i287].instructions.deep_clone, 'orgasm/arch/x87/instructions/i387'
+		instructions 'orgasm/arch/x87/instructions/i387'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i487' do
-		instructions arch[:i387].instructions.deep_clone, 'orgasm/arch/x87/instructions/i487'
+		instructions 'orgasm/arch/x87/instructions/i487'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i587' do
-		instructions arch[:i487].instructions.deep_clone, 'orgasm/arch/x87/instructions/i587'
+		instructions 'orgasm/arch/x87/instructions/i587'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 		disassembler.supports :mode
 	end
 
 	family 'i687' do
-		instructions arch[:i587].instructions.deep_clone, 'orgasm/arch/x87/instructions/i687'
+		instructions 'orgasm/arch/x87/instructions/i687'
 		disassembler 'orgasm/arch/x87/disassembler/32'
 		disassembler.supports :mode
 	end
