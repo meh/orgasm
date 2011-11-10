@@ -114,8 +114,8 @@ class Disassembler < Piece
 					raise unless options[:exceptions] == false
 				end
 
-				if Orgasm.object?(decoded) || decoded.is_a?(Orgasm::True)
-					instance_eval &@after if @after
+				if Orgasm.object?(decoded)
+					instance_eval &after if after
 					
 					result << unknown(junk) and junk = nil if junk
 					result << decoded                      unless decoded.is_a?(Orgasm::True)
@@ -178,11 +178,11 @@ class Disassembler < Piece
 	end
 
 	def skip (&block)
-		@skip ||= block
+		block ? @skip = block : @skip
 	end
 
 	def after (&block)
-		@after ||= block
+		block ? @after = block : @after
 	end
 
 	def | (value)

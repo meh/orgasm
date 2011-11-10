@@ -43,16 +43,19 @@ class Instructions < Hash
 		8 => :ro
 	}
 
+	singleton_memoize
 	def self.bits (value)
 		register?(value) || register?(value, true)
 	end
 
+	singleton_memoize
 	def self.register? (value, extended = false)
 		(extended ? Registers[:extended] : Registers).find {|bits, registers|
 			registers.member?(value.to_sym.downcase)
 		}.first rescue nil
 	end
 
+	singleton_memoize
 	def self.register (value, type, extended = false)
 		(extended ? Registers[:extended] : Registers)[type][value]
 	end
@@ -61,8 +64,9 @@ class Instructions < Hash
 		SegmentRegisters[value]
 	end
 
+	singleton_memoize
 	def self.register_code? (value)
-		RegisterCodes.key(value.to_s.to_sym) * 8
+		RegisterCodes.key(value.to_sym) * 8
 	rescue
 		nil
 	end

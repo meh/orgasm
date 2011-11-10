@@ -24,6 +24,14 @@ module Orgasm; module SIMD
 module X86
 	class Symbol
 		class Operator
+			def self.all_operators
+				@operators ||= {}
+			end
+
+			def self.new (first, second)
+				all_operators[[first, second]] ||= super(first, second)
+			end
+
 			attr_reader :first, :second
 
 			def initialize (first, second)
@@ -59,16 +67,24 @@ module X86
 			Or.new(self, value)
 		end
 
+		def self.all_symbols
+			@symbols ||= {}
+		end
+
+		def self.new (value)
+			all_symbols[value] ||= super(value)
+		end
+
 		def initialize (value)
 			@value = value.to_sym
 		end
 
 		def == (value)
-			if value.is_a?(::Symbol)
-				to_sym == value
-			else
-				super
-			end
+			to_sym == value.to_sym rescue super
+		end; alias eql? ==
+
+		def hash
+			to_sym.hash
 		end
 
 		def =~ (value)
@@ -79,6 +95,7 @@ module X86
 			end
 		end
 
+		memoize
 		def bits
 			to_s[/\d+/].to_i
 		rescue

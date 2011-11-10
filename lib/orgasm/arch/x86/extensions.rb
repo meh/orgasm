@@ -21,6 +21,14 @@ module Orgasm; module X86
 
 class Symbol
 	class Operator
+		def self.all_operators
+			@operators ||= {}
+		end
+
+		def self.new (first, second)
+			all_operators[[first, second]] ||= super(first, second)
+		end
+
 		attr_reader :first, :second
 
 		def initialize (first, second)
@@ -63,6 +71,14 @@ class Symbol
 			"#{first}:#{second}"
 		end
 	end
+	
+	def self.all_symbols
+		@symbols ||= {}
+	end
+
+	def self.new (value)
+		all_symbols[value] ||= super(value)
+	end
 
 	def initialize (value)
 		@value = value.to_sym
@@ -104,6 +120,10 @@ class Symbol
 
 	def == (value)
 		to_sym == value.to_sym rescue super
+	end; alias eql? ==
+
+	def hash
+		to_sym.hash
 	end
 
 	def =~ (value)
@@ -114,8 +134,9 @@ class Symbol
 		end
 	end
 
+	memoize
 	def bits
-		{ b: 8, w: 16, d: 32, q: 64 }[to_s[-1].to_sym] || to_s[/\d+$/].to_i
+		{ b: 8, w: 16, d: 32, q: 64, o: 64 }[to_s[-1].to_sym] || to_s[/\d+$/].to_i
 	rescue
 		nil
 	end
@@ -447,7 +468,6 @@ class Prefixes < Array
 			REX.member?(value)
 		})
 	end
-
 
 	def inspect
 		"#<Prefixes(#{' address' if address?}#{' operand' if operand?})>"

@@ -83,26 +83,22 @@ class Decoder
 	end
 
 	def match (*args)
-		args.compact.find {|arg|
-			matches(arg)
-		}
+		args.find { |arg| matches(arg) }
 	end
 
 	def matches (what)
-		return false unless @io
+		return false unless @io && what
 
-		return true if what === true
+		return true if what == true
 
-		where, result = @io.tell, if what.is_a?(Regexp)
+		where, result = @io.tell, if what.is_a?(Array)
+			@io.read(what.length) == what.pack('C*')
+		elsif what.is_a?(Integer)
+			@io.read(1) == what.chr
+		elsif what.is_a?(Regexp)
 			!!@io.read.match(what)
-		elsif what.is_a?(Array) or what.is_a?(Integer)
-			what = [what].flatten.compact.pack('C*')
-
-			@io.read(what.length) == what
 		else
-			what = what.to_s
-
-			@io.read(what.length) == what
+			@io.read(what.length) == what.to_s
 		end
 
 		@io.seek where
