@@ -33,15 +33,15 @@ class Decoder
 		@disassembler.__send__ *args, &block
 	end
 
-	def for (io, options)
-		decoder = self.clone
-		decoder.instance_variable_set :@io, io
-		decoder.instance_variable_set :@options, options.clone.freeze
-		decoder
-	end
-
 	def inherited?
 		@options[:inherited]
+	end
+
+	def for (io, options)
+		clone.tap { |x| x.instance_eval {
+			@io      = io
+			@options = options.clone.freeze
+		} }
 	end
 
 	def call (what)
@@ -175,15 +175,16 @@ class Decoder
 	end
 
 	private
-		def result
-			value = begin; yield; rescue LocalJumpError; end
 
-			if Orgasm.object?(value)
-				throw :result, value
-			end
+	def result
+		value = begin; yield; rescue LocalJumpError; end or return
 
-			value
-			end
+		if Orgasm.object?(value)
+			throw :result, value
+		end
+
+		value
+	end
 end
 
 end; end

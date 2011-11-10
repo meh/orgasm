@@ -21,16 +21,16 @@ require 'orgasm/extensions'
 
 module Orgasm
 
-class True; end
-
 class Base
 	def initialize
 		yield self if block_given?
 	end
 end
 
+class True < Base; end
+
 def self.object? (value)
-	value.is_a?(Base) or value.instance_of?(Orgasm::True) ? value : false
+	(value && value.is_a?(Base)) ? value : false
 end
 
 end
