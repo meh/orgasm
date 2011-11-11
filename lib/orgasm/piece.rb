@@ -20,6 +20,14 @@
 module Orgasm
 
 class Piece
+	def self.inherited (subclass)
+		subclass.class_eval {
+			define_method subclass.name[/([^:]+)$/].downcase do
+				self
+			end
+		}
+	end
+
 	attr_reader :arch
 
 	def initialize (arch, io=nil, &block)
@@ -27,14 +35,6 @@ class Piece
 
 		instance_eval io.read, io.path, 1 if io
 		instance_eval &block              if block
-	end
-
-	def self.inherited (subclass)
-		subclass.class_eval {
-			define_method subclass.name[/([^:]+)$/].downcase do
-				self
-			end
-		}
 	end
 
 	def respond_to? (*args)
