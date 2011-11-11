@@ -38,10 +38,17 @@ class Decoder
 	end
 
 	def for (io, options)
-		clone.tap { |x| x.instance_eval {
-			@io      = io
-			@options = options.clone.freeze
-		} }
+		@io      = io
+		@options = options
+
+		if block_given?
+			yield self
+		else
+			return self
+		end
+
+		@io      = nil
+		@options = nil
 	end
 
 	def call (what)

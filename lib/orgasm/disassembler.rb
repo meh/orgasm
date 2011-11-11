@@ -101,16 +101,15 @@ class Disassembler < Piece
 			exts.compact!
 		}
 
-		result   = []
-		junk     = nil
-		decoders = @decoders.map { |d| d.for(io, options) }
+		result = []
+		junk   = nil
 
 		until io.eof?
 			where = io.tell
 
-			added = decoders.any? {|decoder|
+			added = @decoders.any? {|decoder|
 				decoded = begin
-					decoder.decode
+					decoder.for(io, options).decode
 				rescue
 					raise unless options[:exceptions] == false
 				end
