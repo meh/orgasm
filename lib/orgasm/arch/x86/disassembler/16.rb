@@ -17,10 +17,33 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-# undocumented opcode holes
-on 0x66, 0x67, 0xC1 do
-	seek +1 and done
+holes = [0x66, 0x67, 0xC1]
+
+decoder do
+	# undocumented opcode holes
+	while holes.member?(current = read(1).ord); end
+
+	possible = instructions.lookup.select {|p|
+		p.description.first === current
+	}
+
+	index = 1
+
+	until possible.length == 1 or possible.empty?
+		current = read(1).ord
+
+		possible.select! {|p|
+			p.description[index] == current
+		}
+	end
+
+	return if possible.empty?
+
+	ap possible
+	done
 end
+
+return
 
 instructions.each {|name, description|
 	description.each {|description|

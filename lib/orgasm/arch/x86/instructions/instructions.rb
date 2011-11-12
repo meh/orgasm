@@ -71,8 +71,46 @@ class Instructions < Hash
 		nil
 	end
 
+	def self.[] (*args)
+		new(*args)
+	end
+
+	attr_reader :lookup
+
+	def initialize (hash)
+		merge!(hash.respond_to?(:to_hash) ? hash.to_hash : hash)
+
+		@lookup = lookup!
+
+		freeze
+	end
+
 	def [] (name)
 		super(name.to_sym.upcase)
+	end
+
+	def lookup!
+		klass  = Struct.new(:name, :description, :parameters)
+		lookup = []
+
+		each {|name, description|
+			description.each {|description|
+				if description.is_a?(Hash)
+					description.each {|params, definition|
+						if X86::Instructions.register_code?(definition.last)
+							definition    = definition.clone
+							definition[0] = definition[0] ... (definition[0] + 8)
+						end
+
+						lookup << klass.new(name, definition, params)
+					}
+				else
+					lookup << klass.new(name, description, nil)
+				end
+			}
+		}
+
+		lookup
 	end
 end
 

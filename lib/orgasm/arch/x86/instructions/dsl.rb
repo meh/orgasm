@@ -183,6 +183,17 @@ class DSL
 	end
 
 	module Piece
+		def self.extend (obj)
+			obj.extend self
+
+			obj.instance_eval {
+				@ahead = last.is_a?(Array) ? pop : []
+				@known = reverse.drop_while { |x| !x.is_a?(Integer) }.reverse + ahead
+			}
+		end
+
+		attr_reader :known, :ahead
+
 		def hint?;   !!@hint;         end
 		def hint!;     @hint = true;  end
 		def not_hint!; @hint = false; end
@@ -190,7 +201,6 @@ class DSL
 		def no_rex?; !@rex;         end
 		def rex!;     @rex = true;  end
 		def no_rex!;  @rex = false; end
-
 
 		def invalid? (what)
 			return false unless @invalid_if
@@ -206,13 +216,13 @@ class DSL
 	end
 
 	def hint (*args)
-		args.extend Piece
+		Piece.extend(args)
 		args.hint!
 		args
 	end; alias h hint
 
 	def no_rex (*args)
-		args.extend Piece
+		Piece.extend(args)
 		args.no_rex!
 		args
 	end; alias n no_rex
@@ -233,11 +243,11 @@ class DSL
 		args.each {|arg|
 			if arg.is_a?(Hash)
 				arg.each {|key, value|
-					key.extend Piece
-					value.extend Piece
+					Piece.extend(key)
+					Piece.extend(value)
 				}
 			else
-				arg.extend Piece
+				Piece.extend(arg)
 			end
 		}
 

@@ -24,7 +24,6 @@ class Disassembler < Piece
 
 	def initialize (*)
 		@inherits = []
-		@decoders = []
 		@supports = []
 		@options  = {}
 
@@ -51,14 +50,16 @@ class Disassembler < Piece
 	end
 
 	def with (options)
-		clone.tap {|disasm|
-			disasm.instance_eval {
-				@options = options
-			}
-		}
+		clone.tap { |d| d.instance_eval {
+			@options = options
+		} }
 	end
 
 	def disassemble (io, options={})
+		if !options[:extensions].is_a?(Array)
+			options[:extensions] = []
+		end
+
 		if options[:extensions] && @options[:extensions]
 			options[:extensions].unshift(*@options[:extensions])
 		end
@@ -68,25 +69,79 @@ class Disassembler < Piece
 		options.each_key {|name|
 			next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
 
-			unless supports?(name) || options[:exceptions] == false
+			unless options[:exceptions] == false || supports?(name)
 				raise ArgumentError, "#{name} is an unsupported option"
 			end
 		}
 
+		unless options[:exceptions] == false 
+			options[:extensions].each {|name|
+				unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
+					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+				end
+			}
+		end
+
 		io = io.to_opcodes    if io.is_a?(Array)
 		io = StringIO.new(io) if io.is_a?(String)
 
-		extensions = (options[:extensions] || []).dup
-		
-		extensions.dup.each {|name|
-			unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
-				if options[:exceptions] == false
-					extensions.delete(name)
-				else
-					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
-				end
+		result   = nil
+		junk     = nil
+		decoders = to_a(io, options)
+
+		until io.eof?
+			start   = io.tell
+			decoded = nil
+
+			decoders.any? {|decoder|
+				decoded = Orgasm.object?(begin
+					decoder.decode
+				rescue
+					raise unless options[:exceptions] == false
+				end) or io.seek(start)
+			}
+
+			if decoded
+				result ||= []
+				result.push(*unknown(junk)) and junk = nil if junk
+				result.push(decoded) unless decoded.instance_of?(Orgasm::True)
 			end
-		}
+
+			break if options[:limit] && result && result.length >= options[:limit]
+
+			if start == io.tell
+				break if options[:unknown] == false
+
+				(junk ||= '') << io.read(1)
+			end
+		end
+
+		if junk
+			result ||= []
+			result.push(*unknown(junk))
+		end
+
+		result
+	end; alias do disassemble
+
+	def unknown (data=nil, &block)
+		if block
+			@unknown = block
+		elsif data
+			[if @unknown
+				instance_exec data, &@unknown
+			else
+				Unknown.new(data)
+			end].flatten.compact
+		end
+	end
+
+	def decoder (&block)
+		block ? @decoder = Decoder.new(self, &block) : @decoder
+	end
+
+	def to_a (io, options)
+		[decoder]
 
 		extensions.tap {|exts|
 			next unless exts.is_a?(Array)
@@ -101,88 +156,7 @@ class Disassembler < Piece
 			exts.compact!
 		}
 
-		result = []
-		junk   = nil
-
-		until io.eof?
-			where = io.tell
-
-			added = @decoders.any? {|decoder|
-				decoded = begin
-					decoder.for(io, options).decode
-				rescue
-					raise unless options[:exceptions] == false
-				end
-
-				if Orgasm.object?(decoded)
-					instance_eval &after if after
-					
-					result << unknown(junk) and junk = nil if junk
-					result << decoded                      unless decoded.is_a?(Orgasm::True)
-
-					true
-				end
-			}
-
-			if !added
-				io.seek where unless (@inherits + extensions).any? {|arch|
-					io.seek where
-					
-					decoded = begin
-						arch.disassembler.disassemble(io, options.merge(limit: 1, unknown: false, inherited: true, exceptions: false)).first
-					rescue
-						raise unless options[:exceptions] == false
-					end
-
-					if decoded
-						result << unknown(junk) and junk = nil if junk
-						result << decoded
-					end
-				}
-			end
-
-			break if options[:limit] && result.flatten.compact.length >= options[:limit]
-
-			if where == io.tell
-				break if options[:unknown] == false
-
-				(junk ||= '') << io.read(1)
-			end
-		end
-
-		result << unknown(junk) if junk
-
-		result.flatten.compact
-	end; alias do disassemble
-
-	def on (*args, &block)
-		@decoders << Decoder.new(self, *args, &block)
-	end
-
-	def always (&block)
-		@decoders << Decoder.new(self, true, &block)
-	end
-
-	def unknown (data=nil, &block)
-		if block
-			@unknown = block
-		elsif data
-			if @unknown
-				instance_exec data, &@unknown
-			else
-				instance_exec data do |data|
-					Unknown.new(data)
-				end
-			end
-		end
-	end
-
-	def skip (&block)
-		block ? @skip = block : @skip
-	end
-
-	def after (&block)
-		block ? @after = block : @after
+#		.map { |d| d.for(io, options) }
 	end
 
 	def | (value)

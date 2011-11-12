@@ -22,10 +22,8 @@ module Orgasm; class Disassembler < Piece
 class Decoder
 	attr_reader :disassembler, :options
 
-	def initialize (disassembler, *args, &block)
+	def initialize (disassembler, &block)
 		@disassembler = disassembler
-		@args         = args
-		@data         = args.pop if args.last.is_a?(Hash)
 		@block        = block
 	end
 
@@ -38,108 +36,33 @@ class Decoder
 	end
 
 	def for (io, options)
-		@io      = io
-		@options = options
-
-		if block_given?
-			yield self
-		else
-			return self
-		end
-
-		@io      = nil
-		@options = nil
-	end
-
-	def call (what)
-		return unless @io
-
-		case what
-			when :inherit, :inherited
-				@disassembler.inherits.any? {|inherited|
-					if tmp = inherited.disassembler.disassemble(io, limit: 1, unknown: false, inherited: true).first
-						break tmp
-					end
-				}
-
-			when :extension, :extensions
-				@disassembler.extensions.select {|extension|
-					@options[:extensions].member?(extension.name)
-				}.any? {|extension|
-					if tmp = extension.disassembler.disassemble(io, limit: 1, unknown: false)
-						break tmp
-					end
-				}
-		end
+		clone.tap { |d| d.instance_eval {
+			@io      = io
+			@options = options
+		} }
 	end
 
 	def decode
 		return unless @io
 
-		return unless match = match(*@args)
-
 		catch(:result) {
 			start = @io.tell
 
-			skip(start) if catch(:skip) {
-				result { instance_exec @args, match, @data, &@block }
+			@io.seek(start) if catch(:skip) {
+				result &@block
 
 				false
 			}
 		}
 	end
 
-	def match (*args)
-		args.find { |arg| matches(arg) }
-	end
-
-	def matches (what)
-		return false unless @io && what
-
-		return true if what == true
-
-		where, result = @io.tell, if what.is_a?(Array)
-			@io.read(what.length) == what.pack('C*')
-		elsif what.is_a?(Integer)
-			@io.read(1) == what.chr
-		elsif what.is_a?(Regexp)
-			!!@io.read.match(what)
-		else
-			@io.read(what.length) == what.to_s
-		end
-
-		@io.seek where
-
-		result
-	end
-
-	def on (*args, &block)
+	def seek (amount, whence=IO::SEEK_CUR)
 		return unless @io
 
-		data = args.pop if args.last.is_a?(Hash)
-
-		return unless match = match(*args)
-
-		result { instance_exec args, match, data, &block }
+		@io.seek(amount, whence)
 	end
 
-	def always (&block)
-		result { instance_eval &block }
-	end
-
-	def seek (amount, whence=IO::SEEK_CUR, &block)
-		return unless @io
-
-		if block
-			where, = @io.tell, @io.seek(amount, whence)
-
-			result { instance_eval &block }.tap { @io.seek(where) }
-		else
-			@io.seek(amount, whence)
-		end
-	end
-
-	def read (amount, &block)
+	def read (amount)
 		return unless @io and amount.to_i > 0
 
 		data = @io.read(amount)
@@ -148,43 +71,28 @@ class Decoder
 			raise NeedMoreData, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
 		end
 
-		if block
-			result { instance_exec data, &block }.tap { seek -amount }
-		else
-			data
-		end
+		data
 	end
 
 	def lookahead (amount)
-		read(amount) do |data|
-			data
-		end rescue nil
+		start = @io.tell
+		data  = read(amount) rescue nil
+
+		@io.seek start
+
+		data
 	end
 
-	def skip (start=nil, &block)
-		return disassembler.skip &block if block
-			
-		if start.nil?
-			throw :skip, true
-		else
-			instance_eval &disassembler.skip if disassembler.skip
-
-			@io.seek(start)
-		end
+	def skip
+		throw :skip, true
 	end
 
-	def done
-		throw :result, Orgasm::True.new
+	def done (value = nil)
+		throw :result, value || Orgasm::True.new
 	end
 
-	def after (&block)
-		return disassembler.after &block
-	end
-
-	private
-
-	def result
-		value = begin; yield; rescue LocalJumpError; end or return
+	def result (&block)
+		value = begin; instance_eval &block; rescue LocalJumpError; end or return
 
 		if Orgasm.object?(value)
 			throw :result, value

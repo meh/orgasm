@@ -17,6 +17,8 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+return
+
 # undocumented opcode holes
 on 0x66, 0x67, 0xC1 do
 	seek +1 and done

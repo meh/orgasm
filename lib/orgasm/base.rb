@@ -27,7 +27,11 @@ class Base
 	end
 end
 
-class True < Base; end
+class True < Base
+	def self.new
+		@instance ||= super
+	end
+end
 
 def self.object? (value)
 	(value && value.is_a?(Base)) ? value : false

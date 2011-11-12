@@ -19,6 +19,8 @@
 
 options[:mode] = :protected
 
+return
+
 # undocumented opcode holes, excluding the size prefixes
 on 0xC1 do
 	seek +1 and done

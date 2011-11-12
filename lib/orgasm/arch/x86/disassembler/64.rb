@@ -19,6 +19,8 @@
 
 options[:mode] = :long
 
+return
+
 # undocumented opcode holes
 on 0xC1 do
 	seek +1 and done
