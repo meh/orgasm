@@ -25,9 +25,11 @@ require 'packable'
 require 'retarded'
 
 class String
+	alias to_byte ord
+
 	def to_bytes (options={})
 		unpack(Integer, { endian: :little, signed: false, bytes: bytesize }.merge(options))
-	end; alias to_byte to_bytes
+	end
 
 	def bin
 		(self.start_with?('0y', '0Y') ? self[2 .. -1] : self).to_i(2)

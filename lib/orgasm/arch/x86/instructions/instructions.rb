@@ -89,6 +89,12 @@ class Instructions < Hash
 		super(name.to_sym.upcase)
 	end
 
+	module Parameters
+		def destination; self[0]; end
+		def source;      self[1]; end
+		def source2;     self[2]; end
+	end
+
 	def lookup!
 		klass  = Struct.new(:name, :description, :parameters)
 		lookup = []
@@ -97,9 +103,13 @@ class Instructions < Hash
 			description.each {|description|
 				if description.is_a?(Hash)
 					description.each {|params, definition|
+						params.extend Parameters
+
 						if X86::Instructions.register_code?(definition.last)
 							definition    = definition.clone
 							definition[0] = definition[0] ... (definition[0] + 8)
+
+							definition[0].define_singleton_method(:to_i) { min }
 						end
 
 						lookup << klass.new(name, definition, params)

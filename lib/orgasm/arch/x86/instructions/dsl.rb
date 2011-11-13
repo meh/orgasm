@@ -187,12 +187,13 @@ class DSL
 			obj.extend self
 
 			obj.instance_eval {
-				@ahead = last.is_a?(Array) ? pop : []
-				@known = reverse.drop_while { |x| !x.is_a?(Integer) }.reverse + ahead
+				@ahead   = last.is_a?(Array) ? pop : []
+				@known   = reverse.drop_while { |x| !x.is_a?(Integer) }.reverse + ahead
+				@opcodes = self[known.length .. -1]
 			}
 		end
 
-		attr_reader :known, :ahead
+		attr_reader :known, :ahead, :opcodes
 
 		def hint?;   !!@hint;         end
 		def hint!;     @hint = true;  end

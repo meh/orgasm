@@ -66,15 +66,16 @@ class Disassembler < Piece
 
 		options = @options.merge(options)
 
-		options.each_key {|name|
-			next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
 
-			unless options[:exceptions] == false || supports?(name)
-				raise ArgumentError, "#{name} is an unsupported option"
-			end
-		}
+		unless options[:exceptions] == false
+			options.each_key {|name|
+				next if %w(extensions exceptions limit unknown inherited).to_syms.member?(name)
 
-		unless options[:exceptions] == false 
+				unless options[:exceptions] == false || supports?(name)
+					raise ArgumentError, "#{name} is an unsupported option"
+				end
+			}
+
 			options[:extensions].each {|name|
 				unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
 					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
@@ -98,7 +99,7 @@ class Disassembler < Piece
 					decoder.decode
 				rescue
 					raise unless options[:exceptions] == false
-				end) or io.seek(start)
+				end) or io.seek(start) and nil
 			}
 
 			if decoded
@@ -141,22 +142,23 @@ class Disassembler < Piece
 	end
 
 	def to_a (io, options)
-		[decoder]
+		result = []
+		
+		result << decoder if decoder
 
-		extensions.tap {|exts|
-			next unless exts.is_a?(Array)
-
-			exts.map! {|name|
-				arch.extensions.select {|extension|
-					extension.name.to_s.downcase == name.to_s.downcase
-				}
+		(options[:extensions] || []).each {|name|
+			arch.extensions.select {|extension|
+				extension.name.to_s.downcase == name.to_s.downcase
+			}.each {|extension|
+				result.push(*extension.disassembler.to_a(io, options))
 			}
-
-			exts.flatten!
-			exts.compact!
 		}
 
-#		.map { |d| d.for(io, options) }
+		@inherits.each {|inerhited|
+			result.push(*inherited.to_a(io, options))
+		}
+
+		result.map { |d| d.for(io, options) rescue nil }.flatten.compact.uniq
 	end
 
 	def | (value)

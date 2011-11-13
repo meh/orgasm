@@ -34,6 +34,10 @@ class Pipeline < Disassembler
 
 		inherit first, second
 	end
+
+	def to_a (io, options)
+		(@first.to_a(io, options) + @second.to_a(io, options)).uniq
+	end
 end
 
 end; end

@@ -17,30 +17,49 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
+# undocumented opcode holes
 holes = [0x66, 0x67, 0xC1]
 
 decoder do
-	# undocumented opcode holes
-	while holes.member?(current = read(1).ord); end
+	while holes.member?(current = read(1).to_byte); end
 
 	possible = instructions.lookup.select {|p|
-		p.description.first === current
+		p.description[0] === current
 	}
 
 	index = 1
 
 	until possible.length == 1 or possible.empty?
-		current = read(1).ord
+		current = read(1).to_byte
 
 		possible.select! {|p|
-			p.description[index] == current
+			p.description[index] === current
 		}
+		
+		index += 1
 	end
 
 	return if possible.empty?
 
-	ap possible
-	done
+	name                         = possible[0].name
+	description, opcodes         = possible[0].description, possible[0].description.opcodes
+	destination, source, source2 = possible[0].parameters
+
+	if bits = X86::Instructions.register_code?(opcodes.last)
+		reg = X86::Register.new(X86::Instructions.register(current - description[0].to_i, bits))
+
+		done X86::Instruction.new(name) {|i|
+			if !source
+				i.destination = reg
+			else
+				i.destination, i.source = if destination =~ :r
+					[reg, X86::Register.new(source)]
+				else
+					[X86::Register.new(destination), reg]
+				end
+			end
+		}
+	end
 end
 
 return
