@@ -41,24 +41,27 @@ decoder do
 
 	return if possible.empty?
 
-	name                         = possible[0].name
-	description, opcodes         = possible[0].description, possible[0].description.opcodes
-	destination, source, source2 = possible[0].parameters
+	instruction                  = possible[0]
+	name                         = instruction.name
+	description                  = instruction.description
+	opcodes                      = description.opcodes
+	destination, source, source2 = instruction.parameters
 
 	if bits = X86::Instructions.register_code?(opcodes.last)
-		reg = X86::Register.new(X86::Instructions.register(current - description[0].to_i, bits))
+		X86::Instruction.new(name) {|i|
+			register = X86::Register.new(X86::Instructions.register(current - description[0].to_i, bits))
 
-		done X86::Instruction.new(name) {|i|
 			if !source
-				i.destination = reg
+				i.destination = register
 			else
 				i.destination, i.source = if destination =~ :r
-					[reg, X86::Register.new(source)]
+					[register, X86::Register.new(source)]
 				else
-					[X86::Register.new(destination), reg]
+					[X86::Register.new(destination), register]
 				end
 			end
 		}
+	else
 	end
 end
 

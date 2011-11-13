@@ -67,7 +67,7 @@ class Decoder
 
 		data = @io.read(amount)
 
-		if data.nil? or data.length != amount
+		if !data or data.length != amount
 			raise NeedMoreData, "the stream has not enough data, #{amount - (data.length rescue 0)} byte/s missing"
 		end
 
@@ -97,8 +97,6 @@ class Decoder
 		if Orgasm.object?(value)
 			throw :result, value
 		end
-
-		value
 	end
 end
 

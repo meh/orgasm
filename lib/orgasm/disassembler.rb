@@ -104,7 +104,7 @@ class Disassembler < Piece
 
 			if decoded
 				result ||= []
-				result.push(*unknown(junk)) and junk = nil if junk
+				result.push(Unknown.new(junk)) and junk = nil if junk
 				result.push(decoded) unless decoded.instance_of?(Orgasm::True)
 			end
 
@@ -119,23 +119,11 @@ class Disassembler < Piece
 
 		if junk
 			result ||= []
-			result.push(*unknown(junk))
+			result.push(Unknown.new(junk))
 		end
 
 		result
 	end; alias do disassemble
-
-	def unknown (data=nil, &block)
-		if block
-			@unknown = block
-		elsif data
-			[if @unknown
-				instance_exec data, &@unknown
-			else
-				Unknown.new(data)
-			end].flatten.compact
-		end
-	end
 
 	def decoder (&block)
 		block ? @decoder = Decoder.new(self, &block) : @decoder
@@ -144,7 +132,7 @@ class Disassembler < Piece
 	def to_a (io, options)
 		result = []
 		
-		result << decoder if decoder
+		result << decoder.for(io, options) if decoder
 
 		(options[:extensions] || []).each {|name|
 			arch.extensions.select {|extension|
@@ -158,7 +146,7 @@ class Disassembler < Piece
 			result.push(*inherited.to_a(io, options))
 		}
 
-		result.map { |d| d.for(io, options) rescue nil }.flatten.compact.uniq
+		result.flatten.compact.uniq
 	end
 
 	def | (value)
