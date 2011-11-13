@@ -47,9 +47,9 @@ decoder do
 	opcodes                      = description.opcodes
 	destination, source, source2 = instruction.parameters
 
-	if bits = X86::Instructions.register_code?(opcodes.last)
+	if bits = X86::Instructions.register_code?(opcodes[-1])
 		X86::Instruction.new(name) {|i|
-			register = X86::Register.new(X86::Instructions.register(current - description[0].to_i, bits))
+			register = X86::Register.new(X86::Instructions.register(current - description[0].min, bits))
 
 			if !source
 				i.destination = register

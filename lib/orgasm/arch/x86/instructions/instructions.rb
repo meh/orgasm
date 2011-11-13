@@ -108,8 +108,6 @@ class Instructions < Hash
 						if X86::Instructions.register_code?(definition.last)
 							definition    = definition.clone
 							definition[0] = definition[0] ... (definition[0] + 8)
-
-							definition[0].define_singleton_method(:to_i) { min }
 						end
 
 						lookup << klass.new(name, definition, params)
