@@ -271,9 +271,6 @@ X86::Instructions[X86::DSL.new(16) {
 	# Load ES with pointer
 	LES [r16, m16] => [0xC4, r]
 
-	# Assert LOCK# Signal Prefix
-	LOCK [0xF0]
-
 	# Load String
 	LODSB [0xAC]
 

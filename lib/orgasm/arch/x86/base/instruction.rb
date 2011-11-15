@@ -24,6 +24,14 @@ class Instruction < Orgasm::Instruction
 		super(name, destination, source, source2)
 	end
 
+	def lock?;    @lock;         end
+	def lock!;    @lock = true;  end
+	def no_lock!; @lock = false; end
+
+	def repeat?;    @repeat;         end
+	def repeat!;    @repeat = true;  end
+	def no_repeat!; @repeat = false; end
+
 	%w(destination source source2).each_with_index {|name, index|
 		define_method name do
 			parameters[index]

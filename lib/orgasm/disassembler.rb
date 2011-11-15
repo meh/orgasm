@@ -103,9 +103,14 @@ class Disassembler < Piece
 			}
 
 			if decoded
-				result ||= []
-				result.push(Unknown.new(junk)) and junk = nil if junk
-				result.push(decoded) unless decoded.instance_of?(Orgasm::True)
+				if block_given?
+					yield(Unknown.new(junk)) and junk = nil if junk
+					yield(decoded) unless decoded.instance_of?(Orgasm::True)
+				else
+					result ||= []
+					result.push(Unknown.new(junk)) and junk = nil if junk
+					result.push(decoded) unless decoded.instance_of?(Orgasm::True)
+				end
 			end
 
 			break if options[:limit] && result && result.length >= options[:limit]
@@ -118,8 +123,12 @@ class Disassembler < Piece
 		end
 
 		if junk
-			result ||= []
-			result.push(Unknown.new(junk))
+			if block_given?
+				yield Unknown.new(junk)
+			else
+				result ||= []
+				result.push(Unknown.new(junk))
+			end
 		end
 
 		result

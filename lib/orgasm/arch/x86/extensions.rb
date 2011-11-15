@@ -378,6 +378,11 @@ class Data
 end
 
 class Prefixes < Array
+	Holes = [0xC1]
+
+	Lock   = [0xF0]
+	Repeat = [0xF2, 0xF3]
+
 	module Override
 		Segment = [0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65]
 		
@@ -390,8 +395,9 @@ class Prefixes < Array
 	REX = (0x40 .. 0x4F).to_a
 
 	For = {
-		32 => [Override::Segment, Override::Size::Operand, Override::Size::Address],
-		64 => [Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
+		16 => [Lock, Repeat, Override::Segment],
+		32 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address],
+		64 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
 	}
 
 	attr_reader :bits, :options
@@ -407,6 +413,42 @@ class Prefixes < Array
 		For[bits].any? {|check|
 			check.member?(value)
 		} && value
+	end
+
+	def lock? (check = nil)
+		if check
+			Lock.member?(check)
+		else
+			any? {|value|
+				Lock.member?(value)
+			}
+		end
+	end
+
+	def lock!
+		push Lock.first
+	end
+
+	def no_lock!
+		Lock.each { |n| delete n }
+	end
+
+	def repeat? (check = nil)
+		if check
+			Repeat.member?(check)
+		else
+			any? {|value|
+				Repeat.member?(value)
+			}
+		end
+	end
+
+	def repeat!
+		push Repeat.first
+	end
+
+	def no_repeat!
+		Repeat.each { |n| delete n }
 	end
 
 	def size (check = nil)

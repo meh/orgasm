@@ -75,11 +75,8 @@ class Decoder
 	end
 
 	def lookahead (amount)
-		start = @io.tell
-		data  = read(amount) rescue nil
-
-		@io.seek start
-
+		data = @io.read(amount)
+		@io.seek -data.length rescue nil
 		data
 	end
 
