@@ -17,21 +17,35 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-module C
-	require 'ffi/inliner'; extend FFI::Inliner
+require 'ffi/inliner'; extend FFI::Inliner
 
-	inline do |c|
-		# TODO: generate C lookup table
-		
-		c.include 'string.h'
+inline do |c|
+	c.include 'string.h'
 
-		# TODO: use lookup table to get index
-		c.function %{
-			long find_lookup_index (const char* buffer, size_t length) {
-				return 0;
-			}
+	c.raw %{
+		enum instruction_type_t { Normal, Splat };
+
+		struct instruction_t {
+			char bit;
+			char type;
+
+			short first;
+			short second;
+			short third;
+		};
+
+		struct instruction_t instructions[] = { #{
+			instructions.lookup.map {|instruction|
+
+			}.join "\n"
+		} };
+	}
+
+	c.function %{
+		long find_lookup_index (const char* buffer, size_t length) {
+			return 0;
 		}
-	end
+	}
 end
 
 decoder do
@@ -43,13 +57,13 @@ decoder do
 
 	data = lookahead(3) or return
 
-	instruction                  = instructions.lookup[C::find_lookup_index(data, data.length)]
+	instruction                  = instructions.lookup[find_lookup_index(data, data.length)]
 	name                         = instruction.name
 	description                  = instruction.description
 	opcodes                      = description.opcodes
 	destination, source, source2 = instruction.parameters
 
-	ap instruction
+	seek +description.length
 	next
 
 	if bits = X86::Instructions.register_code?(opcodes[-1])
