@@ -20,6 +20,8 @@
 require 'ffi/inliner'; extend FFI::Inliner
 
 inline do |c|
+	c.compiler.options = '-O3'
+
 	c.include 'string.h'
 
 	c.raw %{
@@ -34,7 +36,7 @@ inline do |c|
 			short third;
 		};
 
-		struct instruction_t instructions[] = { #{
+		static struct instruction_t instructions[] = { #{
 			instructions.lookup.map {|instruction|
 
 			}.join "\n"
@@ -49,13 +51,13 @@ inline do |c|
 end
 
 decoder do
-	prefixes = X86::Prefixes.new(16, options)
-
-	while prefix = prefixes.valid?(lookahead(1).to_byte)
+	prefixes.clear
+	
+	while prefix = prefixes.valid?((current = read(1)).to_byte)
 		prefixes << prefix and seek +1
 	end
 
-	data = lookahead(3) or return
+	data = (current << @io.read(3 - current.length) rescue nil) or return
 
 	instruction                  = instructions.lookup[find_lookup_index(data, data.length)]
 	name                         = instruction.name
@@ -63,7 +65,6 @@ decoder do
 	opcodes                      = description.opcodes
 	destination, source, source2 = instruction.parameters
 
-	seek +description.length
 	next
 
 	if bits = X86::Instructions.register_code?(opcodes[-1])
@@ -127,5 +128,14 @@ decoder do
 				end
 			}
 		}
-	end
+	end.tap {|i|
+		i.repeat! if prefixes.repeat?
+		i.lock!   if prefixes.lock?
+	}
 end
+
+decoder.instance_eval {
+	define_singleton_method :prefixes do
+		@prefixes ||= X86::Prefixes.new(16, options)
+	end
+}

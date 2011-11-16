@@ -395,9 +395,9 @@ class Prefixes < Array
 	REX = (0x40 .. 0x4F).to_a
 
 	For = {
-		16 => [Lock, Repeat, Override::Segment],
-		32 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address],
-		64 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
+		16 => [Holes, Lock, Repeat, Override::Segment],
+		32 => [Holes, Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address],
+		64 => [Holes, Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
 	}
 
 	attr_reader :bits, :options
@@ -407,6 +407,7 @@ class Prefixes < Array
 		@options = options
 	end
 
+	memoize
 	def valid? (value)
 		return false if bits == 64 && rex?
 
