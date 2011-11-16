@@ -116,7 +116,7 @@ X86::Instructions[X86::DSL.new(16) {
 	# Decrement by 1
 	DEC [r8|m8]   => [0xFE, ?1],
 	    [r16|m16] => [0xFF, ?1],
-	    [r16]     => [0x48, rw]
+	    [r16]     => [0x48, +rw]
 
 	# Unsigned Divide
 	DIV [r8|m8]   => [0xF6, ?6],
@@ -146,7 +146,7 @@ X86::Instructions[X86::DSL.new(16) {
 	# Increment by 1
 	INC [r8|m8]   => [0xFE, ?0],
 	    [r16|m16] => [0xFF, ?0],
-	    [r16]     => [0x40, rw]
+	    [r16]     => [0x40, +rw]
 
 	# Call to Interrupt Procedure
 	INT [imm8] => [0xCD, ib]
@@ -299,7 +299,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [moffs8,  al]      => [0xA2, cb],
 	    [moffs16, ax]      => [0xA3, cw],
 	    [r8,      imm8]    => [0xB0, rb, ib],
-	    [r16,     imm16]   => [0xB8, rw, iw],
+	    [r16,     imm16]   => [0xB8, +rw, iw],
 	    [r8|m8,   imm8]    => [0xC6, ?0, ib],
 	    [r16|m16, imm16]   => [0xC7, ?0, iw]
 
@@ -345,7 +345,7 @@ X86::Instructions[X86::DSL.new(16) {
 
 	# Pop a Value from the Stack
 	POP [m16] => [0x8F, ?0],
-	    [r16] => [0x58, rw],
+	    [r16] => [0x58, +rw],
 	    [ds]  => [0x1F],
 	    [es]  => [0x07],
 	    [ss]  => [0x17],
@@ -357,7 +357,7 @@ X86::Instructions[X86::DSL.new(16) {
 
 	# Push Word or Doubleword Onto the Stack
 	PUSH [r16|m16] => [0xFF, ?6],
-	     [r16]     => [0x50, rw],
+	     [r16]     => [0x50, +rw],
 	     [imm8]    => [0x6A, ib],
 	     [imm16]   => [0x68, iw],
 	     [cs]      => [0x0E],

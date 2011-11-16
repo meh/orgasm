@@ -25,27 +25,100 @@ inline do |c|
 	c.include 'string.h'
 
 	c.raw %{
+		#define REG(x) ((x & 0x38) >> 3)
+		#define PRESENT(x) (x != -1)
+
 		enum instruction_type_t { Normal, Splat };
 
-		struct instruction_t {
+		typedef struct instruction_t {
 			char bit;
 			char type;
 
-			short first;
-			short second;
-			short third;
-		};
+			short opcodes[2];
+			short modr;
+		} instruction_t;
 
-		static struct instruction_t instructions[] = { #{
-			instructions.lookup.map {|instruction|
+		static instruction_t instructions[] = { #{
+			instructions.lookup.map {|i|
+				bits = if i.parameters && i.parameters.destination
+					i.parameters.destination.bits
+				else
+					0
+				end
 
-			}.join "\n"
+				type = if i.definition[0].is_a?(Range)
+					'Splat'
+				else
+					'Normal'
+				end
+
+				first = if i.definition[0].is_a?(Integer) || i.definition[0].is_a?(Range)
+					i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
+				else
+					-1
+				end
+
+				second = if i.definition[1].is_a?(Integer)
+					i.definition[1]
+				else
+					-1
+				end
+
+				modr = if i.definition[2].is_a?(String)
+					i.definition[2].to_i
+				else
+					-1
+				end
+
+				"{ #{bits}, #{type}, { #{first}, #{second} }, #{modr} }"
+			}.join ", "
 		} };
+
+		static int instructions_length = sizeof(instructions) / sizeof(instructions[0]);
 	}
 
-	c.function %{
-		long find_lookup_index (const char* buffer, size_t length) {
-			return 0;
+	c.function %q{
+		int find_lookup_index (const char* buffer, size_t length) {
+			instruction_t* current = NULL;
+			int            i       = 0;
+
+			for (i = 0; i < instructions_length; i++) {
+				current = &instructions[i];
+
+				if (current->type == Splat) {
+					if (buffer[0] >= current->opcodes[0] && buffer[0] < (current->opcodes[0] + 8)) {
+						return i;
+					}
+				}
+				else {
+					if (buffer[0] == current->opcodes[0]) {
+						if (PRESENT(current->opcodes[1])) {
+							if (buffer[1] == current->opcodes[1]) {
+								if (PRESENT(current->modr)) {
+									if (REG(buffer[2])) {
+										return i;
+									}
+								}
+								else {
+									return i;
+								}
+							}
+						}
+						else {
+							if (PRESENT(current->modr)) {
+								if (REG(buffer[1])) {
+									return i;
+								}
+							}
+							else {
+								return i;
+							}
+						}
+					}
+				}
+			}
+
+			return -1;
 		}
 	}
 end
@@ -57,19 +130,26 @@ decoder do
 		prefixes << prefix and seek +1
 	end
 
-	data = (current << @io.read(3 - current.length) rescue nil) or return
+	begin
+		data    = current << @io.read(3 - current.length)
+		current = find_lookup_index(data, data.length)
 
-	instruction                  = instructions.lookup[find_lookup_index(data, data.length)]
+		return if current == -1
+	rescue
+		return
+	end
+
+	instruction                  = instructions.lookup[current]
 	name                         = instruction.name
-	description                  = instruction.description
-	opcodes                      = description.opcodes
+	definition                   = instruction.definition
+	opcodes                      = definition.opcodes
 	destination, source, source2 = instruction.parameters
 
 	next
 
 	if bits = X86::Instructions.register_code?(opcodes[-1])
 		X86::Instruction.new(name) {|i|
-			register = X86::Register.new(X86::Instructions.register(current - description[0].min, bits))
+			register = X86::Register.new(X86::Instructions.register(data[0].to_byte - definition[0].min, bits))
 
 			if !source
 				i.destination = register

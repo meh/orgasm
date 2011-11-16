@@ -96,13 +96,13 @@ class Instructions < Hash
 	end
 
 	def lookup!
-		klass  = Struct.new(:name, :description, :parameters)
+		klass  = Struct.new(:name, :definition, :parameters)
 		lookup = []
 
-		each {|name, description|
-			description.each {|description|
-				if description.is_a?(Hash)
-					description.each {|params, definition|
+		each {|name, definition|
+			definition.each {|definition|
+				if definition.is_a?(Hash)
+					definition.each {|params, definition|
 						params.extend Parameters
 
 						if X86::Instructions.register_code?(definition.last)
@@ -113,7 +113,7 @@ class Instructions < Hash
 						lookup << klass.new(name, definition, params)
 					}
 				else
-					lookup << klass.new(name, description, nil)
+					lookup << klass.new(name, definition, nil)
 				end
 			}
 		}
