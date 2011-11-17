@@ -25,9 +25,6 @@ inline do |c|
 	c.include 'string.h'
 
 	c.raw %{
-		#define REG(x) ((x & 0x38) >> 3)
-		#define PRESENT(x) (x != -1)
-
 		enum instruction_type_t { Normal, Splat };
 
 		typedef struct instruction_t {
@@ -46,28 +43,20 @@ inline do |c|
 					0
 				end
 
-				type = if i.definition[0].is_a?(Range)
-					'Splat'
-				else
-					'Normal'
-				end
+				type = i.definition[0].is_a?(Range) ? 'Splat' : 'Normal'
+
+				first, second, modr = -1, -1, -1
 
 				first = if i.definition[0].is_a?(Integer) || i.definition[0].is_a?(Range)
 					i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
-				else
-					-1
 				end
 
 				second = if i.definition[1].is_a?(Integer)
 					i.definition[1]
-				else
-					-1
 				end
 
 				modr = if i.definition[2].is_a?(String)
 					i.definition[2].to_i
-				else
-					-1
 				end
 
 				"{ #{bits}, #{type}, { #{first}, #{second} }, #{modr} }"
@@ -78,6 +67,9 @@ inline do |c|
 	}
 
 	c.function %q{
+		#define REG(x) ((x & 0x38) >> 3)
+		#define PRESENT(x) (x != -1)
+
 		int find_lookup_index (const char* buffer, size_t length) {
 			instruction_t* current = NULL;
 			int            i       = 0;
@@ -106,7 +98,7 @@ inline do |c|
 						}
 						else {
 							if (PRESENT(current->modr)) {
-								if (REG(buffer[1])) {
+								if (REG(buffer[1]) == current->modr) {
 									return i;
 								}
 							}
@@ -126,28 +118,32 @@ end
 decoder do
 	prefixes.clear
 	
-	while prefix = prefixes.valid?((current = read(1)).to_byte)
+	while prefix = prefixes.valid?((current = @io.read(1)).to_byte)
 		prefixes << prefix and seek +1
 	end
 
-	begin
-		data    = current << @io.read(3 - current.length)
-		current = find_lookup_index(data, data.length)
+	data = if current
+		current << (@io.read(2) || "")
+	else
+		@io.read(3)
+	end or return
 
-		return if current == -1
-	rescue
-		return
-	end
+	current = find_lookup_index(data, data.length)
+
+	return if current == -1
 
 	instruction                  = instructions.lookup[current]
 	name                         = instruction.name
 	definition                   = instruction.definition
 	opcodes                      = definition.opcodes
-	destination, source, source2 = instruction.parameters
+	parameters                   = instruction.parameters
+	destination, source, source2 = parameters
 
-	next
+	# TODO: get modr byte and seek back for eventual unused bytes
 
-	if bits = X86::Instructions.register_code?(opcodes[-1])
+	return
+
+	instruction = if bits = X86::Instructions.register_code?(opcodes[-1])
 		X86::Instruction.new(name) {|i|
 			register = X86::Register.new(X86::Instructions.register(data[0].to_byte - definition[0].min, bits))
 
@@ -161,15 +157,10 @@ decoder do
 				end
 			end
 		}
-	elsif !destination
+	elsif !destination || parameters.hint?
 		X86::Instruction.new(name)
 	else
-		next
-
-		modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
-
-		# return when the /n is wrong
-		return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
+		modr = X86::ModR.new(modr) if opcodes.first.is_a?(String) || opcodes.first == :r
 
 		# TODO: add register check for specific register opcodes
 
@@ -180,8 +171,6 @@ decoder do
 		}.compact.reverse
 
 		X86::Instruction.new(name) {|i|
-			next if params.hint?
-
 			{ destination: destination, source: source, source2: source2 }.each {|type, obj|
 				next unless obj
 
@@ -208,10 +197,12 @@ decoder do
 				end
 			}
 		}
-	end.tap {|i|
-		i.repeat! if prefixes.repeat?
-		i.lock!   if prefixes.lock?
-	}
+	end or return
+
+	instruction.repeat! if prefixes.repeat?
+	instruction.lock!   if prefixes.lock?
+
+	instruction
 end
 
 decoder.instance_eval {
