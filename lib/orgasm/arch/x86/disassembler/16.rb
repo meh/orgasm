@@ -117,21 +117,23 @@ inline do |c|
 end
 
 decoder do
-	prefixes.clear
-	
-	while prefix = prefixes.valid?((data = @io.read(1) or return).to_byte)
-		prefixes << prefix and seek +1
+	@instructions ||= instructions
+	@prefixes     ||= X86::Prefixes.new(16, options)
+
+	@prefixes.clear
+	while prefix = @prefixes.valid?((data = @io.read(1) or return).to_byte)
+		@prefixes << prefix and seek +1
 	end
 
 	if tmp = @io.read(2)
 		data << tmp
 	end
 
-	current = find_lookup_index(data, data.length)
+	current = disassembler.find_lookup_index(data, data.length)
 
 	return if current == -1
 
-	instruction                  = instructions.lookup[current]
+	instruction                  = @instructions.lookup[current]
 	name                         = instruction.name
 	definition                   = instruction.definition
 	opcodes                      = definition.opcodes
@@ -196,14 +198,8 @@ decoder do
 		}
 	end or return
 
-	instruction.repeat! if prefixes.repeat?
-	instruction.lock!   if prefixes.lock?
+	instruction.repeat! if @prefixes.repeat?
+	instruction.lock!   if @prefixes.lock?
 
 	instruction
-end
-
-class << decoder
-	def prefixes
-		@prefixes ||= X86::Prefixes.new(16, options)
-	end
 end

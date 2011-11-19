@@ -80,6 +80,10 @@ class Symbol
 		all_symbols[value] ||= super(value)
 	end
 
+	extend Forwardable
+
+	def_delegators :@value, :to_s, :to_sym, :hash
+
 	def initialize (value)
 		@value = value.to_sym
 	end
@@ -122,10 +126,6 @@ class Symbol
 		to_sym == value.to_sym rescue super
 	end; alias eql? ==
 
-	def hash
-		to_sym.hash
-	end
-
 	def =~ (value)
 		if value.is_a?(Integer)
 			bits == value or Instructions.register?(to_s) == value
@@ -139,14 +139,6 @@ class Symbol
 		{ b: 8, w: 16, d: 32, q: 64, o: 64 }[to_s[-1].to_sym] || to_s[/\d+$/].to_i
 	rescue
 		nil
-	end
-
-	def to_s
-		to_sym.to_s
-	end
-
-	def to_sym
-		@value
 	end
 end
 
