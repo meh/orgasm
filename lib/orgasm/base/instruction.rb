@@ -22,7 +22,7 @@ module Orgasm
 class Instruction < Base
 	attr_reader :name, :parameters
 
-	def initialize (name=nil, *parameters)
+	def initialize (name = nil, *parameters)
 		self.name   = name if name
 		@parameters = parameters.to_a.flatten.compact
 
@@ -37,9 +37,8 @@ class Instruction < Base
 		name == other.name && parameters == other.parameters
 	end; alias === ==
 
-
 	def inspect
-		"#<Instruction(#{name})#{": #{parameters.map { |p| p.inspect }.join(', ')}" unless parameters.empty?}>"
+		"#<Instruction(#{name})#{": #{parameters.map(&:inspect).join(', ')}" unless parameters.empty?}>"
 	end
 end
 

@@ -19,8 +19,9 @@
 
 require 'ffi/inliner'; extend FFI::Inliner
 
+# TODO: add register check for specific register opcodes
 inline do |c|
-	c.compiler.options = '-O3'
+	c.compiler.options = '-O3 -march=native -mtune=native'
 
 	c.include 'string.h'
 
@@ -55,8 +56,8 @@ inline do |c|
 					i.definition[1]
 				end
 
-				modr = if i.definition[2].is_a?(String)
-					i.definition[2].to_i
+				modr = if i.definition.modr?
+					i.definition.modr
 				end
 
 				"{ #{bits}, #{type}, { #{first}, #{second} }, #{modr} }"
@@ -118,15 +119,13 @@ end
 decoder do
 	prefixes.clear
 	
-	while prefix = prefixes.valid?((current = @io.read(1)).to_byte)
+	while prefix = prefixes.valid?((data = @io.read(1) or return).to_byte)
 		prefixes << prefix and seek +1
 	end
 
-	data = if current
-		current << (@io.read(2) || "")
-	else
-		@io.read(3)
-	end or return
+	if tmp = @io.read(2)
+		data << tmp
+	end
 
 	current = find_lookup_index(data, data.length)
 
@@ -136,12 +135,12 @@ decoder do
 	name                         = instruction.name
 	definition                   = instruction.definition
 	opcodes                      = definition.opcodes
+	modr                         = data[definition.known.length].to_byte if definition.modr?
 	parameters                   = instruction.parameters
 	destination, source, source2 = parameters
-
-	# TODO: get modr byte and seek back for eventual unused bytes
-
-	return
+	
+	# seek back for the unused data
+	seek -(data.length - definition.known.length + (modr ? 1 : 0))
 
 	instruction = if bits = X86::Instructions.register_code?(opcodes[-1])
 		X86::Instruction.new(name) {|i|
@@ -160,9 +159,7 @@ decoder do
 	elsif !destination || parameters.hint?
 		X86::Instruction.new(name)
 	else
-		modr = X86::ModR.new(modr) if opcodes.first.is_a?(String) || opcodes.first == :r
-
-		# TODO: add register check for specific register opcodes
+		modr = X86::ModR.new(modr) if modr
 
 		displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
@@ -205,8 +202,8 @@ decoder do
 	instruction
 end
 
-decoder.instance_eval {
-	define_singleton_method :prefixes do
+class << decoder
+	def prefixes
 		@prefixes ||= X86::Prefixes.new(16, options)
 	end
-}
+end

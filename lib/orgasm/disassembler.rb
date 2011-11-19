@@ -56,6 +56,8 @@ class Disassembler < Piece
 	end
 
 	def disassemble (io, options={})
+		return enum_for :disassemble, io, options unless block_given?
+
 		if !options[:extensions].is_a?(Array)
 			options[:extensions] = []
 		end
@@ -65,7 +67,6 @@ class Disassembler < Piece
 		end
 
 		options = @options.merge(options)
-
 
 		unless options[:exceptions] == false
 			options.each_key {|name|
@@ -86,7 +87,6 @@ class Disassembler < Piece
 		io = io.to_opcodes    if io.is_a?(Array)
 		io = StringIO.new(io) if io.is_a?(String)
 
-		result   = nil
 		junk     = nil
 		decoders = to_a(io, options)
 
@@ -103,14 +103,8 @@ class Disassembler < Piece
 			}
 
 			if decoded
-				if block_given?
-					yield(Unknown.new(junk)) and junk = nil if junk
-					yield(decoded) unless decoded.instance_of?(Orgasm::True)
-				else
-					result ||= []
-					result.push(Unknown.new(junk)) and junk = nil if junk
-					result.push(decoded) unless decoded.instance_of?(Orgasm::True)
-				end
+				yield(Unknown.new(junk)) and junk = nil if junk
+				yield(decoded) unless decoded.instance_of?(Orgasm::True)
 			end
 
 			break if options[:limit] && result && result.length >= options[:limit]
@@ -123,15 +117,8 @@ class Disassembler < Piece
 		end
 
 		if junk
-			if block_given?
-				yield Unknown.new(junk)
-			else
-				result ||= []
-				result.push(Unknown.new(junk))
-			end
+			yield Unknown.new(junk)
 		end
-
-		result
 	end; alias do disassemble
 
 	def decoder (&block)

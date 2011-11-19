@@ -79,17 +79,37 @@ class Instructions < Hash
 
 	def initialize (hash)
 		merge!(hash.respond_to?(:to_hash) ? hash.to_hash : hash)
-
 		@lookup = lookup!
-
 		freeze
 	end
 
 	def [] (name)
 		super(name.to_sym.upcase)
 	end
+	
+	module Definition
+		def self.extend (obj)
+			obj.extend self
+
+			obj.instance_eval {
+				@modr = (self[2] || self[1]).to_i if (self[2] || self[1]).is_a?(String)
+			}
+		end
+
+		def modr?
+			!!@modr
+		end
+
+		def modr
+			@modr
+		end
+	end
 
 	module Parameters
+		def self.extend (obj)
+			obj.extend self
+		end
+
 		def destination; self[0]; end
 		def source;      self[1]; end
 		def source2;     self[2]; end
@@ -103,16 +123,19 @@ class Instructions < Hash
 			definition.each {|definition|
 				if definition.is_a?(Hash)
 					definition.each {|params, definition|
-						params.extend Parameters
-
 						if X86::Instructions.register_code?(definition.last)
 							definition    = definition.clone
 							definition[0] = definition[0] ... (definition[0] + 8)
 						end
 
+						Parameters.extend params
+						Definition.extend definition
+
 						lookup << klass.new(name, definition, params)
 					}
 				else
+					Definition.extend definition
+
 					lookup << klass.new(name, definition, nil)
 				end
 			}
