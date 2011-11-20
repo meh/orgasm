@@ -89,7 +89,9 @@ class Decoder
 	end
 
 	def result (&block)
-		value = begin; instance_eval &block; rescue LocalJumpError; end or return
+		value = begin
+			instance_eval &block
+		rescue LocalJumpError; end or return
 
 		if Orgasm.object?(value)
 			throw :result, value

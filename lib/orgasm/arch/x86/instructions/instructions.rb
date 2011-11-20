@@ -92,16 +92,18 @@ class Instructions < Hash
 			obj.extend self
 
 			obj.instance_eval {
-				@modr = (self[2] || self[1]).to_i if (self[2] || self[1]).is_a?(String)
+				@modr = if self[2].is_a?(String)
+					self[2].to_i
+				elsif self[1].is_a?(String)
+					self[1].to_i
+				end
 			}
 		end
 
-		def modr?
-			!!@modr
-		end
+		attr_reader :modr
 
-		def modr
-			@modr
+		def modr?
+			opcodes.first == :r || modr
 		end
 	end
 

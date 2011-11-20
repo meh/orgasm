@@ -24,6 +24,7 @@ inline do |c|
 	c.compiler.options = '-O3 -march=native -mtune=native'
 
 	c.include 'string.h'
+	c.include 'stdio.h'
 
 	c.raw %{
 		enum instruction_type_t { Normal, Splat };
@@ -46,19 +47,9 @@ inline do |c|
 
 				type = i.definition[0].is_a?(Range) ? 'Splat' : 'Normal'
 
-				first, second, modr = -1, -1, -1
-
-				first = if i.definition[0].is_a?(Integer) || i.definition[0].is_a?(Range)
-					i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
-				end
-
-				second = if i.definition[1].is_a?(Integer)
-					i.definition[1]
-				end
-
-				modr = if i.definition.modr?
-					i.definition.modr
-				end
+				first  = i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
+				second = i.definition[1].is_a?(Integer) ? i.definition[1] : -1
+				modr   = i.definition.modr || -1
 
 				"{ #{bits}, #{type}, { #{first}, #{second} }, #{modr} }"
 			}.join ", "
@@ -71,7 +62,7 @@ inline do |c|
 		#define REG(x) ((x & 0x38) >> 3)
 		#define PRESENT(x) (x != -1)
 
-		int find_lookup_index (const char* buffer, size_t length) {
+		int find_lookup_index (const unsigned char* buffer, size_t length) {
 			instruction_t* current = NULL;
 			int            i       = 0;
 
@@ -86,9 +77,9 @@ inline do |c|
 				else {
 					if (buffer[0] == current->opcodes[0]) {
 						if (PRESENT(current->opcodes[1])) {
-							if (buffer[1] == current->opcodes[1]) {
-								if (PRESENT(current->modr)) {
-									if (REG(buffer[2])) {
+							if (length >= 2 && buffer[1] == current->opcodes[1]) {
+								if (PRESENT(current->modr) && length >= 3) {
+									if (length >= 3 && REG(buffer[2])) {
 										return i;
 									}
 								}
@@ -99,7 +90,7 @@ inline do |c|
 						}
 						else {
 							if (PRESENT(current->modr)) {
-								if (REG(buffer[1]) == current->modr) {
+								if (length >= 2 && REG(buffer[1]) == current->modr) {
 									return i;
 								}
 							}
@@ -122,7 +113,7 @@ decoder do
 
 	@prefixes.clear
 	while prefix = @prefixes.valid?((data = @io.read(1) or return).to_byte)
-		@prefixes << prefix and seek +1
+		@prefixes << prefix
 	end
 
 	if tmp = @io.read(2)
@@ -137,12 +128,12 @@ decoder do
 	name                         = instruction.name
 	definition                   = instruction.definition
 	opcodes                      = definition.opcodes
-	modr                         = data[definition.known.length].to_byte if definition.modr?
 	parameters                   = instruction.parameters
 	destination, source, source2 = parameters
-	
+	modr                         = data[definition.known.length].to_byte if definition.modr?
+
 	# seek back for the unused data
-	seek -(data.length - definition.known.length + (modr ? 1 : 0))
+	seek -(data.length - definition.known.length - (modr ? 1 : 0))
 
 	instruction = if bits = X86::Instructions.register_code?(opcodes[-1])
 		X86::Instruction.new(name) {|i|
@@ -165,8 +156,10 @@ decoder do
 
 		displacement = read(modr.displacement_size(16)).to_bytes(signed: true) if modr
 
-		immediates = 0.upto(1).map {
-			X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
+		immediates = opcodes.reverse.take_while {|o|
+			X86::Data.valid?(o)
+		}.map {|o|
+			X86::Data.new(self, o)
 		}.compact.reverse
 
 		X86::Instruction.new(name) {|i|
@@ -179,7 +172,7 @@ decoder do
 					immediate = immediates.shift
 
 					if obj =~ :imm
-						X86::Immediate.new(immediate.to_i, immediate.size)
+						X86::Immediate.new(immediate.to_i, immediate.size, immediate.signed?)
 					elsif obj =~ :rel
 						X86::Address.new(immediate.to_i, immediate.size, relative: true)
 					elsif obj =~ :moffs

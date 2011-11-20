@@ -22,12 +22,19 @@ module Orgasm
 class Constant < Base
 	attr_accessor :value, :size
 
-	def initialize (value=nil, size=nil)
-		@value = value.to_i if value
-		@size  = size.to_i  if size
+	def initialize (value = nil, size = nil, signed = false)
+		@value  = value.to_i if value
+		@size   = size.to_i  if size
+		@signed = signed
 
 		super()
 	end
+
+	def signed?;   @signed;  end
+	def unsigned?; !@signed; end
+
+	def signed!;   @signed = true;  end
+	def unsigned!; @signed = false; end
 
 	alias bits size
 
@@ -47,7 +54,7 @@ class Constant < Base
 		if @value.nil?
 			'#<Constant: NULL>'
 		else
-			"#<Constant: #{"0x%0#{size.bit * 2}X" % to_i}#{", #{size} bits" if size}>"
+			"#<Constant: #{to_i}#{", #{size} bits" if size}>"
 		end
 	end
 end

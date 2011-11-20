@@ -95,11 +95,11 @@ class Disassembler < Piece
 			decoded = nil
 
 			decoders.any? {|decoder|
-				decoded = Orgasm.object?(begin
+				decoded = begin
 					decoder.decode
 				rescue
 					raise unless options[:exceptions] == false
-				end) or io.seek(start) and nil
+				end or io.seek(start) and nil
 			}
 
 			if decoded

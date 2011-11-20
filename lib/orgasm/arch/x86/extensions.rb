@@ -95,15 +95,19 @@ class Symbol
 	}
 
 	def +@
-		@signed = true
-
-		self
+		clone.tap {|o|
+			o.instance_eval {
+				@signed = true
+			}
+		}
 	end
 
 	def -@
-		@signed = false
-
-		self
+		clone.tap {|o|
+			o.instance_eval {
+				@signed = false
+			}
+		}
 	end
 
 	def signed?
@@ -141,7 +145,6 @@ class Symbol
 		nil
 	end
 end
-
 
 class ModR
 	EffectiveAddress = {
@@ -353,16 +356,22 @@ class Data
 	Sizes = { ib: 1, iw: 2, id: 4, io: 8, cb: 1, cw: 2, cd: 4, cp: 6, co: 8, ct: 10 }
 
 	def self.valid? (value)
-		Sizes.key?(value.to_sym) rescue false
+		Sizes.key?(value.to_sym) && value
+	rescue
+		false
 	end
 
 	attr_reader :type, :size
 
 	def initialize (io, type)
-		@type  = type.to_sym.downcase
-		@size  = Sizes[@type].bytes or raise ArgumentError, "unknown type #{type}"
-		@value = io.read(size.bits).to_bytes(signed: type.signed?)
+		@type   = type.to_sym.downcase
+		@signed = type.signed?
+		@size   = Sizes[@type].bytes or raise ArgumentError, "unknown type #{type}"
+		@value  = io.read(size.bits).to_bytes(signed: signed?)
 	end
+
+	def signed?;    @signed; end
+	def unsigned?; !@signed; end
 
 	def to_i
 		@value
