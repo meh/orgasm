@@ -33,7 +33,6 @@ X86::Instructions[X86::DSL.new(16) {
 	AAS [0x3F]
 
 	# Add with Carry
-
 	ADC [al,      imm8]    => [0x14, ib],
 	    [ax,      imm16]   => [0x15, iw],
 	    [r8|m8,   imm8]    => [0x80, ?2, ib],
@@ -400,23 +399,6 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16|m16, cl]   => [0xD3, ?1],
 	    [r16|m16, imm8] => [0xC1, ?1, ib]
 
-	# Repeat String Operation Prefix
-	REP [0xF3, [0xA4]],
-	    [0xF3, [0xA5]],
-	    [0xF3, [0xAC]],
-	    [0xF3, [0xAA]],
-	    [0xF3, [0xAB]]
-
-	REPE [0xF3, [0xA6]],
-	     [0xF3, [0xA7]],
-	     [0xF3, [0xAE]],
-	     [0xF3, [0xAF]]
-
-	REPNE [0xF2, [0xA6]],
-	      [0xF2, [0xA7]],
-	      [0xF2, [0xAE]],
-	      [0xF2, [0xAF]]
-	
 	# Return From Procedure
 	RET [0xC3],
 	    [imm16] => [0xC2, iw]
