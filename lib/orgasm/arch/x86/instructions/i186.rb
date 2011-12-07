@@ -17,18 +17,11 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-X86::Instructions[X86::DSL.new(32) {
+X86::Instructions[X86::DSL.new(16) {
 	inherit 'orgasm/arch/x86/instructions/8086'
 
 	# Check Array Index Against Bounds
 	BOUND [r16, m16&16] => [0x62, r]
-
-	# Call Procedure
-	CALL [rel32]    => [0xE8, cd],
-	     [r32|m32]  => [0xFF, ?2],
-	     [ptr16^16] => [0x9A, cd],
-	     [ptr16^32] => [0x9A, cp],
-	     [m16^32]   => [0xFF, ?3]
 
 	# Make Stack Frame for Procedure Parameters
 	ENTER [imm16, imm8] => [0xC8, iw, ib]
@@ -39,10 +32,6 @@ X86::Instructions[X86::DSL.new(32) {
 
 	# High Level Procedure Exit
 	LEAVE hint(ax)  => [0xC9]
-
-	# Output to Port
-	OUT [imm8, eax] => [0xE7, ib],
-	    [dx,   eax] => [0xEF]
 
 	# Output String to Port
 	OUTS [dx, m8]  => [0x6E],

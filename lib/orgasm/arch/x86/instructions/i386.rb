@@ -44,7 +44,6 @@ X86::Instructions[X86::DSL.new(32) {
 	# Check Array Index Against Bounds
 	BOUND [r32, m32&32] => [0x62, r]
 
-
 	# Bit Scan Forward
 	BSF [r16, r16|m16] => [0x0F, 0xBC],
 	    [r32, r32|m32] => [0x0F, 0xBC]
@@ -70,6 +69,13 @@ X86::Instructions[X86::DSL.new(32) {
 	    [r32|m32, r32]  => [0x0F, 0xB3],
 	    [r16|m16, imm8] => [0x0F, 0xBA, ?6, ib],
 	    [r32|m32, imm8] => [0x0F, 0xBA, ?6, ib]
+
+	# Call Procedure
+	CALL [rel32]    => [0xE8, cd],
+	     [r32|m32]  => [0xFF, ?2],
+	     [ptr16^16] => [0x9A, cd],
+	     [ptr16^32] => [0x9A, cp],
+	     [m16^32]   => [0xFF, ?3]
 
 	# Conver Doubleword to Quadword
 	CDQ hint(eax) => [0x99]
@@ -260,6 +266,10 @@ X86::Instructions[X86::DSL.new(32) {
 	   [r32|m32, imm8]    => [0x83, ?1, +ib],
 	   [r32|m32, r32]     => [0x09, r],
 	   [r32,     r32|m32] => [0x0B, r]
+
+	# Output to Port
+	OUT [imm8, eax] => [0xE7, ib],
+	    [dx,   eax] => [0xEF]
 
 	# Output String to Port
 	OUTS [dx, m32] => [0x6F]

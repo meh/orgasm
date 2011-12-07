@@ -79,7 +79,9 @@ class Instructions < Hash
 
 	def initialize (hash)
 		merge!(hash.respond_to?(:to_hash) ? hash.to_hash : hash)
+
 		@lookup = lookup!
+
 		freeze
 	end
 
@@ -141,6 +143,23 @@ class Instructions < Hash
 					lookup << klass.new(name, definition, nil)
 				end
 			}
+		}
+
+		lookup.define_singleton_method :table do @table end
+		lookup.instance_variable_set :@table, lookup.map {|i|
+			bits = if i.parameters && i.parameters.destination
+				i.parameters.destination.bits
+			else
+				0
+			end
+
+			type = i.definition[0].is_a?(Range) ? :splat : :normal
+
+			first  = i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
+			second = i.definition[1].is_a?(Integer) ? i.definition[1] : -1
+			modr   = i.definition.modr || -1
+
+			Struct.new(:bits, :type, :opcodes, :modr).new(bits, type, [first, second], modr)
 		}
 
 		lookup

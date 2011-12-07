@@ -19,132 +19,219 @@
 
 options[:mode] = :protected
 
-return
+begin
+	require 'ffi/inliner'; extend FFI::Inliner
 
-# undocumented opcode holes, excluding the size prefixes
-on 0xC1 do
-	seek +1 and done
-end
+	# TODO: add register check for specific register opcodes
+	inline do |c|
+		c.compiler.options = '-O3 -march=native -mtune=native'
 
-always do
-	prefixes ||= X86::Prefixes.new(32, options)
+		c.include 'string.h'
 
-	while prefix = prefixes.valid?(lookahead(1).to_byte)
-		prefixes << prefix
+		c.raw %{
+			enum instruction_type_t { Normal, Splat };
 
-		seek +1
-	end
+			typedef struct instruction_t {
+				char bits;
+				char type;
 
-	after do
-		prefixes.clear
-	end
+				short opcodes[2];
+				short modr;
+			} instruction_t;
 
-	instructions.each {|name, description|
-		description.each {|description|
-			if description.is_a?(Hash)
-				description.each {|params, definition|
-					destination, source, source2 = params
+			static instruction_t instructions[] = { #{
+				instructions.lookup.table.map {|t|
+					"{ #{t.bits}, #{t.type.capitalize}, { #{t.opcodes.join ', '} }, #{t.modr} }"
+				}.join ", "
+			} };
 
-					if destination.bits == 16
-						next if options[:mode] == :real      && prefixes.operand?
-						next if options[:mode] == :protected && !prefixes.operand?
-					elsif destination.bits == 32
-						next if options[:mode] == :real      && !prefixes.operand?
-						next if options[:mode] == :protected && prefixes.operand?
-					end
+			static int instructions_length = sizeof(instructions) / sizeof(instructions[0]);
+		}
 
-					known = definition.reverse.drop_while {|x|
-						!x.is_a?(Integer)
-					}.reverse
+		c.function %q{
+			#define REG(x)     ((x & 0x38) >> 3)
+			#define PRESENT(x) (x != -1)
 
-					if bits = X86::Instructions.register_code?(definition.last)
-						0.upto 7 do |n|
-							on known do |whole, which|
-								seek which.length
+			int find_lookup_index (const unsigned char* buffer, size_t length, char bits) {
+				instruction_t* current = NULL;
+				int            i       = 0;
 
-								reg = X86::Register.new(X86::Instructions.register(n, bits))
+				for (i = 0; i < instructions_length; i++) {
+					current = &instructions[i];
 
-								X86::Instruction.new(name) {|i|
-									if !source
-										i.destination = reg
-									else
-										i.destination, i.source = if destination =~ :r
-											[reg, X86::Register.new(source)]
-										else
-											[X86::Register.new(destination), reg]
-										end
-									end
+					if (PRESENT(bits) && current->bits != bits) {
+						continue;
+					}
+
+					if (current->type == Splat) {
+						if (buffer[0] >= current->opcodes[0] && buffer[0] < (current->opcodes[0] + 8)) {
+							return i;
+						}
+					}
+					else {
+						if (buffer[0] == current->opcodes[0]) {
+							if (PRESENT(current->opcodes[1])) {
+								if (length >= 2 && buffer[1] == current->opcodes[1]) {
+									if (PRESENT(current->modr)) {
+										if (length >= 3 && REG(buffer[2])) {
+											return i;
+										}
+									}
+									else {
+										return i;
+									}
 								}
-							end
-
-							known[-1] += 1
-						end
-					end
-
-					on known do |whole, which|
-						opcodes = definition.clone
-						opcodes.slice! 0 ... known.length
-
-						seek which.length do
-							modr = X86::ModR.new(read(1).to_byte) if opcodes.first.is_a?(String) || opcodes.first == :r
-							sib  = X86::SIB.new(read(1).to_byte)  if modr && modr.sib? && !(options[:mode] == :protected && prefixes.size?)
-
-							# return when the /n is wrong
-							return if modr && opcodes.first.is_a?(String) && modr.opcode != opcodes.shift.to_i
-
-							# TODO: add register check for specific register opcodes
-							# TODO: add SIB memory thing
-
-							displacement = read(modr.displacement_size(prefixes.size)).to_bytes(signed: true) if modr
-
-							immediates = 0.upto(1).map {
-								X86::Data.new(self, opcodes.pop) if X86::Data.valid?(opcodes.last)
-							}.compact.reverse
-
-							X86::Instruction.new(name) {|i|
-								next if params.hint?
-
-								{ destination: destination, source: source, source2: source2 }.each {|type, obj|
-									next unless obj
-
-									i.send "#{type}=", if X86::Instructions.register?(obj)
-										X86::Register.new(obj)
-									elsif obj =~ :imm || obj =~ :rel || obj =~ :moffs
-										immediate = immediates.shift
-
-										if obj =~ :imm
-											X86::Immediate.new(immediate.to_i, immediate.size)
-										elsif obj =~ :rel
-											X86::Address.new(immediate.to_i, immediate.size, relative: true)
-										elsif obj =~ :moffs
-											X86::Address.new(immediate.to_i, immediate.size, offset: true)
-										end
-									elsif modr && !modr.register? && obj =~ :m
-										X86::Address.new(modr.effective_address(prefixes.size, displacement), obj.bits)
-									elsif obj =~ :r && opcodes.first == :r
-										X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
-									elsif obj =~ :r
-										X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
-									else
-										raise ArgumentError, "dont know what to do with #{obj} as #{type}"
-									end
-								}
-
-								prefixes.clear
 							}
+							else {
+								if (PRESENT(current->modr)) {
+									if (length >= 2 && REG(buffer[1]) == current->modr) {
+										return i;
+									}
+								}
+								else {
+									return i;
+								}
+							}
+						}
+					}
+				}
+
+				return -1;
+			}
+		}
+	end
+rescue Exception => e
+	warn 'could not inline C, performance will be poor'
+	warn e.message
+
+	def reg (x)
+		(x & 0x38) >> 3
+	end
+
+	def present? (x)
+		x != -1
+	end
+
+	def find_lookup_index (buffer, length, bits)
+		first, second, third = buffer.bytes.map &:ord
+
+		instructions.lookup.table.each_with_index {|current, index|
+			next if present(bits) && current.bits != bits
+				
+			if current.type == :splat
+				return index if buffer[0].ord >= current.opcodes[0] && first < (current.opcodes[0] + 8)
+			else
+				if first == current.opcodes[0]
+					if present?(current.opcodes[1])
+						if length >= 2 && second == current.opcodes[1]
+							if present?(current.modr)
+								return index if length >= 3 && reg(third) == current.modr
+							else
+								return index
+							end
+						end
+					else
+						if present?(current.modr)
+							return index if length >= 2 && reg(second) == current.modr
+						else
+							return index
 						end
 					end
-				}
-			else
-				description = description.clone
-				ahead       = description.last.is_a?(Array) ? description.pop : []
-
-				on description + ahead, ahead: ahead do |whole, which, data|
-					seek which.length - data[:ahead].length
-
-					X86::Instruction.new(name)
 				end
 			end
 		}
-	}
+
+		return -1
+	end
+end
+
+decoder do
+	@instructions ||= instructions
+	@prefixes     ||= X86::Prefixes.new(32, options)
+
+	@prefixes.clear
+	while prefix = @prefixes.valid?((data = @io.read(1) or return).to_byte)
+		@prefixes << prefix
+	end
+
+	if tmp = @io.read(2)
+		data << tmp
+	end
+
+	current = disassembler.find_lookup_index(data, data.length, @prefixes.operand? ? (options[:mode] == :protected ? 16 : 32) : -1)
+
+	return if current == -1
+
+	instruction                  = @instructions.lookup[current]
+	name                         = instruction.name
+	definition                   = instruction.definition
+	opcodes                      = definition.opcodes
+	parameters                   = instruction.parameters
+	destination, source, source2 = parameters
+	modr                         = data[definition.known.length].to_byte if definition.modr?
+
+	# seek back for the unused data
+	seek -(data.length - definition.known.length - (modr ? 1 : 0))
+
+	instruction = if bits = X86::Instructions.register_code?(opcodes[-1])
+		X86::Instruction.new(name) {|i|
+			register = X86::Register.new(X86::Instructions.register(data[0].to_byte - definition[0].min, bits))
+
+			if !source
+				i.destination = register
+			else
+				i.destination, i.source = if destination =~ :r
+					[register, X86::Register.new(source)]
+				else
+					[X86::Register.new(destination), register]
+				end
+			end
+		}
+	elsif !destination || parameters.hint?
+		X86::Instruction.new(name)
+	else
+		modr = X86::ModR.new(modr) if modr
+		sib  = X86::SIB.new(read(1).to_byte) if modr && modr.sib? && !(options[:mode] == :protected && @prefixes.size?)
+
+		displacement = read(modr.displacement_size(@prefixes.size)).to_bytes(signed: true) if modr
+
+		immediates = opcodes.reverse.take_while {|o|
+			X86::Data.valid?(o)
+		}.map {|o|
+			X86::Data.new(self, o)
+		}.compact.reverse
+
+		X86::Instruction.new(name) {|i|
+			{ destination: destination, source: source, source2: source2 }.each {|type, obj|
+				next unless obj
+
+				i.send "#{type}=", if X86::Instructions.register?(obj)
+					X86::Register.new(obj)
+				elsif obj =~ :imm || obj =~ :rel || obj =~ :moffs
+					immediate = immediates.shift
+
+					if obj =~ :imm
+						X86::Immediate.new(immediate.to_i, immediate.size)
+					elsif obj =~ :rel
+						X86::Address.new(immediate.to_i, immediate.size, relative: true)
+					elsif obj =~ :moffs
+						X86::Address.new(immediate.to_i, immediate.size, offset: true)
+					end
+				elsif modr && !modr.register? && obj =~ :m
+					X86::Address.new(modr.effective_address(@prefixes.size, displacement), obj.bits)
+				elsif obj =~ :r && opcodes.first == :r
+					X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
+				elsif obj =~ :r
+					X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
+				else
+					raise ArgumentError, "dont know what to do with #{obj} as #{type}"
+				end
+			}
+		}
+	end or return
+
+	instruction.repeat! if @prefixes.repeat?
+	instruction.lock!   if @prefixes.lock?
+
+	instruction
 end

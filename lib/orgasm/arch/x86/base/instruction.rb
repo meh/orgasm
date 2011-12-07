@@ -41,6 +41,10 @@ class Instruction < Orgasm::Instruction
 			parameters[index] = value
 		end
 	}
+
+	def inspect
+		"#<Instruction(#{'lock ' if lock?}#{'rep ' if repeat?}#{name})#{": #{parameters.map(&:inspect).join(', ')}" unless parameters.empty?}>"
+	end
 end
 
 end; end

@@ -99,7 +99,7 @@ X86::Instructions[X86::DSL.new(16) {
 	    [r16,     r16|m16] => [0x3B, r]
 
 	# Compare String Operands
-	CMPSB [0xA6]
+	CMPSB hint(al) => [0xA6]
 
 	CMPSW hint(ax) => [0xA7]
 
@@ -271,7 +271,7 @@ X86::Instructions[X86::DSL.new(16) {
 	LES [r16, m16] => [0xC4, r]
 
 	# Load String
-	LODSB [0xAC]
+	LODSB hint(al) => [0xAC]
 
 	LODSW hint(ax) => [0xAD]
 
@@ -453,9 +453,9 @@ X86::Instructions[X86::DSL.new(16) {
 	SCAS [m8]  => [0xAE],
 	     [m16] => [0xAF]
 
-	SCASB [0xAE]
+	SCASB hint(al) => [0xAE]
 
-	SCASW [0xAF]
+	SCASW hint(ax) => [0xAF]
 
 	# Set Carry Flag
 	STC [0xF9]

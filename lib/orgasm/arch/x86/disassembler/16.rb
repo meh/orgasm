@@ -17,69 +17,68 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'ffi/inliner'; extend FFI::Inliner
+begin
+	require 'ffi/inliner'; extend FFI::Inliner
 
-# TODO: add register check for specific register opcodes
-inline do |c|
-	c.compiler.options = '-O3 -march=native -mtune=native'
+	# TODO: add register check for specific register opcodes
+	inline do |c|
+		c.compiler.options = '-O3 -march=native -mtune=native'
 
-	c.include 'string.h'
-	c.include 'stdio.h'
+		c.include 'string.h'
 
-	c.raw %{
-		enum instruction_type_t { Normal, Splat };
+		c.raw %{
+			enum instruction_type_t { Normal, Splat };
 
-		typedef struct instruction_t {
-			char bit;
-			char type;
+			typedef struct instruction_t {
+				char bits;
+				char type;
 
-			short opcodes[2];
-			short modr;
-		} instruction_t;
+				short opcodes[2];
+				short modr;
+			} instruction_t;
 
-		static instruction_t instructions[] = { #{
-			instructions.lookup.map {|i|
-				bits = if i.parameters && i.parameters.destination
-					i.parameters.destination.bits
-				else
-					0
-				end
+			static instruction_t instructions[] = { #{
+				instructions.lookup.table.map {|t|
+					"{ #{t.bits}, #{t.type.capitalize}, { #{t.opcodes.join ', '} }, #{t.modr} }"
+				}.join ", "
+			} };
 
-				type = i.definition[0].is_a?(Range) ? 'Splat' : 'Normal'
+			static int instructions_length = sizeof(instructions) / sizeof(instructions[0]);
+		}
 
-				first  = i.definition[0].is_a?(Range) ? i.definition[0].min : i.definition[0]
-				second = i.definition[1].is_a?(Integer) ? i.definition[1] : -1
-				modr   = i.definition.modr || -1
+		c.function %q{
+			#define REG(x)     ((x & 0x38) >> 3)
+			#define PRESENT(x) (x != -1)
 
-				"{ #{bits}, #{type}, { #{first}, #{second} }, #{modr} }"
-			}.join ", "
-		} };
+			int find_lookup_index (const unsigned char* buffer, size_t length) {
+				instruction_t* current = NULL;
+				int            i       = 0;
 
-		static int instructions_length = sizeof(instructions) / sizeof(instructions[0]);
-	}
+				for (i = 0; i < instructions_length; i++) {
+					current = &instructions[i];
 
-	c.function %q{
-		#define REG(x) ((x & 0x38) >> 3)
-		#define PRESENT(x) (x != -1)
-
-		int find_lookup_index (const unsigned char* buffer, size_t length) {
-			instruction_t* current = NULL;
-			int            i       = 0;
-
-			for (i = 0; i < instructions_length; i++) {
-				current = &instructions[i];
-
-				if (current->type == Splat) {
-					if (buffer[0] >= current->opcodes[0] && buffer[0] < (current->opcodes[0] + 8)) {
-						return i;
+					if (current->type == Splat) {
+						if (buffer[0] >= current->opcodes[0] && buffer[0] < (current->opcodes[0] + 8)) {
+							return i;
+						}
 					}
-				}
-				else {
-					if (buffer[0] == current->opcodes[0]) {
-						if (PRESENT(current->opcodes[1])) {
-							if (length >= 2 && buffer[1] == current->opcodes[1]) {
-								if (PRESENT(current->modr) && length >= 3) {
-									if (length >= 3 && REG(buffer[2])) {
+					else {
+						if (buffer[0] == current->opcodes[0]) {
+							if (PRESENT(current->opcodes[1])) {
+								if (length >= 2 && buffer[1] == current->opcodes[1]) {
+									if (PRESENT(current->modr)) {
+										if (length >= 3 && REG(buffer[2])) {
+											return i;
+										}
+									}
+									else {
+										return i;
+									}
+								}
+							}
+							else {
+								if (PRESENT(current->modr)) {
+									if (length >= 2 && REG(buffer[1]) == current->modr) {
 										return i;
 									}
 								}
@@ -88,23 +87,54 @@ inline do |c|
 								}
 							}
 						}
-						else {
-							if (PRESENT(current->modr)) {
-								if (length >= 2 && REG(buffer[1]) == current->modr) {
-									return i;
-								}
-							}
-							else {
-								return i;
-							}
-						}
 					}
 				}
-			}
 
-			return -1;
+				return -1;
+			}
 		}
-	}
+	end
+rescue Exception => e
+	warn 'could not inline C, performance will be even worse'
+	warn e.message
+
+	def reg (x)
+		(x & 0x38) >> 3
+	end
+
+	def present? (x)
+		x != -1
+	end
+
+	def find_lookup_index (buffer, length)
+		first, second, third = buffer.bytes.map &:ord
+
+		instructions.lookup.table.each_with_index {|current, index|
+			if current.type == :splat
+				return index if buffer[0].ord >= current.opcodes[0] && first < (current.opcodes[0] + 8)
+			else
+				if first == current.opcodes[0]
+					if present?(current.opcodes[1])
+						if length >= 2 && second == current.opcodes[1]
+							if present?(current.modr)
+								return index if length >= 3 && reg(third) == current.modr
+							else
+								return index
+							end
+						end
+					else
+						if present?(current.modr)
+							return index if length >= 2 && reg(second) == current.modr
+						else
+							return index
+						end
+					end
+				end
+			end
+		}
+
+		return -1
+	end
 end
 
 decoder do

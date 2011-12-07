@@ -20,7 +20,7 @@
 require 'forwardable'
 require 'stringio'
 require 'refining'
-require 'memoized'
+require 'call-me/memoize'
 require 'packable'
 require 'retarded'
 
@@ -48,9 +48,7 @@ class Array
 	end
 
 	def to_opcodes
-		map {|b|
-			[b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil)
-		}.join
+		map { |b| [b.hex].pack(bytes: (b.hex.to_s(16).length / 2.0).ceil) }.join
 	end
 end
 

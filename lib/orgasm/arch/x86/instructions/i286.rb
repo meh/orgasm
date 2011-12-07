@@ -17,7 +17,7 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-X86::Instructions[X86::DSL.new(32) {
+X86::Instructions[X86::DSL.new(16) {
 	inherit 'orgasm/arch/x86/instructions/i186'
 
 	# Adjust RPL Field of Segment Selector
