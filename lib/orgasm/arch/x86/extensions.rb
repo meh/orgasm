@@ -379,7 +379,7 @@ class Data
 end
 
 class Prefixes < Array
-	Holes = [0xC1]
+	Holes = [0xC1, 0x66, 0x67]
 
 	Lock   = [0xF0]
 	Repeat = [0xF2, 0xF3]
@@ -396,9 +396,9 @@ class Prefixes < Array
 	REX = (0x40 .. 0x4F).to_a
 
 	For = {
-		16 => [Holes, Lock, Repeat, Override::Segment],
-		32 => [Holes, Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address],
-		64 => [Holes, Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, REX]
+		16 => [Lock, Repeat, Override::Segment, Holes],
+		32 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, Holes],
+		64 => [Lock, Repeat, Override::Segment, Override::Size::Operand, Override::Size::Address, REX, Holes]
 	}
 
 	attr_reader :bits, :options
@@ -412,18 +412,14 @@ class Prefixes < Array
 	def valid? (value)
 		return false if bits == 64 && rex?
 
-		For[bits].any? {|check|
-			check.member?(value)
-		} && value
+		value if For[bits].any? { |check| check.member?(value) }
 	end
 
 	def lock? (check = nil)
 		if check
 			Lock.member?(check)
 		else
-			any? {|value|
-				Lock.member?(value)
-			}
+			any? { |value| Lock.member?(value) }
 		end
 	end
 
@@ -439,9 +435,7 @@ class Prefixes < Array
 		if check
 			Repeat.member?(check)
 		else
-			any? {|value|
-				Repeat.member?(value)
-			}
+			any? { |value| Repeat.member?(value) }
 		end
 	end
 
@@ -461,9 +455,7 @@ class Prefixes < Array
 		if check
 			Override::Size::Operand.member?(check)
 		else
-			any? {|value|
-				Override::Size::Operand.member?(value)
-			}
+			any? { |value| Override::Size::Operand.member?(value) }
 		end
 	end
 
@@ -479,9 +471,7 @@ class Prefixes < Array
 		if check
 			Override::Size::Address.member?(check)
 		else
-			any? {|value|
-				Override::Size::Address.member?(value)
-			}
+			any? { |value| Override::Size::Address.member?(value) }
 		end
 	end
 
@@ -501,9 +491,7 @@ class Prefixes < Array
 		if check
 			REX.member?(check)
 		else
-			any? {|value|
-				REX.member?(value)
-			}
+			any? { |value| REX.member?(value) }
 		end
 	end
 

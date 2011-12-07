@@ -44,10 +44,14 @@ class Register < Base
 	end
 
 	def == (other)
+		return false unless other.is_a?(Register)
+
 		name == other.name && (size.nil? || other.size.nil? || size == other.size)
 	end
 
 	def === (other)
+		return false unless other.is_a?(Register)
+
 		name == other.name && size == other.size
 	end
 

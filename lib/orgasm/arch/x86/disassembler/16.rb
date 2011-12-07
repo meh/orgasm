@@ -208,11 +208,11 @@ decoder do
 					elsif obj =~ :moffs
 						X86::Address.new(immediate.to_i, immediate.size, offset: true)
 					end
-				elsif modr && !modr.register? && obj =~ :m
+				elsif modr && modr.memory? && obj =~ :m
 					X86::Address.new(modr.effective_address(16, displacement), obj.bits)
-				elsif obj =~ :r && opcodes.first == :r
+				elsif modr && obj =~ :r && opcodes.first == :r
 					X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
-				elsif obj =~ :r
+				elsif modr && obj =~ :r
 					X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
 				else
 					raise ArgumentError, "dont know what to do with #{obj} as #{type}"

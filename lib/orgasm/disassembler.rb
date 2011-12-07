@@ -103,8 +103,14 @@ class Disassembler < Piece
 			}
 
 			if decoded
-				yield(Unknown.new(junk)) and junk = nil if junk
-				yield(decoded) unless decoded.instance_of?(Orgasm::True)
+				if junk
+					yield Unknown.new(junk)
+					junk = nil
+				end
+
+				unless decoded.instance_of?(Orgasm::True)
+					yield decoded
+				end
 			end
 
 			break if options[:limit] && result && result.length >= options[:limit]

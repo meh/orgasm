@@ -59,7 +59,7 @@ begin
 				for (i = 0; i < instructions_length; i++) {
 					current = &instructions[i];
 
-					if (PRESENT(bits) && current->bits != bits) {
+					if (current->bits != 8 && PRESENT(bits) && current->bits != bits) {
 						continue;
 					}
 
@@ -116,7 +116,7 @@ rescue Exception => e
 		first, second, third = buffer.bytes.map &:ord
 
 		instructions.lookup.table.each_with_index {|current, index|
-			next if present(bits) && current.bits != bits
+			next if current.bits != 8 && present(bits) && current.bits != bits 
 				
 			if current.type == :splat
 				return index if buffer[0].ord >= current.opcodes[0] && first < (current.opcodes[0] + 8)
@@ -158,7 +158,13 @@ decoder do
 		data << tmp
 	end
 
-	current = disassembler.find_lookup_index(data, data.length, @prefixes.operand? ? (options[:mode] == :protected ? 16 : 32) : -1)
+	bits = if @prefixes.operand?
+		options[:mode] == :protected ? 16 : 32
+	else
+		options[:mode] == :protected ? 32 : 16
+	end
+
+	current = disassembler.find_lookup_index(data, data.length, bits)
 
 	return if current == -1
 
@@ -217,11 +223,11 @@ decoder do
 					elsif obj =~ :moffs
 						X86::Address.new(immediate.to_i, immediate.size, offset: true)
 					end
-				elsif modr && !modr.register? && obj =~ :m
+				elsif modr && modr.memory? && obj =~ :m
 					X86::Address.new(modr.effective_address(@prefixes.size, displacement), obj.bits)
-				elsif obj =~ :r && opcodes.first == :r
+				elsif modr && obj =~ :r && opcodes.first == :r
 					X86::Register.new(X86::Instructions.register(obj =~ :m ? modr.rm : modr.reg, obj.bits))
-				elsif obj =~ :r
+				elsif modr && obj =~ :r
 					X86::Register.new(X86::Instructions.register(modr.rm, obj.bits))
 				else
 					raise ArgumentError, "dont know what to do with #{obj} as #{type}"
