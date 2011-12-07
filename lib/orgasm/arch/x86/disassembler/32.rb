@@ -116,7 +116,7 @@ rescue Exception => e
 		first, second, third = buffer.bytes.map &:ord
 
 		instructions.lookup.table.each_with_index {|current, index|
-			next if current.bits != 8 && present(bits) && current.bits != bits 
+			next if current.bits != 8 && present?(bits) && current.bits != bits
 				
 			if current.type == :splat
 				return index if buffer[0].ord >= current.opcodes[0] && first < (current.opcodes[0] + 8)
