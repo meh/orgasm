@@ -21,9 +21,9 @@ module Orgasm
 
 class Assembler < Piece
 	def initialize (*)
-		@matchers = []
 		@inherits = []
 		@supports = []
+		@options  = {}
 
 		super
 	end
@@ -47,76 +47,83 @@ class Assembler < Piece
 		@inherits
 	end
 
+	def with (options)
+		clone.tap { |d| d.instance_eval {
+			@options = options
+		} }
+	end
+
 	def assemble (instructions, options={})
-		options = {
-			extensions: []
-		}.merge(options)
+		if !options[:extensions].nil?
+			options[:extensions] = [options[:extensions]].flatten.compact.uniq
+		end
 
-		options.each_key {|name|
-			next if %w(extensions).to_syms.member?(name)
+		if !options[:extensions].is_a?(Array)
+			options[:extensions] = []
+		end
 
-			unless supports?(name)
-				raise ArgumentError, "#{name} is an unsupported option"
-			end
-		}
+		if options[:extensions] && @options[:extensions]
+			options[:extensions].unshift(*@options[:extensions])
+		end
 
-		options[:extensions].clone.each {|name|
-			unless arch.extensions.all? { |extension| extension.name == extension && extension.assembler }
-				raise ArgumentError, "#{name} isn't supported by #{arch.name}"
-			end
-		}
+		options = @options.merge(options)
+
+		unless options[:exceptions] == false
+			options.each_key {|name|
+				next if %w(extensions).to_syms.member?(name)
+
+				unless options[:exceptions] == false || supports?(name)
+					raise ArgumentError, "#{name} is an unsupported option"
+				end
+			}
+
+			options[:extensions].each {|name|
+				unless arch.extensions.all? { |extension| extension.name.to_s.downcase == extension.to_s.downcase && extension.disassembler }
+					raise ArgumentError, "#{name} isn't supported by #{arch.name}"
+				end
+			}
+		end
 
 		instructions = [instructions] unless instructions.is_a?(Array)
+		encoders     = to_a(options)
 
 		String.new.tap {|result|
 			instructions.each {|instruction|
-				original = result.length
-
 				unless catch :skip do
-					([self] + @inherits).each {|assembler|
-						assembler.to_a.each {|matcher|
-							if matcher.match.(instruction) && (tmp = instance_exec(instruction, &matcher.block)).is_a?(String)
-								result << tmp
-
-								break
-							end
-						}
+					encoders.any? {|encoder|
+						if tmp = encoder.encode(instruction)
+							result << tmp
+						end
 					}
-					
-					nil
-				end or original != result.length
+				end or
 					raise NoMethodError, "#{instruction.inspect} couldn't be assembled"
 				end
 			}
 		}
 	end; alias do assemble
 
-	def label (&block)
-		on -> l { l.is_a?(Label) }, &block
+	def encoder (&block)
+		block ? @encoder = Encoder.new(self, &block) : @encoder
 	end
 
-	def instruction (&block)
-		on -> i { i.is_a?(Instruction) }, &block
-	end
+	def to_a (options)
+		result = []
 
-	def on (match, &block)
-		@matchers << Struct.new(:match, :block).new(match, block)
-	end
+		result << encoder.for(options)
 
-	def skip
-		throw :skip, true
-	end
+		(options[:extensions] || []).each {|name|
+			arch.extensions.select {|extension|
+				extension.name.to_s.downcase == name.to_s.downcase
+			}.each {|extension|
+				result.push(*extension.assembler.to_a(options))
+			}
+		}
 
-	def result? (&block)
-		catch :result, &block
-	end
+		@inherits.each {|inerhited|
+			result.push(*inherited.to_a(options))
+		}
 
-	def result! (what)
-		throw :result, what
-	end
-
-	def to_a
-		@matchers
+		result.flatten.compact.uniq
 	end
 
 	def | (value)
@@ -126,4 +133,5 @@ end
 
 end
 
+require 'orgasm/assembler/encoder'
 require 'orgasm/assembler/pipeline'

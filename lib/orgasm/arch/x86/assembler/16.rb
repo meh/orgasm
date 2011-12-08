@@ -17,50 +17,40 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-on -> i { i.parameters.length == 0 } do |i|
-	next unless opcodes = instructions[i.name]
+encoder do |instruction|
+	next unless opcodes = instructions[instruction.name]
 
-	result? do
+	if instruction.is_a?(Label)
+		skip
+	elsif instruction.parameters.length == 0
 		opcodes.each {|opcodes|
-			result! opcodes.map(&:chr).join if opcodes.is_a?(Array)
+			done opcodes.map(&:chr).join if opcodes.is_a?(Array)
 
 			opcodes.each {|description, opcodes|
-				result! opcodes.map(&:chr).join if description.hint?
+				done opcodes.map(&:chr).join if description.hint?
 			}
 		}
-	end
-end
+	else
+		next unless opcodes.is_a?(Hash)
 
-instruction do |i|
-	next unless opcodes = instructions[i.name]
+		opcodes.each {|description, opcodes|
+			next unless !description.hint? && description.length == i.parameters.length
 
-	result? do
-		opcodes.each {|opcodes|
-			next unless opcodes.is_a?(Hash)
+			bytecode = opcodes.reverse.drop_while {|x|
+				!x.is_a?(Integer)
+			}.reverse.map(&:chr).join
 
-			opcodes.each {|description, opcodes|
-				next unless !description.hint? && description.length == i.parameters.length
+			destination, source, source2 = description
 
-				bytecode = opcodes.reverse.drop_while {|x|
-					!x.is_a?(Integer)
-				}.reverse.map(&:chr).join
+			next if i.destination.is_a?(X86::Register) &&
+				destination !~ :r && i.destination !~ destination
 
-				destination, source, source2 = description
+			next if i.destination.is_a?(X86::Address) &&
+				destination !~ :m && destinatination !~ :rel && destination !~ :moffs
 
-				next if i.destination.is_a?(X86::Register) &&
-					destination !~ :r && i.destination !~ destination
+			if !source
 
-				next if i.destination.is_a?(X86::Address) &&
-					destination !~ :m && destinatination !~ :rel && destination !~ :moffs
-
-				if !source
-
-				end
-			}
+			end
 		}
 	end
-end
-
-label do |l|
-	skip
 end

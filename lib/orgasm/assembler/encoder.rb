@@ -19,18 +19,36 @@
 
 module Orgasm; class Assembler < Piece
 
-class Pipeline < Assembler
-	attr_reader :first, :second
+class Encoder
+	attr_reader :assembler, :options
 
-	def initialize (first, second)
-		super(first.arch)
-
-		@first  = first
-		@second = second
+	def initialize (assembler, &block)
+		@assembler = assembler
+		@block     = block
 	end
 
-	def to_a
-		(@first.to_a + @second.to_a).uniq
+	def method_missing (*args, &block)
+		@assembler.__send__ *args, &block
+	end
+
+	def for (options)
+		clone.tap { |e| e.instance_eval {
+			@options = options
+		} }
+	end
+
+	def encode (instruction)
+		catch :result do
+			instance_exec instruction, &@block
+		end
+	end
+
+	def done (value)
+		throw :result, value
+	end
+
+	def skip
+		throw :skip, true
 	end
 end
 
