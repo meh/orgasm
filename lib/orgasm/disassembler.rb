@@ -58,8 +58,8 @@ class Disassembler < Piece
 	def disassemble (io, options={})
 		return enum_for :disassemble, io, options unless block_given?
 
-		if !options[:extensions].is_a?(Array)
-			options[:extensions] = []
+		if !options[:extensions].nil?
+			options[:extensions] = [options[:extensions]].flatten.compact.uniq
 		end
 
 		if options[:extensions] && @options[:extensions]

@@ -34,9 +34,11 @@ begin
 		}
 
 		c.typedef 'enum { None, Real = 1, Protected = 2, Compatibility = 4, Long = 8 }', 'mode_t'
+
 		c.typedef 'enum { Normal, Splat }', 'instruction_type_t'
+
 		c.typedef %{
-			struct instruction_t {
+			struct {
 				char bits;
 				char type;
 				int  invalid_in_mode;

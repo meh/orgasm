@@ -26,16 +26,18 @@ begin
 
 		c.include 'string.h'
 
-		c.raw %{
-			enum instruction_type_t { Normal, Splat };
+		c.typedef 'enum { Normal, Splat }', 'instruction_type_t'
 
-			typedef struct instruction_t {
+		c.typedef %{
+			struct {
 				char type;
 
 				short opcodes[2];
 				short modr;
-			} instruction_t;
+			}
+		}, 'instruction_t'
 
+		c.raw %{
 			static instruction_t instructions[] = { #{
 				instructions.lookup.table.map {|t|
 					"{ #{t.type.capitalize}, { #{t.opcodes.join ', '} }, #{t.modr} }"
@@ -164,7 +166,7 @@ decoder do
 	# seek back for the unused data
 	seek -(data.length - definition.known.length - (modr ? 1 : 0))
 
-	if definition.member?(:i)
+	instruction = if definition.member?(:i)
 		X87::Instruction.new(name) {|i|
 			stack = X87::Stack.new(data[0].to_byte - definition[0].min)
 
@@ -190,4 +192,9 @@ decoder do
 			i.destination = X87::Address.new(modr.effective_address(@prefixes.size, displacement), destination.bits, destination.type)
 		}
 	end or return
+
+	instruction.repeat! if @prefixes.repeat?
+	instruction.lock!   if @prefixes.lock?
+
+	instruction
 end

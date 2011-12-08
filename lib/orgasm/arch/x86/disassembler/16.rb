@@ -26,17 +26,19 @@ begin
 
 		c.include 'string.h'
 
-		c.raw %{
-			enum instruction_type_t { Normal, Splat };
+		c.typedef 'enum { Normal, Splat }', 'instruction_type_t'
 
-			typedef struct instruction_t {
+		c.typedef %{
+			struct {
 				char bits;
 				char type;
 
 				short opcodes[2];
 				short modr;
-			} instruction_t;
+			}
+		}, 'instruction_t'
 
+		c.raw %{
 			static instruction_t instructions[] = { #{
 				instructions.lookup.table.map {|t|
 					"{ #{t.bits}, #{t.type.capitalize}, { #{t.opcodes.join ', '} }, #{t.modr} }"

@@ -17,19 +17,4 @@
 # along with orgasm. If not, see <http://www.gnu.org/licenses/>.
 #++
 
-require 'orgasm/arch/x86'
-
-require 'orgasm/arch/SIMD/extensions'
-require 'orgasm/arch/SIMD/base'
-require 'orgasm/arch/SIMD/instructions'
-
-Orgasm::Architecture.is 'SIMD' do
-	family 'x86' do
-		disassembler 'orgasm/disassembler/dummy'
-
-		extension 'MMX' do
-			instructions 'orgasm/arch/SIMD/instructions/x86/mmx'
-			disassembler 'orgasm/arch/SIMD/disassembler/x86'
-		end
-	end
-end
+decoder { }
