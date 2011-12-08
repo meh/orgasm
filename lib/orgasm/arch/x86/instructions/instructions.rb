@@ -159,7 +159,8 @@ class Instructions < Hash
 			second = i.definition[1].is_a?(Integer) ? i.definition[1] : -1
 			modr   = i.definition.modr || -1
 
-			Struct.new(:bits, :type, :opcodes, :modr).new(bits, type, [first, second], modr)
+			Struct.new(:bits, :type, :invalid_in_mode, :no_rex, :opcodes, :modr).new(
+				bits, type, i.definition.invalid_in_mode, (i.parameters.no_rex? rescue false), [first, second], modr)
 		}
 
 		lookup

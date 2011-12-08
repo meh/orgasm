@@ -202,16 +202,12 @@ class DSL
 		def rex!;     @rex = true;  end
 		def no_rex!;  @rex = false; end
 
-		def invalid? (what)
-			return false unless @invalid_if
-
-			@invalid_if.any? {|check|
-				what.instance_exec &check
-			}
+		def invalid_in_mode? (mode)
+			@invalid_in && @invalid_in.member?(mode)
 		end
 
-		def invalid_if (check)
-			(@invalid_if ||= []) << check
+		def invalid_in_mode (mode = nil)
+			mode ? (@invalid_in ||= []) << mode : @invalid_in
 		end
 	end
 
@@ -255,8 +251,8 @@ class DSL
 	end
 
 	class Invalid < self
-		def initialize (check, dsl, &block)
-			@check        = check
+		def initialize (mode, dsl, &block)
+			@mode         = mode
 			@bits         = dsl.bits
 			@instructions = dsl.instructions
 
@@ -270,18 +266,18 @@ class DSL
 				@instructions[id.to_sym.upcase].each {|description|
 					if description.is_a?(Hash)
 						description.each {|key, value|
-							value.invalid_if(@check) if key == arg || value == arg
+							value.invalid_in_mode(@mode) if key == arg || value == arg
 						}
 					else
-						description.invalid_if(@check) if description == arg
+						description.invalid_in_mode(@mode) if description == arg
 					end
 				}
 			}
 		end
 	end
 
-	def invalid_if (check, &block)
-		Invalid.new(check, self, &block)
+	def invalid_in_mode (mode, &block)
+		Invalid.new(mode, self, &block)
 	end
 end
 

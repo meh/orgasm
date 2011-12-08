@@ -164,7 +164,7 @@ decoder do
 		options[:mode] == :protected ? 32 : 16
 	end
 
-	current = disassembler.find_lookup_index(data, data.length, bits)
+	current = disassembler.find_lookup_index(data, data.length, bits || -1)
 
 	return if current == -1
 

@@ -20,7 +20,7 @@
 X86::Instructions[X86::DSL.new(64) {
 	inherit 'orgasm/arch/x86/instructions/i686'
 
-	invalid_if -> { options[:mode] == :long } do
+	invalid_in_mode :long do
 		AAA [0x37]
 
 		AAD [0xD5, 0x0A],
@@ -29,9 +29,9 @@ X86::Instructions[X86::DSL.new(64) {
 		PUSH [r32]
 	end
 
-	PUSH n(r64) => [0x50, +ro]
+	PUSH no_rex(r64) => [0x50, +ro]
 
-	POP n(r64) => [0x58, +ro]
+	POP no_rex(r64) => [0x58, +ro]
 
 	# Move
 	MOV [r64|m64, r64]     => [0x89, r],
