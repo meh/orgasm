@@ -62,6 +62,10 @@ class Disassembler < Piece
 			options[:extensions] = [options[:extensions]].flatten.compact.uniq
 		end
 
+		if !options[:extensions].is_a?(Array)
+			options[:extensions] = []
+		end
+
 		if options[:extensions] && @options[:extensions]
 			options[:extensions].unshift(*@options[:extensions])
 		end
