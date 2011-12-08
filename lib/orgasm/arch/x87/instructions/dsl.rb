@@ -83,6 +83,19 @@ class DSL
 		@instructions
 	end
 
+	module Piece
+		def self.extend (obj)
+			obj.extend self
+
+			obj.instance_eval {
+				@known   = reverse.drop_while { |x| !x.is_a?(Integer) }.reverse
+				@opcodes = self[known.length .. -1]
+			}
+		end
+
+		attr_reader :known, :opcodes
+	end
+
 	Symbols.each {|special|
 		define_method special do
 			Symbol.new(special)
@@ -91,6 +104,17 @@ class DSL
 
 	def method_missing (id, *args)
 		raise ArgumentError, "#{id} isn't supported" if args.empty?
+
+		args.each {|arg|
+			if arg.is_a?(Hash)
+				arg.each {|key, value|
+					Piece.extend(key)
+					Piece.extend(value)
+				}
+			else
+				Piece.extend(arg)
+			end
+		}
 
 		@instructions[id.to_sym.upcase].push(*args)
 	end
