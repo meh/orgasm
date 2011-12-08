@@ -95,3 +95,7 @@ true
 Assembler
 ---------
 The assembler takes in an array of Instruction objects and converts them to a stream of opcodes.
+
+Notes
+-----
+If you want better performances, install `ffi-inliner`.

@@ -18,8 +18,6 @@ Gem::Specification.new {|s|
 	s.add_dependency 'retarded'
 	s.add_dependency 'packable'
 
-	s.add_dependency 'ffi-inliner'
-
 	s.add_development_dependency 'rake'
 	s.add_development_dependency 'rspec'
 }
