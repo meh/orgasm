@@ -30,27 +30,25 @@ encoder do |instruction|
 				done opcodes.map(&:chr).join if description.hint?
 			}
 		}
-	else
-		next unless opcodes.is_a?(Hash)
+	elsif
+		opcodes.each {|opcodes|
+			next unless opcodes.is_a?(Hash)
 
-		opcodes.each {|description, opcodes|
-			next unless !description.hint? && description.length == i.parameters.length
+			opcodes.each {|description, opcodes|
+				next unless !description.hint? && description.length == i.parameters.length
 
-			bytecode = opcodes.reverse.drop_while {|x|
-				!x.is_a?(Integer)
-			}.reverse.map(&:chr).join
+				destination, source, source2 = description
 
-			destination, source, source2 = description
+				next if i.destination.is_a?(X86::Register) &&
+					destination !~ :r && i.destination !~ destination
 
-			next if i.destination.is_a?(X86::Register) &&
-				destination !~ :r && i.destination !~ destination
+				next if i.destination.is_a?(X86::Address) &&
+					destination !~ :m && destinatination !~ :rel && destination !~ :moffs
 
-			next if i.destination.is_a?(X86::Address) &&
-				destination !~ :m && destinatination !~ :rel && destination !~ :moffs
+				if !source
 
-			if !source
-
-			end
+				end
+			}
 		}
 	end
 end

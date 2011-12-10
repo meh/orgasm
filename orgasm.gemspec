@@ -15,7 +15,6 @@ Gem::Specification.new {|s|
 	s.require_paths = ['lib']
 
 	s.add_dependency 'call-me'
-	s.add_dependency 'retarded'
 	s.add_dependency 'packable'
 
 	s.add_development_dependency 'rake'

@@ -19,10 +19,8 @@
 
 require 'forwardable'
 require 'stringio'
-require 'refining'
 require 'call-me/memoize'
 require 'packable'
-require 'retarded'
 
 class String
 	alias to_byte ord

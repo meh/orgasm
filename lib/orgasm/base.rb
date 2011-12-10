@@ -27,14 +27,26 @@ class Base
 	end
 end
 
-class True < Base
+def self.object? (value)
+	(value && value.is_a?(Base)) ? value : false
+end
+
+class Returnable < Base
+	attr_accessor :at
+end
+
+def self.returnable? (value)
+	(value && value.is_a?(Returnable)) ? value : false
+end
+
+class True < Returnable
 	def self.new
 		@instance ||= super
 	end
 end
 
-def self.object? (value)
-	(value && value.is_a?(Base)) ? value : false
+def self.true? (value)
+	value.instance_of?(Orgasm::True)
 end
 
 end

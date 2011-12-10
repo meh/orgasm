@@ -93,7 +93,7 @@ class Decoder
 			instance_eval &block
 		rescue LocalJumpError; end or return
 
-		if Orgasm.object?(value)
+		if Orgasm.returnable?(value)
 			throw :result, value
 		end
 	end

@@ -19,7 +19,7 @@
 
 module Orgasm
 
-class Instruction < Base
+class Instruction < Returnable
 	attr_reader :name, :parameters
 
 	def initialize (name = nil, *parameters)
@@ -38,7 +38,7 @@ class Instruction < Base
 	end; alias === ==
 
 	def inspect
-		"#<Instruction(#{name})#{": #{parameters.map(&:inspect).join(', ')}" unless parameters.empty?}>"
+		"#<Instruction(#{"@#{at} " if at}#{name})#{": #{parameters.map(&:inspect).join(', ')}" unless parameters.empty?}>"
 	end
 end
 

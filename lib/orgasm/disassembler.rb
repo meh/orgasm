@@ -108,11 +108,14 @@ class Disassembler < Piece
 
 			if decoded
 				if junk
-					yield Unknown.new(junk)
+					yield Unknown.new(junk, start - junk.length)
+
 					junk = nil
 				end
 
-				unless decoded.instance_of?(Orgasm::True)
+				unless Orgasm.true?(decoded)
+					decoded.at = start
+
 					yield decoded
 				end
 			end
@@ -127,7 +130,7 @@ class Disassembler < Piece
 		end
 
 		if junk
-			yield Unknown.new(junk)
+			yield Unknown.new(junk, io.tell - junk.length)
 		end
 	end; alias do disassemble
 

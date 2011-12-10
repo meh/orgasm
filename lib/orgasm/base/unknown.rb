@@ -19,17 +19,18 @@
 
 module Orgasm
 
-class Unknown < Base
+class Unknown < Returnable
 	attr_accessor :data
 
-	def initialize (data=nil)
+	def initialize (data = nil, at = nil)
 		@data = data
+		@at   = at
 
 		super()
 	end
 
 	def inspect
-		"#<Unknown(#{data.length}): #{data.to_s.bytes.map {|x| '%02X' % x}.join(' ')}>"
+		"#<Unknown(#{"@#{at} " if at}#{data.length}): #{data.to_s.bytes.map {|x| '%02X' % x}.join(' ')}>"
 	end
 end
 
