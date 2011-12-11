@@ -21,12 +21,18 @@ module Orgasm; module X86
 
 class Symbol
 	class Operator
+		def self.inherited (klass)
+			klass.instance_eval { @operators = {} }
+		end
+
 		def self.all_operators
-			@operators ||= {}
+			@operators.values
 		end
 
 		def self.new (first, second)
-			all_operators[[first, second]] ||= super(first, second)
+			raise 'you cannot create an instance of a non specialized operator' unless @operators
+
+			@operators[[first, second]] ||= super(first, second)
 		end
 
 		attr_reader :first, :second
@@ -71,13 +77,15 @@ class Symbol
 			"#{first}:#{second}"
 		end
 	end
+
+	@symbols = {}
 	
 	def self.all_symbols
-		@symbols ||= {}
+		@symbols.values
 	end
 
 	def self.new (value)
-		all_symbols[value] ||= super(value)
+		@symbols[value] ||= super(value)
 	end
 
 	extend Forwardable
