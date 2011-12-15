@@ -32,15 +32,21 @@ class Generator < Piece
 		@dsl = nil
 	end
 
-	def generate (*args, &block)
+	def dsl
 		@dsl ||= Class.new(DSL).tap {|klass|
-			@methods.each { |name, block| klass.class_eval { define_method name, &block } }
+			@methods.each {|name, block|
+				klass.class_eval {
+					define_method name, &block
+				}
+			}
 		}
+	end
 
+	def generate (*args, &block)
 		if !block
-			@dsl.new(args.first)
+			dsl.new(args.first)
 		else
-			@dsl.new(*args, &block)
+			dsl.new(*args, &block)
 		end.execute(*to_a)
 	end; alias do generate
 
