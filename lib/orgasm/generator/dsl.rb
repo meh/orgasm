@@ -19,19 +19,29 @@
 
 module Orgasm; class Generator < Piece
 
-class DSL
+class DSL < BlankSlate
 	attr_reader :generators, :result
 
 	def initialize (*args, &block)
-		@block = block
-		@args  = args
+		if !block
+			@block = args.first
+		else
+			@block = block
+			@args  = args
+		end
 	end
 
 	def execute (*generators)
 		@generators = generators.flatten.compact
 		@result     = []
 
-		instance_exec *@args, &@block
+		if @block.is_a?(Proc)
+			instance_exec *@args, &@block
+		elsif @block.is_a?(IO)
+			instance_eval @block.read
+		else
+			instance_eval @block.to_s
+		end
 
 		@result
 	end
@@ -44,21 +54,22 @@ class DSL
 
 			begin
 				gen.instruction(id, *args).tap {|i|
-					raise ::NoMethodError if i.nil?
+					raise NoMethodError if i.nil?
+
+					exception = nil
 
 					@result.push(*[i].flatten.compact)
-					exception = nil
 				}
 
 				break
-			rescue ::NoMethodError => e
+			rescue NoMethodError => e
 				exception = e
 
 				next
 			end
 		}
 
-		::Kernel::raise exception if exception
+		raise exception if exception
 	end
 end
 

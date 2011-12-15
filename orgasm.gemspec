@@ -16,6 +16,7 @@ Gem::Specification.new {|s|
 
 	s.add_dependency 'call-me'
 	s.add_dependency 'packable'
+	s.add_dependency 'blankslate'
 
 	s.add_development_dependency 'rake'
 	s.add_development_dependency 'rspec'

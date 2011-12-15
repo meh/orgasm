@@ -21,6 +21,7 @@ require 'forwardable'
 require 'stringio'
 require 'call-me/memoize'
 require 'packable'
+require 'blankslate'
 
 class String
 	alias to_byte ord

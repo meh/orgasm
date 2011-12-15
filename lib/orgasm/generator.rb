@@ -31,11 +31,17 @@ class Generator < Piece
 	end
 
 	def generate (*args, &block)
-		DSL.new(*args, &block).tap {|dsl|
-			@methods.each {|name, block|
-				dsl.define_singleton_method name, &block
-			}
-		}.execute(*to_a)
+		dsl = if !block
+			DSL.new(args.first)
+		else
+			DSL.new(*args, &block)
+		end
+		
+		@methods.each {|name, block|
+			class << dsl; self; end.send :define_method, name, &block
+		}
+		
+		dsl.execute(*to_a)
 	end; alias do generate
 
 	def instruction (*args, &block)
