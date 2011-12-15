@@ -28,20 +28,20 @@ class Generator < Piece
 
 	def define_dsl_method (*names, &block)
 		names.each { |name| @methods[name] = block }
+
+		@dsl = nil
 	end
 
 	def generate (*args, &block)
-		dsl = if !block
-			DSL.new(args.first)
-		else
-			DSL.new(*args, &block)
-		end
-		
-		@methods.each {|name, block|
-			class << dsl; self; end.send :define_method, name, &block
+		@dsl ||= Class.new(DSL).tap {|klass|
+			@methods.each { |name, block| klass.class_eval { define_method name, &block } }
 		}
-		
-		dsl.execute(*to_a)
+
+		if !block
+			@dsl.new(args.first)
+		else
+			@dsl.new(*args, &block)
+		end.execute(*to_a)
 	end; alias do generate
 
 	def instruction (*args, &block)
