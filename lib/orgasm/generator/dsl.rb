@@ -19,8 +19,9 @@
 
 module Orgasm; class Generator < Piece
 
-class DSL < BlankSlate
+class DSL
 	attr_reader :generators, :result
+	attr_writer :before, :instruction
 
 	def initialize (*args, &block)
 		if !block
@@ -35,16 +36,56 @@ class DSL < BlankSlate
 		@generators = generators.flatten.compact
 		@result     = []
 
+		@result.define_singleton_method :symbols do
+			@symbols ||= {}
+		end
+
+		@result.define_singleton_method :labels do
+			@labels ||= {}
+		end
+
+		@generators.each { |gen| instance_exec @result, &gen.before }
+
 		if @block.is_a?(Proc)
 			instance_exec *@args, &@block
 		elsif @block.is_a?(IO)
-			instance_eval @block.read
+			instance_eval @block.read, @block.path
 		else
 			instance_eval @block.to_s
 		end
 
 		@result
 	end
+
+	def macros (*args, &block)
+		@macro_dsl ||= Class.new(BasicObject) {
+			def initialize (dsl, *args, &block)
+				@dsl = dsl
+
+				instance_exec *args, &block
+			end
+
+			def method_missing (id, *args, &block)
+				raise ArgumentError, "#{id} is already a method" if @dsl.respond_to?(id)
+
+				@dsl.define_singleton_method id do |*args|
+					instance_exec *args, &block
+				end
+			end
+		}
+		
+		@macro_dsl.new(self, *args, &block)
+	end
+
+	def label (name)
+		return @result.labels[name] if result.labels[name]
+
+		@result.push(@result.labels[name] = Label.new(name))
+	end; alias l label
+
+	def extern (name)
+		Extern.new(name)
+	end; alias e extern
 
 	def method_missing (id, *args, &block)
 		exception = nil
@@ -53,7 +94,7 @@ class DSL < BlankSlate
 			return gen.__send__ id, *args, &block if gen.respond_to?(id)
 
 			begin
-				gen.instruction(id, *args).tap {|i|
+				instance_exec(id, *args, &gen.instruction).tap {|i|
 					raise NoMethodError if i.nil?
 
 					exception = nil

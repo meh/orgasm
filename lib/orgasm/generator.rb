@@ -50,12 +50,12 @@ class Generator < Piece
 		end.execute(*to_a)
 	end; alias do generate
 
-	def instruction (*args, &block)
-		if block
-			@instruction = block
-		else
-			@instruction.(*args) if @instruction
-		end
+	def before (&block)
+		block ? @before = block : @before
+	end
+
+	def instruction (&block)
+		block ? @instruction = block : @instruction
 	end
 
 	def to_a

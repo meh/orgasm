@@ -18,7 +18,7 @@
 #++
 
 define_dsl_method :data do |*args, &block|
-	Class.new(BasicObject) {
+	@data_dsl ||= Class.new(BasicObject) {
 		def initialize (dsl, *args, &block)
 			@dsl = dsl
 			@dsl.result.define_singleton_method :data do
@@ -38,27 +38,13 @@ define_dsl_method :data do |*args, &block|
 		end
 
 		def method_missing (id, size)
-			@dsl.result.data[id] = ::Orgasm::X86::Address.new(0, find_size(size))
+			raise ArgumentError, "#{id} has already been defined" if @dsl.result.symbols[id]
+
+			@dsl.result.symbols[id] = @dsl.result.data[id] = ::Orgasm::X86::Address.new(0, find_size(size))
 		end
-	}.new(self, *args, &block)
-end
-
-define_dsl_method :macros do |*args, &block|
-	Class.new(BasicObject) {
-		def initialize (dsl, *args, &block)
-			@dsl = dsl
-
-			instance_exec *args, &block
-		end
-
-		def method_missing (id, *args, &block)
-			raise ArgumentError, "#{id} is already a method" if @dsl.respond_to?(id)
-
-			@dsl.define_singleton_method id do |*args|
-				instance_exec *args, &block
-			end
-		end
-	}.new(self, *args, &block)
+	}
+	
+	@data_dsl.new(self, *args, &block)
 end
 
 define_dsl_method :memory, :m do |value, size = nil|
@@ -69,27 +55,13 @@ define_dsl_method :memory, :m do |value, size = nil|
 	end
 end
 
-define_dsl_method :label, :l do |name|
-	result.define_singleton_method :labels do
-		@labels ||= {}
-	end unless result.respond_to? :labels
-
-	return result.labels[name] if result.labels[name]
-
-	result.push(result.labels[name] = Label.new(name))
-end
-
-define_dsl_method :extern, :e do |name|
-	Extern.new(name)
-end
-
 X86::Instructions::Registers.each {|bits, regs|
 	next unless bits.is_a?(Integer)
 
 	if bits <= 16
 		regs.each {|reg|
 			define_dsl_method reg do
-				reg
+				X86::Register.new(obj)
 			end
 		}
 	else
@@ -101,14 +73,20 @@ X86::Instructions::Registers.each {|bits, regs|
 	end
 }
 
+before do
+	result.define_singleton_method :data do
+		@data ||= {}
+	end
+end
+
 instruction do |name, destination = nil, source = nil, source2 = nil|
 	raise NoMethodError, "#{name} instruction not found" unless instructions[name]
 
 	data = { destination: destination, source: source, source2: source2 }
 	
-	data.each {|type, obj|
+	data.dup.each {|type, obj|
 		if obj.is_a?(::Symbol)
-			data[type] = X86::Register.new(obj)
+			data[type] = result.data[obj] || result.labels[obj] || Extern.new(obj)
 		end
 	}
 
