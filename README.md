@@ -65,18 +65,18 @@ true
 
      macros {
        inc_and_check {|what|
-         inc m(what)
-         cmp m(what), 23
+         inc what
+         cmp what, 23
        }
      }
 
      mov m(:lol), 0
 
      label :again
-     inc_and_check(:lol)
-     jnl l(:again)
+     inc_and_check :lol
+     jnl :again
 
-     call e(:exit)
+     call :exit
    }
 [
     [0] #<Instruction(mov): #<Address: 0x0, 16 bits>, 0>,
