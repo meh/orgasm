@@ -18,4 +18,3 @@
 #++
 
 require 'orgasm/architecture'
-require 'orgasm/format'
